@@ -1,0 +1,237 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background: rgb(255, 251, 251); */
+  font-family: "Poppins", sans-serif;
+    background: linear-gradient(
+    135deg,
+    #000060 0%,
+    #001a80 45%,
+    rgba(255, 255, 255, 0.18) 100%
+  );
+  position: relative;
+  /* background: url(../images/bg.jfif) no-repeat center center;
+  background-size: cover; */
+}
+.mainHeading {
+  display: flex;
+  flex-direction: row;
+  top: 30px;
+  left: 30px;
+  position: absolute;
+}
+.journal {
+  width: 40px;
+  height: 40px;
+  filter: invert(1);
+  display: block;
+  bottom: 18px;
+  transform: rotate(-10deg);
+}
+.htext {
+  /* top: 25px;
+  left: 30px; */
+  color: white;
+  font-size: 28px;
+  font-weight: 600;
+  /* position: absolute; */
+}
+.signupBox {
+  width: 380px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: #ffffff33;
+  color: white;
+  padding: 28px 24px;
+  border-radius: 20px;
+  border-top: 2px solid rgba(255, 255, 255, 0.25);
+  border-left: 2px solid rgba(255, 255, 255, 0.25);
+}
+.signupicon {
+  width: 50px;
+  height: 50px;
+  filter: invert(1);
+  display: block;
+  margin: 15px auto;
+}
+.textline {
+  font-size: 14px;
+  font-weight: 400;
+  align-self: center;
+  margin-bottom: 10px;
+}
+.userNameBox,
+.emailBox,
+.passwordBox {
+  width: 85%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 10px;
+}
+.userNameInput,
+.emailInput,
+.passwordInput {
+  width: 100%;
+  height: 50px;
+  font-size: 14px;
+  padding: 10px 15px;
+  margin: 6px;
+  border-radius: 10px;
+  background: #fbfeffed;
+  border: none;
+  transition: all ease 0.3s;
+  outline: none;
+  color: #000; 
+}
+.userNameInput::placeholder,
+.emailInput::placeholder,
+.passwordInput::placeholder {
+  color: #999;
+}
+.userNameInput:focus,
+.emailInput:focus,
+.passwordInput:focus {
+  border: 1px solid #2196f3;
+  box-shadow: 0px 1.5px 4.5px rgba(33, 150, 243, 0.35);
+}
+.small{
+font-size: 12px;
+font-weight: normal;
+color: #ff4d4f;
+display: block;
+align-self: flex-start;
+}
+.signupbtn {
+  width: 85%;
+  height: 50px;
+  padding: 10px;
+  margin-top: 15px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  background: linear-gradient(to right, #2196f3, #00008496);
+  color: white;
+  font-size: 20px;
+  font-weight: normal;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.signupbtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(33, 150, 243, 0.35);
+}
+.bottomtext {
+  font-size: 14px;
+  font-weight: 300;
+  margin-top: 0;
+}
+.bottomtext span {
+  display: inline-block;
+  text-decoration: underline;
+  color: #0000bbc8;
+  cursor: pointer;
+  font-weight: 500;
+  margin-left: 5px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+.bottomtext span:hover{
+  transform: scale(0.98);
+}
+.errBox{
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 260px;
+  height: auto;
+  padding: 12px 36px 12px 14px;
+  border: none;
+  border-left: 1px solid #000;
+  border-radius: 5px;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+  z-index: 9999;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease ;
+}
+.errBox.success{
+  color:#2a9d8f ;
+  border-left: 5px solid #2a9d8f;
+}
+.errBox.error{
+  color: red;
+    border-left: 5px solid #e63946;
+}
+.errBox.warning{
+    border-left: 3px solid #f4a261;
+}
+.errBox.info{
+    border-left: 3px solid #457b9d;
+}
+@keyframes slideIn{
+  from{
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to{
+  transform: translateX(0);
+  opacity: 1;
+  }
+}
+.closeBtn{
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  top: 12px;
+  right: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  /* margin: 10px; */
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.closeBtn:hover{
+  opacity: 1;
+  transform: scale(1.1);
+}
+.errBox.success .closeBtn{
+  border: 1px solid #2a9d8f;
+}
+
+.errBox.error .closeBtn{
+  border: 1px solid #e63946;
+}
+
+.errBox.warning .closeBtn{
+  border: 1px solid #f4a261;
+}
+
+.errBox.info .closeBtn{
+  border: 1px solid #457b9d;
+}
