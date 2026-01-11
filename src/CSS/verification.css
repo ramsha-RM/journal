@@ -65,7 +65,7 @@ body {
   margin-top: 10px;
   margin-bottom: 8px;
 }
-.verifiedicon {
+.verifiedicon, .pinicon {
   width: 30px;
   height: 30px;
   filter: invert(1);

@@ -102,7 +102,7 @@ body {
 .userNameInput::placeholder,
 .emailInput::placeholder,
 .passwordInput::placeholder {
-  color: #999;
+  color: #696969;
 }
 .userNameInput:focus,
 .emailInput:focus,

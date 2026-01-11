@@ -5,9 +5,9 @@ import '../CSS/verification.css'
 import journalImg from '../assets/journal.png'
 import VerifiedImg from '../assets/verified.png'
 
-  const Verification = () => {
+const Verification = () => {
 const [otp, setOtp] = useState('');
-  const [message, setMessage] = useState(null);
+const [message, setMessage] = useState(null);
 
 
   const handleSubmit = async (e) => {
@@ -21,7 +21,7 @@ if(!otp || otp.length < 6){
 }
     try{
       const res = await API.post('users/verify-account',{
-        email: email.trim().toLowerCase(),
+        // email: email.trim().toLowerCase(),
         otp: otp.trim(),
       });
 setMessage({type: "success", text: "Account verified successfuly!"});
@@ -50,40 +50,40 @@ if (error.response) {
   return (
     <div>
       <div className='mainHeading'>
-        <img src={journalImg} alt="journal" className='journal' />
-        <h2 className='htext'>DailyNotes</h2>
+      <img src={journalImg} alt="journal" className='journal' />
+      <h2 className='htext'>DailyNotes</h2>
       </div>
 
       <form onSubmit={handleSubmit} className='signupBox'>
-        <img src={VerifiedImg} alt="logo" className='verifiedicon' />
-        <p className='text'>Verify Account.</p>
+      <img src={VerifiedImg} alt="logo" className='verifiedicon' />
+      <p className='text'>Verify Account.</p>
 
-        <p className="destext">A 6-digit code has been sent 
-        to your email. Enter it below to verify your account</p>
+      <p className="destext">A 6-digit code has been sent 
+      to your email. Enter it below to verify your account</p>
 
-         <div className="otpBox">
+      <div className="otpBox">
     <input type="tel" 
-      maxlength="{1}" placeholder="" 
-      className="otp" autocomplete="one-time-code" />
+    maxlength={1} placeholder="" 
+    className="otp" autoComplete="one-time-code" />
     <input type="tel" 
-      maxlength="{1}" placeholder="" 
+      maxlength={1} placeholder="" 
       className="otp" />
     <input type="tel" 
-      maxlength="{1}" placeholder="" 
+      maxlength={1} placeholder="" 
       className="otp" />
     <input type="tel" 
-      maxlength="{1}" placeholder="" 
+      maxlength={1} placeholder="" 
       className="otp" />
     <input type="tel" 
-      maxlength="{1}" placeholder="" 
+      maxlength={1} placeholder="" 
       className="otp" />
     <input type="tel" 
-      maxlength="{1}" placeholder="" 
+      maxlength={1} placeholder="" 
       className="otp" />
        </div>
 
-<button type='submit' className="verify">Verify</button>
-        <p className="lastText"> Didn’t receive the code?
+  <button type='submit' className="verify">Verify</button>
+      <p className="lastText"> Didn’t receive the code?
               <span>Resend</span> </p>
 
         {message && (
