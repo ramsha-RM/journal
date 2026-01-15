@@ -1,49 +1,66 @@
-import React, {useState } from 'react'
+import React, {useRef, useState } from 'react'
 import API from './api'
 import '../CSS/verification.css'
-// import {useNavigate} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 import journalImg from '../assets/journal.png'
 import VerifiedImg from '../assets/verified.png'
 
 const Verification = () => {
-const [otp, setOtp] = useState('');
+const navigate = useNavigate(); 
+const [otp, setOtp] = useState(new Array(6).fill(""));
 const [message, setMessage] = useState(null);
+const inputs = useRef([]);
 
+const handleChange = (element, index) => {
+  if(!/^\d?$/.test(element .value)) return;
+
+  const newOtp = [...otp];
+  newOtp[index] = element.value;
+  setOtp(newOtp);
+  if(element.value && index < 5){
+    inputs.current[index + 1].focus();
+  }
+};
+const handleKeyDown = (e, index) => {
+  if(e.key === "Backspace"){
+    if(otp[index]){
+      const newOtp = [...otp]
+      newOtp[index] = "";
+      setOtp(newOtp);
+    }else if(index > 0){
+      inputs.current[index - 1].focus();
+    }
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setOtp('');
     setMessage(null);
 
-if(!otp || otp.length < 6){
+const otpString = otp.join("");
+const email = localStorage.getItem("pendingEmail");
+
+if(!email){
+  setMessage({type:"error", text:"Session expired. Please sign up again."});
+   return;
+}
+if(otpString.length !== 6){
     setMessage({type:"warning", text:"Please enter the 6-digit code!"});
     return;
 }
     try{
-      const res = await API.post('users/verify-account',{
-        // email: email.trim().toLowerCase(),
-        otp: otp.trim(),
+      const res = await API.post('auth/verify-account',{
+        email: email,
+        otp: otpString 
       });
 setMessage({type: "success", text: "Account verified successfuly!"});
 setTimeout(() => {
-//   navigate('../login');
-  window.location.href = '/login';
+  navigate('/login');
+  // window.location.href = '/login';
 }, 3000);
     }catch(error){
-if (error.response) {
-      const status = error.response.status;
-      if (status === 409) {
-        setMessage({type:"warning", text:"Email already exist!"});
-      } else if (status === 404) {
-        setMessage({type:"info",  text:"Invalid input. Please check your data!"});
-      } else {
-        setMessage({type:"error", text:"Something went wrong. Try again later!"});
-      }
-    } else if(error.request){
-       setMessage({type:"error", text:"Server not reachable. Please try later!"})
-    }else {
-      setMessage({type:"error", text:"Network error. Check your internet connection!"});
-    }
+setMessage({type: "error", text: error.response?.status === 400 ? "Invalid or expired OTP!" 
+: "Something went wrong. Try again!"})
 }
 };
  
@@ -62,38 +79,25 @@ if (error.response) {
       to your email. Enter it below to verify your account</p>
 
       <div className="otpBox">
-    <input type="tel" 
-    maxlength={1} placeholder="" 
-    className="otp" autoComplete="one-time-code" />
-    <input type="tel" 
-      maxlength={1} placeholder="" 
-      className="otp" />
-    <input type="tel" 
-      maxlength={1} placeholder="" 
-      className="otp" />
-    <input type="tel" 
-      maxlength={1} placeholder="" 
-      className="otp" />
-    <input type="tel" 
-      maxlength={1} placeholder="" 
-      className="otp" />
-    <input type="tel" 
-      maxlength={1} placeholder="" 
-      className="otp" />
+         {otp.map((value, index) => (
+          <input type="text" key={index} maxLength={1} ref={(el) => (inputs.current[index] = el)}
+          value={value} onChange={(e) => handleChange(e.target, index)}
+          onKeyDown={(e) => handleKeyDown(e, index)} className='otp' />
+         ))}
        </div>
 
-  <button type='submit' className="verify">Verify</button>
+  <button type='submit' className="verify" disabled={otp.join("").length !== 6}>Verify</button>
       <p className="lastText"> Didn’t receive the code?
               <span>Resend</span> </p>
-
+      </form>
         {message && (
-          <div className='errBox'>
+          <div className={`errBox ${message.type}`}>
             <span>{message.text}</span>
-       <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
+       <button type='button' className="closeBtn" onClick={() => setMessage(null)}>❌</button>
           </div>
         )
-}
-      </form>
+      }
+     
     </div>
   );
 };

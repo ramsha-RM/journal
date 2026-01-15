@@ -1,4 +1,5 @@
-@import "tailwindcss";
+
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -6,38 +7,42 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(
+    135deg,
+    #000060 0%,
+    #001a80 45%,
+    rgba(255, 255, 255, 0.18) 100%
+  );
+  position: relative;
 }
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.mainHeading {
+  display: flex;
+  flex-direction: row;
+  top: 30px;
+  left: 30px;
+  position: absolute;
 }
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.journal {
+  width: 40px;
+  height: 40px;
+  filter: invert(1);
+  display: block;
+  bottom: 18px;
+  transform: rotate(-10deg);
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+.htext {
+  color: white;
+  font-size: 28px;
+  font-weight: 600;
 }

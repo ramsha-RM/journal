@@ -1,12 +1,12 @@
 import React, {useState } from 'react'
 import API from './api'
 import '../CSS/signup.css'
-// import {useNavigate} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 import journalImg from '../assets/journal.png'
 import loginImg from '../assets/add-user.png'
 
   const Signup = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,6 +25,7 @@ import loginImg from '../assets/add-user.png'
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     let isValid = true;
+
     if(!name || name.length < 3){
       setnameError("Name must be atleast 3 characters!");
       isValid = false;
@@ -40,7 +41,8 @@ import loginImg from '../assets/add-user.png'
     setpasswordError("Password must be atleast 6 characters!");
     isValid = false;
     }
-if(!isValid) return;
+   if(!isValid)
+     return;
     try{
       const res = await API.post('auth/register',{
         name: name?.trim(),
@@ -49,8 +51,8 @@ if(!isValid) return;
       });
 setMessage({type: "success", text: "Account created successfully!"});
 setTimeout(() => {
-  // navigate('../verification');
-  window.location.href = '/verification';
+  navigate('/verification');
+  // window.location.href = '/verification';
 }, 3000);
     }catch(error){
 if (error.response) {
@@ -119,7 +121,7 @@ if (error.response) {
         <button type='submit' className='signupbtn'>Sign up</button>
 
         <p className="bottomtext">
-          Already have an account! <span>Login</span>
+          Already have an account! <span onClick={() => navigate('/login')}>Login</span>
         </p>
       </form>
 
@@ -134,4 +136,4 @@ if (error.response) {
 
 };
 
-export default Signup;
+export default Signup

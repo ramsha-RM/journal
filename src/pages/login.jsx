@@ -1,12 +1,12 @@
 import React, {useState } from 'react'
 import API from './api'
 import '../CSS/signup.css'
-// import {useNavigate} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 import journalImg from '../assets/journal.png'
 import loginImg from '../assets/add-user.png'
 
   const Login = () => {
-//   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setemailError] = useState('');
@@ -34,15 +34,17 @@ import loginImg from '../assets/add-user.png'
     isValid = false;
     }
 if(!isValid) return;
+
+
     try{
       const res = await API.post('auth/login',{
         email: email.trim().toLowerCase(),
         password: password.trim(),
       });
+
 setMessage({type: "success", text: "Login successful!"});
 setTimeout(() => {
-//   navigate('../dashboard');
-  window.location.href = '/dashboard';
+  navigate('/Createpin');
 }, 3000);
     }catch(error){
 if (error.response) {
@@ -101,8 +103,11 @@ if (error.response) {
 
         <button type='submit' className='signupbtn'>Login</button>
 
+        <span className="forgetPassword" onClick={() => navigate("../password/forgot-password")}>
+          Forgot password?</span>
+
         <p className="bottomtext">
-          Don't have an account! <span>Signup</span>
+          Don't have an account! <span onClick={() => navigate('/signup')}>Signup</span>
         </p>
       </form>
 

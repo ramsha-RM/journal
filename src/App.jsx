@@ -1,24 +1,27 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { useState } from 'react'
-import Signup  from './pages/signup'  
-import Verification from './pages/verification'
-import Login from './pages/login'
+import Signup  from './pages/Signup'  
+import Verification from './pages/Verification'
+import Login from './pages/Login'
 import Createpin  from './pages/Createpin'
 import Verifypin from './pages/Verifypin'
-import Dashboard from './pages/dashboard'
-// import './App.css'
+import Dashboard from './pages/Dashboard'
+import Changepassword from './password/Changepassword'
+import Forgotpassword from './password/Forgotpassword'
+import Resetpassword from './password/Resetpassword'
 
 function App() {
-  const [count, setCount] = useState(0)
-
+    
   return (
 <BrowserRouter>
     <Routes>
       <Route path="/" element = {<Signup />} />
+      <Route path="/verification" element = {<Verification />} />
       <Route path="/login" element = {<Login />} />
-      <Route path="/verify-account" element = {<Verification />} />
-      <Route path='/create-pin' element = {<Createpin />} />
-      <Route path='/verify-pin' element = {<Verifypin />} />
+      <Route path="/forgot-password" element={<Forgotpassword />} />
+      <Route path="/reset-password/:token" element={<Resetpassword />} />
+      <Route path='/Changepassword' element = {<Changepassword />} />
+      <Route path='/Createpin' element = {<Createpin />} />
+      <Route path='/Verifypin' element = {<Verifypin />} />
       <Route path='/dashboard' element = {<Dashboard />} />
       </Routes>
 </BrowserRouter>
