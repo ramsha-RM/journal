@@ -37,12 +37,13 @@ if(pinStr.length !== 4 || confirmStr.length !== 4){
 }
 if(pinStr !== confirmStr){
   setMessage({type:"error", text:"PINs do not match"})
+  return;
 }
 try {
-  const res = await API.post('pin/create',{  pin: pinStr })
+  const res = await API.post('/pin/create',{  pin: pinStr })
   setMessage({type:'success', text:'PIN created!'})
   setTimeout(() => {
-    navigate("/Verifypin")
+    navigate("/pin/verify")
   // window.location.href = './Verifypin'
 }, 1500);
 } catch (error) {
@@ -102,11 +103,11 @@ if(error.response){
         <p className="lastText">Forgot your PIN?
         <span onClick={() => navigate('/resetpin')}>Reset</span> </p>
             </form>
-        {message && (
-        <div className='errBox'>
-        <span>{message.text}</span>
-        <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-        </div>
+  {message && (
+  <div className={`errBox ${message.type}`}>
+    <span>{message.text}</span>
+    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
+  </div>
         )
       }           
   

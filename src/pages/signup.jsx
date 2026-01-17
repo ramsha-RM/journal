@@ -44,11 +44,12 @@ import loginImg from '../assets/add-user.png'
    if(!isValid)
      return;
     try{
-      const res = await API.post('auth/register',{
+      const res = await API.post('/auth/register',{
         name: name?.trim(),
         email: email.trim().toLowerCase(),
         passwordHash: password.trim(),
       });
+localStorage.setItem("pendingEmail", email.trim().toLowerCase());
 setMessage({type: "success", text: "Account created successfully!"});
 setTimeout(() => {
   navigate('/verification');
@@ -125,11 +126,11 @@ if (error.response) {
         </p>
       </form>
 
-      {message && (
-        <div className='errBox'>
-          <span>{message.text}</span>
-          <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-        </div>
+  {message && (
+  <div className={`errBox ${message.type}`}>
+    <span>{message.text}</span>
+    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
+  </div>
       )}
     </div>
   );

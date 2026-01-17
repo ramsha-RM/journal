@@ -37,14 +37,14 @@ if(!isValid) return;
 
 
     try{
-      const res = await API.post('auth/login',{
+      const res = await API.post('/auth/login',{
         email: email.trim().toLowerCase(),
         password: password.trim(),
       });
 
 setMessage({type: "success", text: "Login successful!"});
 setTimeout(() => {
-  navigate('/Createpin');
+  navigate('/pin/create');
 }, 3000);
     }catch(error){
 if (error.response) {
@@ -103,7 +103,7 @@ if (error.response) {
 
         <button type='submit' className='signupbtn'>Login</button>
 
-        <span className="forgetPassword" onClick={() => navigate("../password/forgot-password")}>
+        <span className="forgetPassword" onClick={() => navigate("/forgot-password")}>
           Forgot password?</span>
 
         <p className="bottomtext">
@@ -111,11 +111,11 @@ if (error.response) {
         </p>
       </form>
 
-      {message && (
-        <div className='errBox'>
-          <span>{message.text}</span>
-          <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-        </div>
+   {message && (
+  <div className={`errBox ${message.type}`}>
+    <span>{message.text}</span>
+    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
+  </div>
       )}
     </div>
   );

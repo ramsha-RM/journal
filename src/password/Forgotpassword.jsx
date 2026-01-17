@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import API from "../pages/api";
 import { useNavigate } from 'react-router-dom';
-import "../CSS/resetpassword.css"
+import "../CSS/resetPassword.css"
 import journalImg from '../assets/journal.png'
 
 const Forgotpassword = () => {
@@ -9,7 +9,8 @@ const Forgotpassword = () => {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState(null);
 
-    const handleForgot = async () => {
+    const handleForgot = async (e) => {
+     e.preventDefault()
       setMessage(null);
 
           if (!email) {
@@ -17,11 +18,13 @@ const Forgotpassword = () => {
       return;
     }
         try {
-            await API.post("auth/forgot-password", {  email });
-            setMessage({type:"success",  text:"Check your email for reset password."})
-            navigate("/reset-password");
+           const res = await API.post("/auth/forgot-password", {  email });
+            setMessage({type:"success",  text:"OTP sent to your email. Please check inbox."})
+            setTimeout(() => {
+            navigate("/password/reset", { state: { email } });
+          }, 1500);
         } catch (error) {
-            setMessage({type:"error", text:"Email not found"});
+            setMessage({type:"error", text: error.response?.data?.message || "Email not found"});
         }
     };
   return (
@@ -31,17 +34,20 @@ const Forgotpassword = () => {
         <h2 className='htext'>DailyNotes</h2>
       </div>
         <form onSubmit={handleForgot} className='resetForm'>
+
+           <p className='textline'>Enter your email for Set your password.</p>
         <input type="email" placeholder='Enter your email'  value={email} 
       onChange={(e) => setEmail(e.target.value)}/>
 
-      <button className='passwordbtn' onClick={handlePassword}>Send your link</button>
+      <button type="submit" className='passwordbtn'>Send your link</button>
+      <p className="bottomtext">Check your inbox after submitting!</p>
 </form>
-            {message && (
-        <div className={`message ${message.type}`}>
-          <span>{message.text}</span>
-          <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-        </div>
-      )}
+{message && (
+  <div className={`errBox ${message.type}`}>
+    <span>{message.text}</span>
+    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
+  </div>
+)}
     </div>
   )
 }

@@ -1,66 +1,60 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import API from '../pages/api'
-import "../CSS/resetpassword.css"
+import "../CSS/resetPassword.css"
 import journalImg from '../assets/journal.png'
 import { useSearchParams } from 'react-router-dom'
 
 const Resetpassword = () => {
+  const {state} = useLocation();
   const navigate = useNavigate();
-  const [params] = useSearchParams;
+  const [params] = useSearchParams();
   const token = params.get("token");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const [message, setMessage] = useState(null);
-
+  const email = state?.email;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
 
-    if(!password || password.length < 6) {
-      setMessage({type:"error", text:"Password must be atleast 6 characters!"})
-      return;
-    }
-    if(password !== confirmPassword){
-      setMessage ({type:"error", text:"Password do not matched!"});
+    if(!email || !newPassword || !otp) {
+      setMessage({type:"error", text:"All fields required!"})
       return;
     }
     try{
-      await API.post("auth/reset-password", {
-        token,
-        newPassword: password,
+      await API.post("/auth/reset-password", {
+        email,
+        otp,
+        newPassword
       })
       setMessage({type:"success", text:"Password reset successful! Login..."});
       setTimeout(() => navigate("/login"),
-       3000);
+       1500);
     }catch(error){
-      setMessage({type:"error", text:"Reset failed. Try again later!"})
+          setMessage({ type: "error", text: error.response?.data?.message || "Invalid OTP"});
     }
   };
   return (
     <div>
            <div className='mainHeading'>
-              <img src={journalImg} alt="journal" className='journal' />
-              <h2 className='htext'>DailyNotes</h2>
+            <img src={journalImg} alt="journal" className='journal' />
+            <h2 className='htext'>DailyNotes</h2>
             </div>
-          
-          <form onSubmit={handleSubmit} className="resetForm"></form>
-            <div className="container">
-              <h2>Reset your password</h2>
-              <form className="resetForm" onSubmit={handleSubmit}>
-                <input type="password" placeholder='New password' value={password} 
-                onChange={(e) => setPassword(e.target.value)} />
-                <input
-                  type="password"
-                  placeholder="Confirm password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
+        <div className="container">
+          <h2>Reset your password</h2>
+          <form className="resetForm" onSubmit={handleSubmit}>
+              <p className='textline'>Enter your password for change your password.</p>
+        <input type="text" placeholder="Enter OTP from email"
+        value={otp} onChange={(e) => setOtp(e.target.value)} />
+        <input type="password" placeholder='New password' value={newPassword} 
+      onChange={(e) => setNewPassword(e.target.value)} />
+       <button  className='passwordbtn'  type="submit">Reset Password</button>
 
-                <button className='passwordbtn' type='submit'>Reset Password</button>
-              </form>
-            </div>
-            {message && <div className={`message ${message.type}`}>{message.text}
+      <p className="bottomtext">Choose a strong password!</p>
+      </form>        
+        </div>
+        {message && <div className={`message ${message.type}`}>{message.text}
               <button type='button' className="closeBtn" onClick={() => setMessage(null)}>❌</button>
             </div>
             }

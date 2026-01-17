@@ -1,0 +1,259 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --blue-main: #000060;
+  --blue-light: #001a80;
+  --accent: #2196f3;
+  --glass: rgba(255, 255, 255, 0.2);
+  --text-soft: rgba(255, 255, 255, 0.65);
+}
+
+body {
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, var(--blue-main) 0%, var(--blue-light) 45%, rgba(255, 255, 255, 0.18) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mainHeading {
+  position: fixed;
+  top: 30px;
+  left: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.journal {
+  width: 40px;
+  height: 40px;
+  filter: invert(1);
+  transform: rotate(-10deg);
+}
+
+.htext {
+  color: white;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.verifyCard,
+.signupBox,
+.resetForm {
+  width: 380px;
+  max-width: 90%;
+  padding: 28px 24px;
+  border-radius: 20px;
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top: 2px solid rgba(255, 255, 255, 0.25);
+  border-left: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+.icon-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.verifiedicon,
+.pinicon,
+.signupicon {
+  width: 35px;
+  height: 35px;
+  filter: invert(1);
+}
+
+.text {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.destext,
+.textline,
+.lastText
+ {
+  font-size: 15px;
+  color: var(--text-soft);
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+.bottomtext{
+  font-size: 15px;
+  color: var(--text-soft);
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+.otpBox,
+.pinBox {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.otp,
+.pin {
+  width: 36px;
+  text-align: center;
+  font-size: 18px;
+  border: none;
+  border-bottom: 2px solid white;
+  background: transparent;
+  color: white;
+  outline: none;
+}
+
+.otp:focus,
+.pin:focus {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.userNameBox,
+.emailBox,
+.passwordBox,
+.resetForm input {
+  width:100%;
+  margin-bottom: 5px;
+}
+
+.userNameInput,
+.emailInput,
+.passwordInput,
+.resetForm input {
+  width: 100%;
+  height: 48px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  color: #000;
+}
+
+.userNameInput::placeholder,
+.emailInput::placeholder,
+.passwordInput::placeholder {
+  color: #696969;
+}
+
+.userNameInput:focus,
+.emailInput:focus,
+.passwordInput:focus,
+.resetForm input:focus {
+  border: 1px solid var(--accent);
+  box-shadow: 0 2px 6px rgba(33, 150, 243, 0.35);
+}
+
+.verify,
+.signupbtn,
+.passwordbtn {
+  width: 100%;
+  height: 50px;
+  margin-top: 15px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(to right, var(--accent), #00008496);
+  color: white;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.verify:hover,
+.signupbtn:hover,
+.passwordbtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(33, 150, 243, 0.35);
+}
+
+.signupbtn,
+.passwordbtn {
+  font-weight: normal;
+}
+
+.lastText span,
+.bottomtext span,
+.forgetPassword {
+  color: #0000bbc8;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.errBox {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 260px;
+  padding: 12px 36px 12px 14px;
+  background: white;
+  border-radius: 6px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease;
+  z-index: 9999;
+}
+
+.errBox.success {
+  color: #2a9d8f;
+  border-left: 5px solid #2a9d8f;
+}
+
+.errBox.error {
+  color: #e63946;
+  border-left: 5px solid #e63946;
+}
+
+.errBox.warning {
+  color: #f4a261;
+  border-left: 5px solid #f4a261;
+}
+
+.errBox.info {
+  color: #457b9d;
+  border-left: 5px solid #457b9d;
+}
+
+.closeBtn {
+  position: absolute;
+  right: 10px;
+  top: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.closeBtn:hover {
+  opacity: 1;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

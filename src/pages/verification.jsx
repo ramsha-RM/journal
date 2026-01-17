@@ -49,7 +49,7 @@ if(otpString.length !== 6){
     return;
 }
     try{
-      const res = await API.post('auth/verify-account',{
+      const res = await API.post('/auth/verify-account',{
         email: email,
         otp: otpString 
       });
@@ -90,11 +90,11 @@ setMessage({type: "error", text: error.response?.status === 400 ? "Invalid or ex
       <p className="lastText"> Didn’t receive the code?
               <span>Resend</span> </p>
       </form>
-        {message && (
-          <div className={`errBox ${message.type}`}>
-            <span>{message.text}</span>
-       <button type='button' className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-          </div>
+    {message && (
+  <div className={`errBox ${message.type}`}>
+    <span>{message.text}</span>
+    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
+  </div>
         )
       }
      

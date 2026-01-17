@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import API from '../pages/api';
-import "../CSS/resetpassword.css" 
+import "../CSS/resetPassword.css" 
 import journalImg from '../assets/journal.png'
 
 const Changepassword = () => {
@@ -29,7 +29,7 @@ const [message, setMessage] = useState(null);
       return;
     }
         try {
-            await API.post("auth/change-password", {  
+            await API.post("/auth/change-password", {  
               currentPassword,
               newPassword
          },
@@ -41,7 +41,7 @@ const [message, setMessage] = useState(null);
         );
             setMessage({type: "success", text: "Password changed successfully!" })
            setTimeout(() => {
-             navigate("../dashboard");
+             navigate("/dashboard");
            }, 2000);
         } catch (error) {
            if (error.response) {
@@ -67,12 +67,14 @@ const [message, setMessage] = useState(null);
         <h2 className='htext'>DailyNotes</h2>
       </div>
        <form className="resetForm" onSubmit={handlePassword}>
+        <p className='textline'>Enter your password for change your password.</p>
         <input type="password" placeholder='New Password'  value={newPassword} 
       onChange={(e) => setCurrentPassword(e.target.value)}/>
 
               <input type="password" placeholder='Confirm New Password' value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)} />
       <button className='passwordbtn' type='submit'>Change password</button>
+      <p className="bottomtext">Login with your new password!</p>
      </form>
             {message && (
         <div className={`message ${message.type}`}>

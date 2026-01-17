@@ -33,8 +33,8 @@ if(pinStr.length !== 4){
   return;
 }
 try {
-  const res = await API.post('pin/verify',{ pin: pinStr })
-  localStorage.setItem("verifyPin_token", res.data.token)
+  const res = await API.post('/pin/verify',{ pin: pinStr })
+  localStorage.setItem("createPin_token", res.data.token)
 
   setMessage({type:'success', text:'PIN verified!'})
   setTimeout(() => {
@@ -73,27 +73,29 @@ if(error.response){
         <div className="pinBox">
           {pin.map((v, i) => (
             <input key={i} value={v}
+            type='password'
+             inputMode="numeric"
+            autoComplete="one-time-code"
             ref={(el) => (inputs.current[i] = el)}
             maxLength={1}
             onChange={(e) => handleChange(e.target.value, i)}
+            onKeyDown={(e) => handleKeyDown(e, i)}
             className="pin" />
           ))}
         </div>
             
         <button disabled={pin.join("").length !== 4} type='submit' className="verify">Continue</button>
         <p className="lastText">Forgot your PIN?
-        <span>Reset</span> </p>
+        <span onClick={() => navigate("/createpin")} >Reset</span> </p>
         </form>
 
-        {message && (
-        <div className='errBox'>
-        <span>{message.text}</span>
-        <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-        </div>
-        )
-            }           
-         
-    </div>
+      {message && (
+  <div className={`errBox ${message.type}`}>
+    <span>{message.text}</span>
+    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
+  </div>
+        )}           
+         </div>
   )
 }
 
