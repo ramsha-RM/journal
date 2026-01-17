@@ -8,7 +8,7 @@ import VerifiedImg from '../assets/verified.png'
 const Verification = () => {
 const navigate = useNavigate(); 
 const [otp, setOtp] = useState(new Array(6).fill(""));
-const [message, setMessage] = useState(null);
+const [message, setMessagelz] = useState(null);
 const inputs = useRef([]);
 
 const handleChange = (element, index) => {
@@ -56,8 +56,7 @@ if(otpString.length !== 6){
 setMessage({type: "success", text: "Account verified successfuly!"});
 setTimeout(() => {
   navigate('/login');
-  // window.location.href = '/login';
-}, 3000);
+}, 2000);
     }catch(error){
 setMessage({type: "error", text: error.response?.status === 400 ? "Invalid or expired OTP!" 
 : "Something went wrong. Try again!"})
