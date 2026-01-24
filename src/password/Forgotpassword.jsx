@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import API from "../pages/api";
+import API from '../pages/axios';
 import { useNavigate } from 'react-router-dom';
 import "../CSS/resetPassword.css"
 import journalImg from '../assets/journal.png'

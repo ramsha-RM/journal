@@ -5,16 +5,16 @@ import journalImg from '../assets/journal.png'
 import logoutImg from '../assets/log-out.png'
 import profileImg from '../assets/profile.jpg'
 import { useEffect } from 'react'
+import API from '../pages/axios';
 import {
   createJournal,
   getAlljournals,
   getSinglejournal, 
   updateJournals, 
   deleteJournal, 
-  deleteMedia} from "./DashboardService"             
+  deleteMedia} from "./DashboardService"  
 
 const Dashboard = () => {
-
 const navigate = useNavigate();
 const [userName, setUserName] = useState('');
 const [alljournals, setAlljournals] = useState([])
@@ -22,18 +22,10 @@ const [viewJournals, setViewjournals] = useState(null)
 const [selectDate, setSelectDate] = useState('');
 const [journalText, setJournalText] = useState('');
 const [selectMoods, setSelectMoods] = useState(null);
-const [quoteText, setQuoteText] = useState('');
+const [selectFiles, setSelectFiles] = useState([]);
 const [message, setMessage] = useState(null); 
 const [editId, setEditId] = useState(null);
-
-
-useEffect(() => {
-  const storedUserName = localStorage.getItem('username');
-  if(storedUserName) 
-  setUserName(storedUserName);
-  handleGetAlljournals();
- }, [])
-
+       
 const moods = [
   {label: "happy", emoji: "😄" },
   {label: "sad", emoji: "😔" },
@@ -41,80 +33,134 @@ const moods = [
   {label: "tired", emoji: "😴" }
 ];
 
+useEffect(() => {
+  const dashboardinit = async () => {
+    try{
+      const token = localStorage.getItem('login_token');
+      if(!token){
+        navigate('/login');
+        return;
+      }
+    const storedUserName = localStorage.getItem('username');
+    if (storedUserName) setUserName(storedUserName);
+
+    const pinRef = await API.get('/pin/has-pin');
+    if(!pinRef.data.hasPin){
+      navigate('/pin/create');
+      return;
+    }
+    const pinVerified = localStorage.getItem('pin_verified')
+     if (pinVerified !== 'true') {
+        navigate('/pin/verify');
+        return;
+    }
+    await handleGetAlljournals();
+  }catch (err) {
+        console.error("Dashboard init failed", err);
+        navigate('/pin/create');
+      }};
+      dashboardinit();
+}, []);
+
+useEffect(() => {
+  if(message){
+    const timer = setTimeout(() => setMessage(null), 4000);
+    return () => clearTimeout(timer);
+  }}, [message]);
+
 const handleCreateJournal = async () => {
 if(!journalText.trim()){
   setMessage({type:"error", text:"Please write something!"});
   return;
 }
-const entry = {
-  date: selectDate || new Date().toISOString().split('T')[0],
-  text: journalText,
-  mood: selectMoods || 'neutral',
-  quote: quoteText
-} 
+
+const formData = new FormData();
+formData.append("journalDate", new Date(selectDate || Date.now()).toISOString());
+formData.append("content", journalText.trim());
+// selectFiles.forEach(file => { formData.append("media[]", file);});
 try {
     if(editId){
-    await updateJournals( editId, entry);
+    const updateJournal = await updateJournals(String(editId), formData);
+    setAlljournals(prev => {
+    const safePrev = Array.isArray(prev) ? prev : [];
+    return safePrev.map(j => (j.id === editId ? updateJournal : j));
+    });
     setMessage({type: "success", text:"Journals updated!"});
     setEditId(null);
     }else{
-  await createJournal(entry);
+  const newJournal = await createJournal(formData);
+  setAlljournals(prev =>  { 
+    const safePrev = Array.isArray(prev) ? prev : [];
+    return [newJournal, ...safePrev];
+    });
+
   setMessage({type: 'success', text:"Entery added successfully!"});
     }
+
     handleClear();
-    handleGetAlljournals();
 } catch (error) {
-  console.error(error);
-  setMessage({type:"error", text: error.response?.data?.error
-  ||  "Server error!"})
+  console.error('Journal creat/update error:', error.response?.data || error);
+  setMessage({type:"error", text: error.response?.data?.message 
+  ||  "Server error!",})
   }
-}
+};
+
 const handleGetAlljournals = async () => {
   try {
-    const data = await getAlljournals();
-     setAlljournals(data);
-    // console.log('All journals:', data);
+    const response = await getAlljournals();
+    const journalArray = Array.isArray(response) ? response : response.data || [];
+
+    const normalized = journalArray.map(journal => ({
+    ...journal,
+    id: String(journal.id),
+    journalDate: journal.journalDate || journal.journal_date,
+      media: Array.isArray(journal.media) ? journal.media : [],
+    }));
+
+    setAlljournals(normalized);
   } catch (error) {
-    console.error(error);  
+    console.error("Failed to fetch error:", error);    
+    setAlljournals([]) 
   }
 };
 
 const handleEditJournals = (journal) => {
   setEditId(journal.id);
-  setSelectDate(journal.date);
-  setJournalText(journal.text);
-  setQuoteText(journal.quote || '');
-  setSelectMoods(journal.mood);
-}
+  setSelectDate((journal.journal_date || journal.journalDate)?.split('T')[0] || "");
+  setJournalText(journal.content || '');
+  setSelectMoods(journal.mood || null);
+  setSelectFiles([]);
+};
 
-const handleViewjournal = async (id) => {
+const handleViewjournal = async (id) =>  {
   try {
     const data =  await getSinglejournal(id);
     setViewjournals(data);
   } catch (error) {
-    console.error(error);
+    console.error("View journal error:", error);
     setMessage({ type: "error", text: "Failed to load journal" });
   }
 };
 
-
 const handleDeleteJournal = async (id) => {
   try{
     await deleteJournal(id);
-    setMessage({type:"success", text:"Journal deleted!"});
-    handleGetAlljournals();
+    setAlljournals(prev => prev.filter(j => j.id !== id))
+    setMessage({type:"success", text:"Journal deleted!"});      
   }catch(error){
-    console.error(error);
+    console.error("Delete journal error:", error.response?.data || error.message);
+    const errorMsg = error.response?.data?.message || error.message || "Delete failed!";
+    setMessage({type:'error', text: errorMsg});
   }
 };
 
 const handleDeleteMedia = async (id) =>{
 try {
   await deleteMedia(id);
-  setMessage({type:"succes", text:"Media deleted"})
+  setMessage({type:"success", text:"Media deleted"})
   handleGetAlljournals();
 } catch (error) {
-  console.error(error);
+  console.error("Delete media error:", error);
   setMessage({ type: "error", text: "Failed to delete media" });
 }
 }
@@ -123,19 +169,19 @@ const handleClear = () => {
   setSelectDate('');
   setJournalText('');
   setSelectMoods(null);
-  setQuoteText('');
+  setSelectFiles([]);
   setMessage(null);
   setEditId(null);
 }
 const handleLogout = () => {
   localStorage.removeItem('username');
-  localStorage.removeItem('token');
+  localStorage.removeItem('login_token');
+  localStorage.removeItem('pin_verified');
  navigate('/login')
 }
-
   return (
     <div>
-        <aside className="logoHeading">
+      <aside className="logoHeading">
       <div className="logo">
         <div className="logosec">
           <img src={journalImg} alt="journal" className="journal" />
@@ -144,11 +190,11 @@ const handleLogout = () => {
         <p className="textline">Capture your day, live it fully</p>
       </div>
       <nav className="sidebar">
-        <a href="#" className="home">Home</a>
-        <a href="#" className="calender">Calender</a>
-        <a href="#" className="allentities">All Entities</a>
-        <a href="#" className="insights">Insights</a>
-        <a href="#" className="settings">Settings</a>
+        <a href="#" onClick={(e) => {e.preventDefault(); navigate('/dashboard')}} className="home">Home</a>
+        <a href="#" onClick={(e) => {e.preventDefault()}} className="calender">Calender</a>
+        <a href="#" onClick={(e) => {e.preventDefault()}} className="allentities">All Entities</a>
+        <a href="#" onClick={(e) => {e.preventDefault()}} className="insights">Insights</a>
+        <a href="#" onClick={(e) => {e.preventDefault(); navigate('/password/change')}} className="settings">Settings</a>
       </nav>
 
       <button className="logoutBox" onClick={handleLogout} style={{cursor:'pointer'}}>
@@ -156,17 +202,18 @@ const handleLogout = () => {
         <span className="logoutname">Logout</span>
       </button>
     </aside>
+
     <main className="main">
       <div className="topmain">
         <div className="profile">
           <img src={profileImg} alt="profile" className="profileimg" />
           <p className="username">{userName}</p>
-          {/* <input type="text" className="username" />UserName */}
         </div>
         <input type="date" className="date"
         value={selectDate}
         onChange={(e) => setSelectDate(e.target.value)} />
       </div>
+      <div className="journal-area">
       <textarea
         name="text"
         id="journaltext"
@@ -175,16 +222,39 @@ const handleLogout = () => {
         onChange={(e) => setJournalText(e.target.value)}
         placeholder="Write about your day... thoughts, feelings, moments ✨"
       ></textarea>
+        
+        <label htmlFor="mediaUpload" className="upload-btn attached">
+        📎Add videos & images </label>
+      <input type="file"  id="mediaUpload" className="mediafiles" multiple accept='image/*,video/*' 
+      onChange={(e) => setSelectFiles([...e.target.files])} />
+      </div>
+       {selectFiles.length > 0 && (
+      <div className="journal-media-row">
+      {selectFiles.map((file, idx) => {
+      const url = URL.createObjectURL(file);
+      const isVideo = file.type.startsWith('video/');
+        return (
+        <div key={idx} className="media-thumb" >
+          {isVideo ? (
+            <video src={url} muted controls/>
+          ) : (
+            <img src={url} alt="preview" /> 
+          )}
+        <button className="delete-media-btn" onClick={(e) => { e.stopPropagation(); 
+        setSelectFiles(prev => prev.filter((_, i) => i !==idx))}} >❌</button>
+        </div>
+        );})}
+      </div>
+       )}
 
       <div className="moods-time">
         <div className="feelings">
          {moods.map((mood) => (
-          <button className={`moods ${mood.label} ${selectMoods === mood.label ? 'selected' : ''}`}
-          key={mood.label}
-          onClick={() => setSelectMoods(mood.label)}>
-           <span className="emoji">{mood.emoji}</span>
-           <span className="label">{mood.label.charAt(0).
-           toUpperCase()+mood.label.slice(1)}</span>
+          <button key={mood.label} className={`moods ${selectMoods === mood.label ? "active" : ""}`}
+          onClick={() => setSelectMoods(mood.label)} >
+          <span className="emoji">{mood.emoji}</span>
+          <span className="label">{mood.label.charAt(0).
+          toUpperCase()+mood.label.slice(1)}</span>
           </button>
          ))
          }
@@ -212,32 +282,48 @@ const handleLogout = () => {
         </div>
       )}
 
-      <div className="journalList">
-        {alljournals.length === 0 && <p className='no-journal'>No journals yet.</p>}
-        {alljournals.map((journal) => (
-          <div key={journal.id} className="journal-card">
-            <div className="journal-header">
-              <span className="journal-date">{journal.date}</span>
-              <span className={`journal-mood ${journal.mood}`}>{journal.mood}</span>
-            </div>
-            <p className='journal-text'>{journal.text}</p>
-            {journal.quote && <p className='journal-quote'>{journal.quote}</p>}
-
-            {journal.media?.map((media) => (
-        <div key={media.id} className="media-box" >
-        <img src={media.url} alt="img" className="media-img" />
-        <button className="delete-media-btn"
-      onClick={() => handleDeleteMedia(media.id)}>❌</button>
+  <div className="journalList">
+    {Array.isArray(alljournals) && alljournals.map((journal) => (
+      <div key={journal.id} className="journal-card"
+      onClick={() => handleViewjournal(journal.id)}>
+        <div className="journal-header">
+          <span className="journal-date">{(journal.journal_date || journal.journalDate)?.split('T')[0]}</span>
+        </div>
+        <p className='journal-text'>{journal.content}</p>
+        {/* {journal.quote && <p className='journal-quote'>{journal.quote}</p>} */}
+      {Array.isArray(journal.media) && journal.media.length > 0 && (
+       <div className="journal-media-row">
+      {journal.media.slice(0, 3).map((media, idx) => {
+      const isVideo = /\.(mp4|webm|ogg)$/i.test(media.url);
+      return (
+        <div
+          key={media.id || idx}
+          className="media-thumb" onClick={(e) => { e.stopPropagation(); 
+          handleViewjournal(journal.id); }} >
+          {isVideo ? (
+            <video src={media.url} muted />
+          ) : (
+            <img src={media.url} alt="media" /> )}
+          <button className="delete-media-btn" onClick={(e) => { e.stopPropagation(); 
+          handleDeleteMedia(media.id); }} >❌</button>
+        </div>);}
+      )}
      </div>
-     ))}
-            <div className="journal-actions">
-              <button className="edit-btn" onClick={() => handleEditJournals(journal)}>Edit</button>
-              <button className="delete-btn" onClick={() => handleDeleteJournal(journal.id)}>Delete</button>
+       )}
+        <div className="journal-actions">
+              <button className="edit-btn" onClick={(e) => {e.stopPropagation(); handleEditJournals(journal)} }>Edit</button>
+              <button className="delete-btn" onClick={(e) => { e.stopPropagation(); handleDeleteJournal(journal.id)}}>Delete</button>
             </div>
           </div>
         ))}
-
       </div>
+ {viewJournals && (
+  <div className="journal-view-modal">
+    <button onClick={() => setViewjournals(null)}>Close</button>
+    <h3>{(viewJournals.journal_date || viewJournals.journalDate)?.split('T')[0]}</h3>
+    <p>{viewJournals.content}</p>
+  </div>
+)}
     </main>     
     </div>
   )

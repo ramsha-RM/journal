@@ -1,5 +1,5 @@
 import React, {useState } from 'react'
-import API from './api'
+import API from './axios'
 import '../CSS/signup.css'
 import {useNavigate} from 'react-router-dom'
 import journalImg from '../assets/journal.png'
@@ -14,7 +14,6 @@ import loginImg from '../assets/add-user.png'
   const [emailError, setemailError] = useState('');
   const [passwordError, setpasswordError] = useState('');
   const [message, setMessage] = useState(null);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,12 +48,11 @@ import loginImg from '../assets/add-user.png'
         email: email.trim().toLowerCase(),
         passwordHash: password.trim(),
       });
-localStorage.setItem("pendingEmail", email.trim().toLowerCase());
+localStorage.setItem('pendingEmail', email.trim().toLowerCase());
 setMessage({type: "success", text: "Account created successfully!"});
 setTimeout(() => {
   navigate('/verification');
-  // window.location.href = '/verification';
-}, 3000);
+}, 1500);
     }catch(error){
 if (error.response) {
       const status = error.response.status;
@@ -109,7 +107,7 @@ if (error.response) {
 
         <div className='passwordBox'>
           <input
-            type="passwordHash"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"

@@ -87,14 +87,14 @@ body {
 .textline,
 .lastText
  {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-soft);
   text-align: center;
   margin-bottom: 20px;
   line-height: 1.4;
 }
 .bottomtext{
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-soft);
   text-align: center;
   margin-top: 10px;

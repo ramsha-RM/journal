@@ -1,5 +1,5 @@
 import React, {useRef, useState } from 'react'
-import API from './api'
+import API from './axios'
 import '../CSS/verification.css'
 import {useNavigate} from 'react-router-dom'
 import journalImg from '../assets/journal.png'
@@ -8,7 +8,8 @@ import VerifiedImg from '../assets/verified.png'
 const Verification = () => {
 const navigate = useNavigate(); 
 const [otp, setOtp] = useState(new Array(6).fill(""));
-const [message, setMessagelz] = useState(null);
+const [message, setMessage] = useState(null);
+const [resendDisable, setResendDisable] = useState(false);
 const inputs = useRef([]);
 
 const handleChange = (element, index) => {
@@ -21,18 +22,28 @@ const handleChange = (element, index) => {
     inputs.current[index + 1].focus();
   }
 };
-const handleKeyDown = (e, index) => {
-  if(e.key === "Backspace"){
-    if(otp[index]){
-      const newOtp = [...otp]
-      newOtp[index] = "";
-      setOtp(newOtp);
-    }else if(index > 0){
-      inputs.current[index - 1].focus();
-    }
-  }
-};
+  const handleKeyDown = (e, index) => {
+    if(e.key === "Backspace") {
+    e.preventDefault();
 
+    const newOtp = [...otp];
+   newOtp[index] = "";
+    setOtp(newOtp);
+    }
+  };
+
+const handlePaste = (e) => {
+  e.preventDefault();
+
+  const pasteData = e.clipboardData
+  .getData("text").replace(/\D/g,"").slice(0, 6);
+  if(!pasteData) 
+    return;
+  const newOtp = pasteData.split("");
+  setOtp(newOtp);
+  inputs.current[newOtp.length - 1]?.focus();
+};
+      
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
@@ -57,11 +68,32 @@ setMessage({type: "success", text: "Account verified successfuly!"});
 setTimeout(() => {
   navigate('/login');
 }, 2000);
+
     }catch(error){
 setMessage({type: "error", text: error.response?.status === 400 ? "Invalid or expired OTP!" 
 : "Something went wrong. Try again!"})
 }
 };
+const handleReset = async () => {
+  if(resendDisable) return;
+  setResendDisable(true)
+const email = localStorage.getItem('pendingEmail');
+if(!email){
+  setMessage({type:'error', text:'Session expired. Please sign up again.'})
+  return;
+}
+try {
+  await API.post('/auth/resend-otp', {email})
+  setMessage({type:'success', text:'OTP resent successfully!'})
+  setOtp(new Array(6).fill(""))
+  inputs.current[0]?.focus();
+} catch (error) {
+  setMessage({type:'error', text:error.response?.data?.message || 'Failed to resend OTP!'})
+  }
+  setTimeout(() =>
+    setResendDisable(false), 3000);
+ };
+
  
   return (
     <div>
@@ -81,13 +113,15 @@ setMessage({type: "error", text: error.response?.status === 400 ? "Invalid or ex
          {otp.map((value, index) => (
           <input type="text" key={index} maxLength={1} ref={(el) => (inputs.current[index] = el)}
           value={value} onChange={(e) => handleChange(e.target, index)}
-          onKeyDown={(e) => handleKeyDown(e, index)} className='otp' />
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste} className='otp' />
          ))}
        </div>
 
   <button type='submit' className="verify" disabled={otp.join("").length !== 6}>Verify</button>
       <p className="lastText"> Didn’t receive the code?
-              <span>Resend</span> </p>
+              <span onClick={handleReset} 
+          style={{cursor: resendDisable ? 'not-allowed' : 'pointer',  opacity: resendDisable ? 0.6 : 1}}>Resend</span> </p>
       </form>
     {message && (
   <div className={`errBox ${message.type}`}>

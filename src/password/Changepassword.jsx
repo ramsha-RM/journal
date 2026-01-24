@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import API from '../pages/api';
+import API from '../pages/axios';
 import "../CSS/resetPassword.css" 
 import journalImg from '../assets/journal.png'
 
@@ -35,7 +35,7 @@ const [message, setMessage] = useState(null);
          },
           {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("login_token")}`
+            Authorization: `Bearer ${localStorage.getItem(import.meta.env.VITE_LOGIN_TOKEN_KEY)}`
           }
          }
         );
@@ -68,8 +68,12 @@ const [message, setMessage] = useState(null);
       </div>
        <form className="resetForm" onSubmit={handlePassword}>
         <p className='textline'>Enter your password for change your password.</p>
-        <input type="password" placeholder='New Password'  value={newPassword} 
+
+        <input type="password" placeholder='Current Password'  value={currentPassword} 
       onChange={(e) => setCurrentPassword(e.target.value)}/>
+
+        <input type="password" placeholder='New Password'  value={newPassword} 
+      onChange={(e) => setNewPassword(e.target.value)}/>
 
               <input type="password" placeholder='Confirm New Password' value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)} />

@@ -1,5 +1,5 @@
-import React, {useState } from 'react'
-import API from './api'
+import React, {useState, useEffect } from 'react'
+import API from './axios'
 import '../CSS/signup.css'
 import {useNavigate} from 'react-router-dom'
 import journalImg from '../assets/journal.png'
@@ -13,6 +13,14 @@ import loginImg from '../assets/add-user.png'
   const [passwordError, setpasswordError] = useState('');
   const [message, setMessage] = useState(null);
 
+    useEffect(() => {
+      const authMsg = localStorage.getItem("AUTH_ERROR_MESSAGE");
+      if(authMsg) {
+        setMessage({type:'error', text: authMsg});
+        localStorage.removeItem("AUTH_ERROR_MESSAGE")
+      }
+    }, []);
+    
   const handleSubmit = async (e) => {
     e.preventDefault();
     setemailError('');
@@ -35,24 +43,39 @@ import loginImg from '../assets/add-user.png'
     }
 if(!isValid) return;
 
-
     try{
       const res = await API.post('/auth/login',{
         email: email.trim().toLowerCase(),
         password: password.trim(),
       });
+console.log("Token stored:", res.data.token); // For debugging
+navigate("/dashboard"); 
 
-setMessage({type: "success", text: "Login successful!"});
-setTimeout(() => {
+const loginToken = res.data.token;
+if (!loginToken) {
+  throw new Error("Login token missing");
+}
+localStorage.setItem("login_token", loginToken);
+localStorage.setItem( "username", res.data.user?.name || res.data.user?.email );
+
+let hasPin = false;
+try{
+  const pinRes = await API.get('/pin/has-pin');
+  hasPin = pinRes.data.hasPin;
+}catch(err){
+  console.warn("PIN check failed!", err)
+}
+if(hasPin){
+  navigate('/pin/verify');
+}else{
   navigate('/pin/create');
-}, 3000);
+}
     }catch(error){
+      console.error(error);
 if (error.response) {
       const status = error.response.status;
       if (status === 400) {
         setMessage({type:"warning", text:"Invalid input data!"});
-      } else if (status === 401) {
-        setMessage({type:"error",  text:"Invalid email or password!"});
       }else if(status === 404){
       setMessage({type:"info", text:"User not found"})
     }else if(status === 500){
@@ -103,11 +126,11 @@ if (error.response) {
 
         <button type='submit' className='signupbtn'>Login</button>
 
-        <span className="forgetPassword" onClick={() => navigate("/forgot-password")}>
+        <span className="forgetPassword" onClick={() => navigate("/password/forgot")}>
           Forgot password?</span>
 
         <p className="bottomtext">
-          Don't have an account! <span onClick={() => navigate('/signup')}>Signup</span>
+          Don't have an account! <span onClick={() => navigate('/')}>Signup</span>
         </p>
       </form>
 

@@ -1,60 +1,40 @@
-import API from '../pages/api'
+import API from '../pages/axios'
 
-export const createJournal = async (entry) => {
-try {
-  const res = await API.post('journals', entry);
+export const createJournal = async (data) => {
+  const res = await API.post('/journals', data);
   return res.data;
-} catch (error) {
-  console.error("Create journal error",error);
-  throw error;
-  }
 };
 
-export const getAlljournals = async (page = 1, limit = 5) => {
-  try{
-    const res = await API.get(`/journals?page=${page}&limit=${limit}`);
-    return res.data;
-  }catch(error){
-    console.error("Get all journals error", error);
-    throw error;
-  }
+export const getAlljournals = async () => {
+  const res = await API.get('/journals');
+  return res.data;
 };
 
 export const getSinglejournal = async (id) => {
-  try {
-    const res = await API.get(`journals/${id}`);
+    const res = await API.get(`/journals/${id}`);
    return res.data;
-  } catch (error) {
-    console.error("Get single journals error", error);
-    throw error;
-  }
 };
-export const updateJournals = async (id, updateEntry) => {
-  try {
-    const res = await API.put(`journals/${id}`, updateEntry);
-    return res.data; 
-  } catch (error) {
-    console.error("Update journal error", error);
-    throw error;
+
+export const updateJournals = async (id, data) => {
+  const idStr = String(id).trim();
+  if(!idStr){
+    throw new Error("Journal ID is required for update");
   }
+    const res = await API.patch(`/journals/${idStr}`, data);
+    return res.data; 
 };
 
 export const deleteJournal = async (id) => {
-  try{
-    const res = await API.delete(`journals/${id}`);
+  const idStr = String(id).trim();
+  if(!idStr){ 
+  throw new Error('Journal ID is required');
+ }
+    const res = await API.delete(`/journals/${idStr}`);
     return res.data;
-  }catch(error){
-    console.error("delete journal error", error);
-    throw error;
-  }
 };
-
+ 
 export const deleteMedia = async (mediaId) => {
-  try{
-    const res = await API.delete(`journals/media/${mediaId}`)
-    return res.data;
-  }catch(error){
-    console.error("Delete media error", error);
-    throw error;
+  if(!mediaId) throw new Error('Media ID is required')
+    const res = await API.delete(`/journals/media/${mediaId}`)
+    return res.data
   }
-}

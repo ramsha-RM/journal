@@ -3,13 +3,41 @@ import {useNavigate} from 'react-router-dom'
 import PinImg from '../assets/pin.png'
 import journalImg from '../assets/journal.png'
 import '../CSS/verification.css'
-import API from './api'
+import API from './axios'
 
 const Verifypin = () => {
   const navigate = useNavigate();
   const [pin, setPin] = useState(new Array(4).fill(""));
   const [message, setMessage] = useState(null);
   const inputs = useRef([]);
+ 
+  const handleKeyDown = (e, index) => {
+    if(e.key === "Backspace") {
+    e.preventDefault();
+
+    const newPin = [...pin];
+    if(pin[index] === "" && index > 0){
+      newPin[index - 1] = "";
+    setPin(newPin);
+    inputs.current[index-1].focus();
+    }else{
+      newPin[index] = "";
+      setPin(newPin);
+    }
+  }
+}
+
+const handlePaste = (e) => {
+  e.preventDefault();
+
+  const pasteData = e.clipboardData
+  .getData("text").replace(/\D/g,"").slice(0, 4);
+  if(!pasteData) 
+    return;
+  const newPin = pasteData.split("");
+  setPin(newPin);
+  inputs.current[newPin.length - 1]?.focus();
+};
 
 
   const handleChange = (value, index) => {
@@ -33,19 +61,19 @@ if(pinStr.length !== 4){
   return;
 }
 try {
+  const pinStr = pin.join("");
   const res = await API.post('/pin/verify',{ pin: pinStr })
-  localStorage.setItem("createPin_token", res.data.token)
+  console.log('PIN verify response:', res.data);
+  if(res.data.accessToken){
+  localStorage.setItem("pin_verified", "true");
+  localStorage.setItem("login_token", res.data.accessToken);
+  navigate("/dashboard")
+  }
 
-  setMessage({type:'success', text:'PIN verified!'})
-  setTimeout(() => {
-  navigate("/dashboard") 
-}, 3000);
 } catch (error) {
 if(error.response){
   const status = error.response?.status;
- if(status === 401){
-    setMessage({type:'error', text:'Login token expired. Please login again!'});
-  }else if(status === 404){
+if(status === 404){
     setMessage({type:'error', text:'Please first create a PIN'});
   }else if(status === 403){
     setMessage({type:'error', text:'Wrong PIN'});
@@ -66,27 +94,27 @@ if(error.response){
             
         <form onSubmit={handleSubmit} className='verifyCard'>
         <img src={PinImg} alt="logo" className='pinicon' />
-        <p className='text'>Enter your 4-digit pin to continue.</p>
             
-        <p className="destext"></p>
+        <p className="text">Verify PIN</p>
             
         <div className="pinBox">
           {pin.map((v, i) => (
             <input key={i} value={v}
-            type='password'
+            type='text'
              inputMode="numeric"
             autoComplete="one-time-code"
             ref={(el) => (inputs.current[i] = el)}
             maxLength={1}
             onChange={(e) => handleChange(e.target.value, i)}
             onKeyDown={(e) => handleKeyDown(e, i)}
+            onPaste={handlePaste}
             className="pin" />
           ))}
         </div>
             
         <button disabled={pin.join("").length !== 4} type='submit' className="verify">Continue</button>
         <p className="lastText">Forgot your PIN?
-        <span onClick={() => navigate("/createpin")} >Reset</span> </p>
+        <span onClick={() => navigate("/pin/create")} >Reset</span> </p>
         </form>
 
       {message && (

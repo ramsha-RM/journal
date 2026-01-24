@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import API from '../pages/api'
+import API from '../pages/axios';
 import "../CSS/resetPassword.css"
 import journalImg from '../assets/journal.png'
 import { useSearchParams } from 'react-router-dom'
