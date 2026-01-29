@@ -14,6 +14,7 @@ import loginImg from '../assets/add-user.png'
   const [emailError, setemailError] = useState('');
   const [passwordError, setpasswordError] = useState('');
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,14 +41,17 @@ import loginImg from '../assets/add-user.png'
     setpasswordError("Password must be atleast 6 characters!");
     isValid = false;
     }
-   if(!isValid)
-     return;
+    if(!isValid)
+      return;
+    
+    setLoading(true);
     try{
       const res = await API.post('/auth/register',{
         name: name?.trim(),
         email: email.trim().toLowerCase(),
         passwordHash: password.trim(),
       });
+
 localStorage.setItem('pendingEmail', email.trim().toLowerCase());
 setMessage({type: "success", text: "Account created successfully!"});
 setTimeout(() => {
@@ -68,6 +72,8 @@ if (error.response) {
     }else {
       setMessage({type:"error", text:"Network error. Check your internet connection!"});
     }
+  }finally{
+    setLoading(false);
   }
 };
   return (
@@ -117,7 +123,7 @@ if (error.response) {
           {passwordError && <small className='small'>{passwordError}</small>}
         </div>
 
-        <button type='submit' className='signupbtn'>Sign up</button>
+        <button type='submit' className='signupbtn' disabled={loading}>{loading ? "Signing up..." : "Sign up"}</button>
 
         <p className="bottomtext">
           Already have an account! <span onClick={() => navigate('/login')}>Login</span>

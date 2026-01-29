@@ -9,6 +9,7 @@ const Createpin = () => {
   const navigate = useNavigate();
   const [pin, setPin] = useState(new Array(4).fill(""));
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
   const pinRefs = useRef([]);
 
   const handleChange = (value, index) => {
@@ -53,17 +54,17 @@ const Createpin = () => {
       return;
     }
     setMessage(null);
-
+    setLoading(true);
     try {
-    const hasPinRefs = await API.get('/pin/has-pin');
+      const hasPinRefs = await API.get('/pin/has-pin');
       if (hasPinRefs.data.hasPin) {
-      navigate("/pin/verify");
-      return;
-    }
-    const res = await API.post("/pin/create", { pin: pinStr });
-    if(res.data.hasPin){
-     navigate("/pin/verify");
-     return;
+        navigate("/pin/verify");
+        return;
+      }
+      const res = await API.post("/pin/create", { pin: pinStr });
+      if(res.data.hasPin){
+        navigate("/pin/verify");
+        return;
       }
     } catch (error) {
       if (error.response) {
@@ -82,6 +83,8 @@ const Createpin = () => {
           setMessage({ type: "error", text: "Network issue. Please try later!" });
         }
       }
+    } finally {
+      setLoading(false);
     }
   };
 const handleReset = () => {
@@ -116,7 +119,7 @@ const handleReset = () => {
           ))}
         </div>
 
-        <button type='submit' className="verify">Create PIN</button>
+        <button type='submit' className="verify" disabled={loading}>{loading ? "Creating PIN..." : "Create PIN"}</button>
          <p className="bottomtext">
           Re-enter PIN! <span onClick={handleReset}>Reset</span>
         </p>

@@ -12,6 +12,7 @@ import loginImg from '../assets/add-user.png'
   const [emailError, setemailError] = useState('');
   const [passwordError, setpasswordError] = useState('');
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
     useEffect(() => {
       const authMsg = localStorage.getItem("AUTH_ERROR_MESSAGE");
@@ -43,20 +44,27 @@ import loginImg from '../assets/add-user.png'
     }
 if(!isValid) return;
 
+    setLoading(true);
     try{
       const res = await API.post('/auth/login',{
         email: email.trim().toLowerCase(),
         password: password.trim(),
       });
-console.log("Token stored:", res.data.token); // For debugging
-navigate("/dashboard"); 
 
-const loginToken = res.data.token;
-if (!loginToken) {
-  throw new Error("Login token missing");
-}
-localStorage.setItem("login_token", loginToken);
-localStorage.setItem( "username", res.data.user?.name || res.data.user?.email );
+      console.log('[Login] Response:', res.data);
+
+      const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || 'login_token';
+
+      const loginToken = res.data.token;
+
+      if (!loginToken) {
+        throw new Error("Auth token missing from response");
+      }
+
+      localStorage.setItem(LOGIN_KEY, loginToken);
+      console.log(`[Login] Stored ${LOGIN_KEY}:`, !!loginToken);
+
+      localStorage.setItem("username", res.data.user?.name || res.data.user?.email );
 
 let hasPin = false;
 try{
@@ -86,6 +94,8 @@ if (error.response) {
     }else {
       setMessage({type:"error",  text:"Unexpected error"});
     }
+  }finally{
+    setLoading(false);
   }
 };
  
@@ -124,7 +134,7 @@ if (error.response) {
           {passwordError && <small className='small'>{passwordError}</small>}
         </div>
 
-        <button type='submit' className='signupbtn'>Login</button>
+        <button type='submit'  disabled={loading} className='signupbtn'>{loading ? "Logging in..." : "Login"}</button>
 
         <span className="forgetPassword" onClick={() => navigate("/password/forgot")}>
           Forgot password?</span>

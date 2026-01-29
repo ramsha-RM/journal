@@ -9,6 +9,7 @@ const Verifypin = () => {
   const navigate = useNavigate();
   const [pin, setPin] = useState(new Array(4).fill(""));
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
   const inputs = useRef([]);
  
   const handleKeyDown = (e, index) => {
@@ -39,10 +40,8 @@ const handlePaste = (e) => {
   inputs.current[newPin.length - 1]?.focus();
 };
 
-
   const handleChange = (value, index) => {
     if(!/^\d?$/.test(value)) return;
-
     const newPin = [...pin];
     newPin[index] = value;
     setPin(newPin);
@@ -60,15 +59,36 @@ if(pinStr.length !== 4){
   setMessage({type:'error', text:'Please enter your 4-digit pin!'});
   return;
 }
+setLoading(true);
 try {
   const pinStr = pin.join("");
+  
+  // Debug: check if login_token exists
+  const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || 'login_token';
+  const storedLoginToken = localStorage.getItem(LOGIN_KEY);
+  console.log(`[Verifypin] Token key: ${LOGIN_KEY}, Token exists: ${!!storedLoginToken}`);
+  
   const res = await API.post('/pin/verify',{ pin: pinStr })
-  console.log('PIN verify response:', res.data);
-  if(res.data.accessToken){
-  localStorage.setItem("pin_verified", "true");
-  localStorage.setItem("login_token", res.data.accessToken);
-  navigate("/dashboard")
+
+
+  // const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || 'login_token';
+  const ACCESS_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || 'access_token';
+
+  const loginToken = res.data.token || res.data.loginToken;
+  const accessToken = res.data.accessToken;
+
+  if (!loginToken && !accessToken) {
+    setMessage({ type: 'error', text: 'Token missing from response' });
+    return;
   }
+
+  if (loginToken) localStorage.setItem(LOGIN_KEY, loginToken);
+  if (accessToken) {
+    localStorage.setItem(ACCESS_KEY, accessToken);
+    localStorage.setItem('pin_verified', 'true');
+  }
+
+  navigate('/dashboard');
 
 } catch (error) {
 if(error.response){
@@ -83,6 +103,8 @@ if(status === 404){
     setMessage({type:'error', text:'Network issue. Please try later!'})
   }
   }
+ }finally{
+   setLoading(false);
  }
 }
   return (
@@ -112,7 +134,7 @@ if(status === 404){
           ))}
         </div>
             
-        <button disabled={pin.join("").length !== 4} type='submit' className="verify">Continue</button>
+        <button disabled={pin.join("").length !== 4 || loading} type='submit' className="verify">{loading ? "Verifying..." : "Continue"}</button>
         <p className="lastText">Forgot your PIN?
         <span onClick={() => navigate("/pin/create")} >Reset</span> </p>
         </form>

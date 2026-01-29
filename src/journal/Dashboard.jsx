@@ -49,18 +49,13 @@ useEffect(() => {
       navigate('/pin/create');
       return;
     }
-    const pinVerified = localStorage.getItem('pin_verified')
-     if (pinVerified !== 'true') {
-        navigate('/pin/verify');
-        return;
-    }
     await handleGetAlljournals();
   }catch (err) {
         console.error("Dashboard init failed", err);
         navigate('/pin/create');
       }};
       dashboardinit();
-}, []);
+}, [navigate]);
 
 useEffect(() => {
   if(message){
@@ -143,6 +138,7 @@ const handleViewjournal = async (id) =>  {
 };
 
 const handleDeleteJournal = async (id) => {
+  if(!window.confirm("Are you sure you want to delete this journal? This action cannot be undone.")) return;
   try{
     await deleteJournal(id);
     setAlljournals(prev => prev.filter(j => j.id !== id))
@@ -155,6 +151,7 @@ const handleDeleteJournal = async (id) => {
 };
 
 const handleDeleteMedia = async (id) =>{
+if(!window.confirm("Delete this media?")) return;
 try {
   await deleteMedia(id);
   setMessage({type:"success", text:"Media deleted"})
@@ -259,13 +256,6 @@ const handleLogout = () => {
          ))
          }
         </div>
-        <p className="timeweather">
-          <span className="time">🕑 9:45 PM</span>
-          <span className="dot">.</span>
-          <span className="weather">Cloudy</span>
-          <span className="weatheremoji">⛅</span>
-        </p>
-        
       </div>
       <div className="bottom">
         <p className="quote">Happiness is a journey, not a destination.</p>
