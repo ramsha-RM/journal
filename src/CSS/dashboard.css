@@ -1,9 +1,11 @@
-* {
+html{
+  overflow-y: scroll;
+}
+*{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 body {
  font-family: "Poppins", sans-serif;
   display: flex;
@@ -120,16 +122,18 @@ body {
 }
 
 .main {
-  margin-left: 200px;
+  max-width: 1200px;
+  margin-left: 280px;
+  width: calc(100% - 280px);
   flex: 1;
   padding: 2rem 3rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   max-width: 100%;
-  width: 90%;
-  height: 100vh;
-  overflow-y: auto;
+  /* width: 90%; */
+  /* height: 100vh; */
+  /* overflow-y: auto; */
 }
 
 .topmain {
@@ -355,7 +359,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 .no-journal{
   grid-column: 1 / -1;

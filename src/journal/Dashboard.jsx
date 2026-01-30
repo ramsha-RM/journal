@@ -72,13 +72,13 @@ if(!journalText.trim()){
 const formData = new FormData();
 formData.append("journalDate", new Date(selectDate || Date.now()).toISOString());
 formData.append("content", journalText.trim());
-// selectFiles.forEach(file => { formData.append("media[]", file);});
+selectFiles.forEach(files => { formData.append("files", files);});
 try {
     if(editId){
     const updateJournal = await updateJournals(String(editId), formData);
     setAlljournals(prev => {
     const safePrev = Array.isArray(prev) ? prev : [];
-    return safePrev.map(j => (j.id === editId ? updateJournal : j));
+    return safePrev.map(j => (j.id === String(editId) ? updateJournal : j));
     });
     setMessage({type: "success", text:"Journals updated!"});
     setEditId(null);
@@ -89,7 +89,7 @@ try {
     return [newJournal, ...safePrev];
     });
 
-  setMessage({type: 'success', text:"Entery added successfully!"});
+  setMessage({type: 'success', text:"Entry added successfully!"});
     }
 
     handleClear();
@@ -109,7 +109,8 @@ const handleGetAlljournals = async () => {
     ...journal,
     id: String(journal.id),
     journalDate: journal.journalDate || journal.journal_date,
-      media: Array.isArray(journal.media) ? journal.media : [],
+      media: Array.isArray(journal.media) ? journal.media : 
+      journal.media?.data || [],
     }));
 
     setAlljournals(normalized);
@@ -155,7 +156,8 @@ if(!window.confirm("Delete this media?")) return;
 try {
   await deleteMedia(id);
   setMessage({type:"success", text:"Media deleted"})
-  handleGetAlljournals();
+  setViewjournals(null);
+  await handleGetAlljournals();
 } catch (error) {
   console.error("Delete media error:", error);
   setMessage({ type: "error", text: "Failed to delete media" });
@@ -312,6 +314,7 @@ const handleLogout = () => {
     <button onClick={() => setViewjournals(null)}>Close</button>
     <h3>{(viewJournals.journal_date || viewJournals.journalDate)?.split('T')[0]}</h3>
     <p>{viewJournals.content}</p>
+    <img type={viewJournals.media?.[0]?.id} src={viewJournals.media?.[0]?.url || ""} alt="media" />
   </div>
 )}
     </main>     
