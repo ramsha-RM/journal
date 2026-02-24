@@ -1,0 +1,324 @@
+.profile-box .heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2B3674;
+  margin-bottom: 20px;
+}
+.profile-form{
+    background: #ffffff;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(112, 144, 176, 0.05);
+  margin: 0 auto;
+  width: 100%;
+}
+.userdata {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+.edit-img{
+    width: 80px;
+    height: 80px;
+    background: #EDE8FF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.userdata img {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+}
+
+.username-date {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.username-date .username {
+  font-weight: 600;
+  font-size: 18px;
+  color: #2B3674;
+}
+
+.username-date .joineddate {
+  font-size: 14px;
+  color: #707EAE;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.name-email {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.namebox, .emailbox {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.namebox label, .emailbox label, .textareabox label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.profile-form input,
+.profile-form textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #FAFBFF;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+  transition: 0.2s;
+  color: #1B2559;
+}
+
+.profile-form input:focus,
+.profile-form textarea:focus {
+  border-color: #4318ff;
+  box-shadow: 0 0 0 2px rgba(67, 24, 255, 0.1);
+}
+
+textarea {
+  min-height: 80px;
+}
+
+.profile-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.logout-btn {
+width: 170px;
+  border: 1px solid #f87171;
+  color: #f87171;
+  background: #F5E1E7;
+  padding: 10px 20px;
+  border-radius: 70px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #ff4949ca;
+  color: #fff;
+}
+
+.change-pass-btn {
+  width: 200px;
+  background: #e0e7ff;
+  color: #4338ca;
+  padding: 10px 20px;
+  border-radius: 70px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.change-pass-btn:hover {
+  background: #c7d2fe;
+}
+
+.save-btn {
+    width: 170px;
+  background: #4318ff;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 70px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #5c3cff;
+}
+
+.textareabox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+@media (max-width: 1284px) {
+
+  .profile-box .heading {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .userdata {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .edit-img,
+  .profile-avatar {
+    width: 70px;
+    height: 70px;
+  }
+
+  .username-date .username {
+    font-size: 16px;
+  }
+
+  .username-date .joineddate {
+    font-size: 13px;
+  }
+
+  .profile-form {
+    gap: 15px;
+  }
+
+  .name-email {
+    gap: 15px;
+  }
+
+  .profile-form input,
+  .profile-form textarea {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  textarea {
+    min-height: 70px;
+  }
+
+  .profile-buttons {
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .logout-btn,
+  .save-btn {
+    width: 150px;
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .change-pass-btn {
+    width: 180px;
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+}
+
+@media (max-width: 1284px) {
+
+  .profile-box {
+    padding: 18px;
+  }
+
+  .profile-box .heading {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .userdata {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .edit-img,
+  .profile-avatar {
+    width: 70px;
+    height: 70px;
+  }
+
+  .username-date .username {
+    font-size: 16px;
+  }
+
+  .username-date .joineddate {
+    font-size: 13px;
+  }
+
+  .profile-form {
+    gap: 15px;
+  }
+
+  .name-email {
+    gap: 15px;
+  }
+
+  .profile-form input,
+  .profile-form textarea {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  textarea {
+    min-height: 70px;
+  }
+
+  .profile-buttons {
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .logout-btn,
+  .save-btn {
+    width: 150px;
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .change-pass-btn {
+    width: 180px;
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+}
+@media (max-width: 768px) {
+  .name-email {
+    flex-direction: column;
+  }
+
+  .profile-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .userdata {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

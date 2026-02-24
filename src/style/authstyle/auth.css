@@ -1,0 +1,188 @@
+@import "./authLayout.css";
+
+.signupBox {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  background: #FFFFFF;
+  padding: 40px 28px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.inputArea{
+  width: 100%;
+  height: auto;
+}
+
+.nameBox,
+.emailBox,
+.passwordBox {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  margin-top: 20px;
+  gap: 4px;
+}
+
+label {
+  font-family: sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: #1B2559;
+  display: block;
+  letter-spacing: 0.3px;
+}
+
+.nameInput,
+.emailInput,
+.passwordInput {
+  display: block;
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 0px 15px;
+  border-radius: 12px;
+  background: #f4f7fe;
+  border:1px solid #E6EDFF;
+  outline: none;
+  color: #1B2559;
+}
+
+.nameInput::placeholder,
+.emailInput::placeholder,
+.passwordInput::placeholder {
+  color: #696969;
+  font-weight: 400;
+}
+
+.nameInput:hover,
+.emailInput:hover,
+.passwordInput:hover {
+  border-color:#D0D8EE ;
+  background: #fafbfe;
+}
+
+.nameInput:focus,
+.emailInput:focus,
+.passwordInput:focus {
+  border-color: #4318FF;
+  background: #FFFFFF;
+
+}
+
+.small{
+  font-size: 12px;
+  font-weight: 500;
+  color: #d73437;
+  display: block;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.bottomtext {
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: 20px;
+  color:#A3AED0;
+  text-align: center;
+}
+
+.bottomtext span {
+  display: inline-block;
+  text-decoration: underline;
+  color: #0000bbc8;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+
+.bottomtext span:hover{
+  transform: scale(0.98);
+}
+
+
+.mark-password{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.forgetPassword {
+  color: #0000bbc8;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  align-self: flex-end;
+  transition: all 0.2s ease;
+
+}
+
+.forgetPassword:hover {
+  text-decoration: underline;
+}
+
+.custom-checkbox {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  position: relative;
+}
+
+.custom-checkbox input {
+  display: none;
+}
+
+.checkmark {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #a7a7a7;
+  background: #F7FAFF;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.custom-checkbox input:checked + .checkmark {
+  background-color: #4318FF;
+}
+
+.custom-checkbox input:checked + .checkmark::after {
+  content: "✓";
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  position: absolute;
+  left: 2px;
+  top: -1px;
+}
+@media (max-width: 1284px) {
+
+  .signupBox {
+    padding: 30px 22px;
+  }
+
+  .nameInput,
+  .emailInput,
+  .passwordInput {
+    height: 40px;
+    font-size: 13px;
+  }
+
+  .bottomtext {
+    font-size: 13px;
+  }
+
+}

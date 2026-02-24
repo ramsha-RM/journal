@@ -1,0 +1,256 @@
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  justify-content: center;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  transition: 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.info{
+  gap: 15px;
+}
+
+.stat-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.stat-icon-wrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;     
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-info img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.stat-card .label {
+  font-size: 14px;
+  color: #6c757d;
+  display: block;
+}
+
+.stat-card .value {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 5px 0 0 0;
+  color: #111827;
+}
+
+.stat-mood-gradient {
+  background: linear-gradient(135deg, #4318FF, #8B5CF6);
+  color: white;
+}
+
+.stat-mood-gradient .label,
+.stat-mood-gradient .value {
+  color: white;
+}
+
+
+
+.dashboard-body, .journal-body {
+  display: flex;
+  gap: 25px;
+  align-items: flex-start;
+}
+
+.journals-section-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.recent-journals-section {
+  flex: 2;
+}
+
+.recent-journals-section h2,
+.mood-summary-sidebar h2 {
+  font-size: 20px;
+  color: #2B3674;
+  margin-bottom: 20px;
+}
+
+/* Journal Card */
+.journal-item-card {
+  background: #FFFFFF;
+  padding: 25px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(112, 144, 176, 0.05);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mood-tag {
+  background: #F4F7FE;
+  color: #2B3674;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 30px;
+  font-weight: 600;
+}
+
+.card-date {
+  font-size: 12px;
+  color: #A3AED0;
+  margin: 5px 0 15px 0;
+}
+
+.card-text {
+  font-size: 14px;
+  color: #707EAE;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tag {
+  background: #F4F7FE;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #2B3674;
+  margin-right: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.actions img {
+  width: 18px;
+  filter: grayscale(100%) opacity(0.6);
+}
+
+
+.mood-summary-sidebar {
+  display: flex;
+  flex-direction: column;                     
+}
+.mood-list{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 100%;
+  width: 257px;             
+  height: auto;         
+  background: #FFFFFF;     
+  border-radius: 12px;       
+  padding: 16px 10px; 
+  box-shadow: 0 10px 30px rgba(112, 144, 176, 0.05); 
+  box-sizing: border-box;     
+  flex-shrink: 0;  
+}
+.progress-container {
+  display: grid;
+  grid-template-columns: 50px 1fr; 
+  gap: 5px;                       
+  align-items:center; 
+}
+
+.emoji-col {
+  font-size: 25px;            
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.text-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 500;
+  color: #8f9bb3;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #E9EDF7;
+  border-radius: 12px; 
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 12px;
+  transition: width 0.5s ease;
+}
+@media (max-width: 1284px) {
+
+  .stats-grid {
+    gap: 10px;
+    margin: 10px 0;
+  }
+
+  .stat-card {
+    padding: 15px;
+  }
+
+  .stat-card .value {
+    font-size: 20px;
+  }
+
+  .journal-item-card {
+    padding: 18px;
+  }
+
+  .dashboard-body {
+    gap: 15px;
+  }
+
+  .journals-section-grid {
+    gap: 8px;
+  }
+
+  .mood-list {
+    width: 230px;
+    padding: 12px 8px;
+  }
+
+}

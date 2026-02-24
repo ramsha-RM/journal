@@ -1,0 +1,187 @@
+.heading {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2B3674;
+  margin-bottom: 15px;
+  margin-left: 10px;
+  text-align: start;
+}
+
+.entry-box {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(112, 144, 176, 0.05);
+  margin-top: 20px;
+}
+
+.title-feelings {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.title-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 5px;
+  color: #1B2559;
+}
+
+.titleInput {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #E9EDF7;
+  outline: none;
+  font-size: 14px;
+}
+
+.feelings {
+  flex: 1;
+}
+
+.moodsBtn {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid #FAFBFF;
+  background: #FAFBFF;
+  color: #2B3674;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.moodsBtn.activated {
+  background: #F5F2FF;
+  color: #2B3674;
+  border-color: #4318FF;
+}
+
+
+.tag-date {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.tagsBox,
+.dateBox {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tagsInput,
+.dateInput {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #E9EDF7;
+  outline: none;
+  font-size: 14px;
+}
+
+.textBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.textarea {
+  min-height: 150px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #E9EDF7;
+  resize: vertical;
+  font-size: 14px;
+  outline: none;
+}
+
+.actionbox {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancel {
+  background: #e4ecff;
+  color: #4318FF;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save {
+  background: #4318FF;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+}
+@media (max-width: 1284px) {
+
+  .heading {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .entry-box {
+    padding: 18px;
+    gap: 15px;
+    margin-top: 15px;
+  }
+
+  .title-feelings {
+    gap: 15px;
+  }
+
+  label {
+    font-size: 14px;
+  }
+
+  .titleInput,
+  .tagsInput,
+  .dateInput {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .moodsBtn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .tag-date {
+    gap: 15px;
+  }
+
+  .textarea {
+    min-height: 120px;
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .actionbox {
+    margin-top: 15px;
+  }
+
+  .cancel,
+  .save {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+}

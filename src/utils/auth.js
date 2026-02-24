@@ -11,7 +11,7 @@ export function clearTokens() {
   }
 }
 
-export function logout(redirect = '/login') {
+export function logout(redirect = '/') {
   clearTokens();
   window.location.href = redirect;
 }

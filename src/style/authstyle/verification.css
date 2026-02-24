@@ -1,0 +1,134 @@
+@import "./authLayout.css";
+
+.verifyCard {
+  width: auto;
+  max-width: 450px;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  background: #FFFFFF;
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+.securityline{
+  background: #F4F7FE;
+  font-size: 14px;
+  font-weight: 500;
+  color:#A3AED0;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+.pendingEmail{
+  display: flex;
+  justify-content: center;  
+  align-items: center;   
+  font-size: 16px;
+  font-weight: 500;
+  color: #1B2559;
+}
+
+.otpBox, 
+.pinBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 15px;
+}
+
+.otp, 
+.pin {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #d1deff;
+  border-radius: 8px;
+  outline: none;
+  text-align: center;
+  font-size: 18px;
+  color: #1B2559;
+  background: none;
+}
+
+.otp:focus, 
+.pin:focus {
+  border-color: #4318FF;
+}
+
+.lastText {
+  font-size: 14px;
+  font-weight: 400;
+  color: #A3AED0;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+.lastText p {
+  font-size: 12px;
+  color: #9CA3AF;       
+  margin: 0;
+}
+.lastText span {
+  display: block;
+  color: #4318FF;
+  cursor: pointer;
+  font-weight: 500;
+  margin-left: 5px;
+  transition: transform 0.2s ease;
+}
+
+.lastText, .verifyText span:hover {
+  transform: scale(0.98);
+}
+.verifyText, .createpintext{
+  font-size: 13px;
+  font-weight: 400;
+  color: #A3AED0;
+  margin-top: 10px;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  gap: 4px;
+}
+.verifyText span{
+display: inline-block;
+color:#4318FF;
+cursor: pointer;
+}
+@media (max-width: 1284px) {
+
+  .verifyCard {
+    padding: 28px;
+  }
+
+  .securityline {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .pendingEmail {
+    font-size: 15px;
+  }
+
+  .otp,
+  .pin {
+    width: 52px;
+    height: 52px;
+    font-size: 16px;
+  }
+
+  .otpBox,
+  .pinBox {
+    gap: 6px;
+  }
+
+  .lastText {
+    font-size: 13px;
+  }
+
+}
