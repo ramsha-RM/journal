@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url(../assets/img/background.png) no-repeat center center;
+  background: url(/background.png) no-repeat center center;
   background-size: cover;
   position: relative;
   overflow: hidden;

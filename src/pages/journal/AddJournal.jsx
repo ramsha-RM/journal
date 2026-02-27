@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import '../../style/dashboardstyle/createjournal.css';
 import '../../style/dashboardstyle/dashboardLayout.css'
 import Toast from '../../components/Toast'
+
 import BackbtnImg from '../../assets/icons/Backbtn.png';
 import EditIcon from '../../assets/icons/blueedit.png';
 import DeleteIcon from '../../assets/icons/redtrash.png';

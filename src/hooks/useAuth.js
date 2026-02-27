@@ -24,7 +24,7 @@ export default function useAuth() {
         }  
     };
 
-    const login = async ({ email, password }) => { 
+    const login = async ( email, password ) => { 
         try {
             const res = await API.post('/auth/login', { email, password });    
             const { accessToken, loginToken, user } = res.data;

@@ -52,10 +52,10 @@ import logoImg from '../../assets/img/titleLogo.png'
 
   try {
     setLoading(true);
-    const { hasPin = false, isVerified = false, user } = await login({
-      email: email.trim().toLowerCase(),
-      password: password.trim(),
-    });
+    const { hasPin = false, isVerified = false, user } = await login(
+      email.trim().toLowerCase(),
+      password.trim(),
+    );
 
     // Navigate based on verification and PIN
     if (!isVerified) {
