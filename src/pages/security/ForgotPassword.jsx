@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import API from '@/service/axios';
 import { useNavigate } from 'react-router-dom';
 import "../../style/authStyle/resetPassword.css"
+import Toast from '../../components/Toast'
 import authBGImg from '../../assets/img/Ractangle.png'
 
 const Forgotpassword = () => {
@@ -38,12 +39,7 @@ const Forgotpassword = () => {
       <button type="submit" className='passwordbtn'>Send your link</button>
       <p className="bottomtext">Check your inbox after submitting!</p>
 </form>
-{message && (
-  <div className={`errBox ${message.type}`}>
-    <span>{message.text}</span>
-    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-  </div>
-)}
+<Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />
     </div>
   )
 }

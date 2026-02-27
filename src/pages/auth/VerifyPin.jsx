@@ -4,6 +4,7 @@ import useAuth from '@/hooks/useAuth'
 import logoImg from '../../assets/img/titleLogo.png'
 import '../../style/authstyle/auth.css'
 import '../../style/authstyle/verification.css';
+import Toast from '../../components/Toast'
 import API from '@/service/axios'
 
 const Verifypin = () => {
@@ -133,12 +134,7 @@ if(status === 404){
         <span onClick={() => navigate("/pin/create")} >changes PIN</span> </p>
         </form>
 </div>
-      {message && (
-  <div className={`errBox ${message.type}`}>
-    <span>{message.text}</span>
-    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-  </div>
-        )}           
+      <Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />           
          </div>
   )
 }

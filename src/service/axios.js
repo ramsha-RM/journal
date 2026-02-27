@@ -9,6 +9,7 @@ const API = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  // withCredentials: true,
 });
 
 const protectedRoutes = [
@@ -16,6 +17,12 @@ const protectedRoutes = [
   '/journals/create',
   '/journals/update',
   '/journals/delete',
+  '/mood/mood-summary',
+  '/dashboard',
+  '/streaks/last-activity',
+  '/streaks/my-streak',
+  '/lock/preferences',
+  '/profiles/me',  
 ];
 const pinRoutes = [
   '/pin/create',
@@ -53,7 +60,7 @@ API.interceptors.response.use((res) => res, (error) => {
     return Promise.reject(error);
   }
 
-  if (status === 401 || status === 403) {
+  if (status === 401 || status === 403 || status === 423) {
 
     if (protectedRoutes.some((route) => url.includes(route))) {
       localStorage.removeItem(ACCESS_KEY);

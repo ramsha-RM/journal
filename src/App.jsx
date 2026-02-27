@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import Login from './pages/auth/Login'
 import Register  from './pages/auth/Register'  
 import Verification from './pages/auth/Verification'
@@ -15,6 +15,16 @@ import Changepassword from './pages/security/Changepassword'
 import Profile from './pages/settings/Profile'
 import MyJournals from './pages/journal/MyJournals'
 import CreateJournal from './pages/journal/CreateJournal'
+import AddJournal from './pages/journal/AddJournal'
+
+const ProtectRoute = ({ isAuth }) => {
+  const hasLoginToken = localStorage.getItem('login_token');
+  const hasAccessToken = localStorage.getItem('access_token');
+  const isAuthenticated = !!localStorage.getItem('login_token') || !!localStorage.getItem('access_token');
+if(!isAuthenticated) return <Navigate to="/" />;
+  
+  return <Outlet />;
+}
 
 function App() {
   return (
@@ -34,13 +44,14 @@ function App() {
         <Route path="/pin/verify" element={<VerifyPin />} />
 
         {/* Dashboard */}
-        <Route path="/dashboard" element={
-          localStorage.getItem('pin_verified') === 'true' ? <Dashboard />
-        : <Navigate to="/pin/verify"/>} />
+        <Route element={<ProtectRoute isAuth={true} />}>   
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/journals" element={<MyJournals />} />
         <Route path="/create" element={<CreateJournal />} />
-
+        <Route path="/create/:id" element={<CreateJournal />} />
+        <Route path="/journal/:id" element={<AddJournal />} />
         <Route path="/profile" element={<Profile />} />
+        </Route> 
 
         <Route path='*' element={<Navigate to="/" />}/>
       </Routes>

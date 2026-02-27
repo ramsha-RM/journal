@@ -3,13 +3,14 @@ import {useNavigate} from 'react-router-dom'
 import Sidebar from '../journal/Sidebar';
 import '../../style/dashboardstyle/profile.css';
 import '../../style/dashboardstyle/dashboardLayout.css'
+import Toast from '../../components/Toast'
 import API from '@/service/axios'
 import ProfileImg from '../../assets/icons/profile.png';
 import UserImg from '../../assets/icons/profile-edit.svg'
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [profilePic, SetprofilePic] = useState('');
+  const [profilePic, setProfilePic] = useState('');
   const [userName, setUserName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -19,68 +20,80 @@ const Profile = () => {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-  const storedUserName = localStorage.getItem('username');
-  const storedEmail = localStorage.getItem('email');
-    if (storedUserName) setUserName(storedUserName);
-    if (storedEmail) setEmail(storedEmail);
-  }, []);
+    useEffect(() => {
+    const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const res = await API.get('/profiles/me');
+      const data = res.data;
 
-  useEffect(() => {
+      const names = data.full_name ? data.full_name.split(" ") : ["", ""];
+      setFirstName(names[0] || "");
+      setLastName(names.slice(1).join(" ") || "");
+      setBio(data.bio || "");
+      setDob(data.date_of_birth || "");
+      setProfilePic(data.profile_picture || "");
+     
+      setEmail(data.email || localStorage.getItem('email') || "");
+      
+      setUserName(data.username || localStorage.getItem('username') || "User");
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      if (error.response && error.response.status === 401) {
+        setMessage({ type: 'error', text: 'Session expired. Please login again.' });
+        localStorage.clear();
+        navigate('/');
+      } else {
+       setMessage({ type: 'error', text: 'Failed to load profile' });
+     }
+    } finally {
+      setLoading(false);
+    }
+    };
+    fetchProfile(); 
+  }, [navigate]);
+
+    useEffect(() => {
   if (message) {
     const timer = setTimeout(() => setMessage(null), 3000); 
     return () => clearTimeout(timer);
   }
 }, [message]);
 
+
   const handleLogout = () => {
     localStorage.clear();
-    navigate('/login');
+    navigate('/');
   };
 
 const handleSave = async () => {
-
-  if(!firstName || !lastName || !bio){
-    setMessage({type: 'error', text: 'All fields are required!'});
+  if (!firstName || !lastName || !bio) {
+    setMessage({ type: 'error', text: 'All fields are required!' });
     return;
   }
 
-    try {
-      setLoading(true);
-
-      const loginToken = localStorage.getItem('login_token');
-
-      await API.patch('/profiles/me', {
-     first_name: firstName,
-    //  last_name: lastName,
-    //  date_of_birth: dob,
-     bio: bio,
-     profile_picture: profilePic
-      },{
-        headers: {
-          Authorization: `Bearer ${loginToken}`
-        }
-      }
-    )
-      setMessage({type: 'success', text: 'Profile updated successfully!'});
-      setLoading(false);
-    } catch (error) {
-      console.error("Error saving profile:", error);
-       setMessage({type:'error', text:'Failed to save profile!'});
-    }finally{
-      setLoading(false);
-    }
+  try {
+    setLoading(true);
+    const body = {
+      full_name: `${firstName} ${lastName}`,
+      bio,
+      profile_picture: profilePic || ""
+    };
+    // axios interceptor will automatically attach the access token
+    await API.patch('/profiles/me', body);
+    setMessage({ type: 'success', text: 'Profile updated successfully!' });
+  } catch (err) {
+    console.error("Failed to save profile:", err.response?.data || err);
+    setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to save profile!' });
+  } finally {
+    setLoading(false);
   }
+};
 
   return (
 <div className="dashboard-container">
       <Sidebar />
-    {message && (
-  <div className={`toast-box ${message.type}`}>
-    <span className="toast-icon">{message.type === 'error' ? '⚠️' : '✅'}</span>
-    {message.text}
-  </div>
-)}
+    <Toast show={!!message} message={message?.text} type={message?.type} />
       <main className="main-content">
         <header className="top-header">
           <div className="welcome-section">
@@ -106,16 +119,17 @@ const handleSave = async () => {
           <div className="name-email">
     <div className="namebox">
       <label htmlFor="name">Full Name</label>
-  <input type="text" value={`${firstName} ${lastName}`} onChange={(e) => {
+  <input type="text" value={`${firstName} ${lastName}`.trim()} onChange={(e) => {
     const names = e.target.value.split(' ');
-    setFirstName(names[0] || "");
-    setLastName(names[1] || "");
+    setFirstName(names.shift() || "");
+    setLastName(names.join(' ') || "");
   }} placeholder="Full Name" /></div>
+
   <div className="emailbox">
     <label htmlFor="email">Email</label>
-  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-   placeholder={email}/>
+  <input type="email" value={email} readOnly placeholder={email}/>
   </div></div>
+
   <div className="textareabox">
     <label>Bio</label>
   <textarea value={bio} onChange={(e) => setBio(e.target.value)}

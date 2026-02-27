@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '@/hooks/useAuth'
 import '../../style/authstyle/auth.css'
 import '../../style/authstyle/verification.css';
+import Toast from '../../components/Toast'
 import logoMain from '../../assets/img/titleLogo.png';
 
 const CreatePin = () => {
@@ -71,7 +72,7 @@ const CreatePin = () => {
       if (status === 401) {
         setMessage({ type: 'error', text: 'Login expired. Please login again!' });
         localStorage.removeItem(import.meta.env.VITE_LOGIN_TOKEN_KEY);
-        navigate('/login');
+        navigate('/');
       } else if (status === 409) {
         setMessage({ type: 'warning', text: 'PIN already exists' });
       } else if (status === 400) {
@@ -133,14 +134,7 @@ const CreatePin = () => {
         </p>
         </form>
 </div>
-        {message && (
-          <div className={`errBox ${message.type}`}>
-            <span>{message.text}</span>
-            <button className="closeBtn" onClick={() => setMessage(null)}>
-              ❌
-            </button>
-          </div>
-        )}
+        <Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />
       
     </div>
   );

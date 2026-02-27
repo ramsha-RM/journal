@@ -41,6 +41,8 @@ const Resetpassword = () => {
           <h2 className='auth-heading'>Reset your password</h2>
           <form className="resetForm" onSubmit={handleSubmit}>
               <p className='textline'>Enter your password for change your password.</p>
+              
+        <input type="email" className="email" value={email} readOnly />
         <input type="text" placeholder="Enter OTP from email"
         value={otp} onChange={(e) => setOtp(e.target.value)} />
         <input type="password" placeholder='New password' value={newPassword} 

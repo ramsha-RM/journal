@@ -3,6 +3,7 @@ import useAuth from '@/hooks/useAuth'
 import {useNavigate} from 'react-router-dom'
 import '../../style/authstyle/auth.css'
 import '../../style/authstyle/auth.css'
+import Toast from '../../components/Toast'
 import logoMain from '../../assets/img/titleLogo.png'
 
   const Register = () => {
@@ -55,6 +56,7 @@ const validate = () => {
 
 localStorage.setItem('pendingEmail', email.trim().toLowerCase());
 setMessage({type: "success", text: "Account created successfully!"});
+
 setTimeout(() => {
   navigate('/verification');
 }, 1500);
@@ -137,12 +139,7 @@ setTimeout(() => {
  
 
     
-  {message && (
-  <div className={`errBox ${message.type}`}>
-    <span>{message.text}</span>
-    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-  </div>
-      )}
+  <Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />
       </div>
 
   );

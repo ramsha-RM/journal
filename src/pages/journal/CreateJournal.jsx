@@ -1,44 +1,57 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import '../../style/dashboardstyle/createjournal.css';
 import '../../style/dashboardstyle/dashboardLayout.css'
+import Toast from '../../components/Toast'
 import ProfileImg from '../../assets/icons/profile.png';
 import SearchIcon from '../../assets/icons/searchicon.png'; 
 
 import {
+  getSingleJournal,
   createJournal,
   getAllJournals,
-  getSingleJournal,
   updateJournal,
-  deleteJournal
-} from "../../service/dashboard.service";
+} from "../../service/journal.service";
 
 const CreateJournal = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+
   const [journalTitle, setJournalTitle] = useState('');
   const [journalText, setJournalText] = useState('');
   const [selectMood, setSelectMood] = useState("Calm");
-  const [tags, SetTags] = useState('');
-  const [date, setDate] = useState('');
-  const [editId, setEditId] = useState(null);
-  
   const [journals, setJournals] = useState([]);
   const [userName, setUserName] = useState("User");
   const [loading, setLoading] = useState(true);
-
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredJournals, setFilteredJournals] = useState([]);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
   };
 
-  const moodEmojis = {
-  Happy: "😄",
-  Calm: "😌",
-  Neutral: "😐",
-  Sad: "😔"
-  }
+  const moodEmojis = { Happy: "😄", Calm: "😌", Neutral: "😐", Sad: "😔" }
+
+  useEffect(() => {
+    const handleSingleJournalFetch = async () => {
+      if(!id) return;
+      try {
+        const data = await getSingleJournal(id);
+        setJournalTitle(data.title || '');
+        setJournalText(data.content || '');
+        setSelectMood(data.mood || "Calm");
+        setDate(data.journalDate?.split('T')[0] || '');
+      } catch (err) {
+        showToast("Failed to fetch journal", "error");
+      }
+    };
+    handleSingleJournalFetch();
+  }, [id]);
 
   const fetchAll = async () => {
     try {
@@ -46,70 +59,82 @@ const CreateJournal = () => {
       const data = await getAllJournals();
       const journalArray = Array.isArray(data) ? data : data?.journals || data?.data || [];
       setJournals(journalArray);
+      setFilteredJournals(journalArray);
     } catch (err) {
-      showToast({ type: 'error', text: 'Failed to fetch journals' });
+      showToast('Failed to fetch journals', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    const filtered = journals.filter(j =>
+      j.title?.toLowerCase().includes(term) ||
+      j.content?.toLowerCase().includes(term)
+    );
+    setFilteredJournals(filtered);
+  };
+
+
   useEffect(() => {
     fetchAll();
     const savedName = localStorage.getItem('username');
-    if (savedName) setUserName(savedName);
+    if (savedName && savedName !== 'undefined') setUserName(savedName);
   }, []);
 
   const handleSaveOrUpdate = async () => {
     if (!journalText.trim()) {
-      showToast({ type: 'error', text: 'Journal content cannot be empty' });
+       showToast("Journal content cannot be empty", "error");
       return;
     }
 
     try {
-      if (editId) {
-        await updateJournal(editId, { title: journalTitle, content: journalText });
-        showToast({ type: 'success', text: 'Journal Updated!' });
+      const payLoad = {
+        title: journalTitle.trim(),
+        content: journalText.trim(),
+        mood: selectMood,
+        journalDate: date || new Date().toISOString().split('T')[0],
+      };
+      if (isEditMode) {
+        await updateJournal(id, payLoad);
+        showToast('Journal Updated!', 'success');
       } else {
-        await createJournal({
-        title: journalTitle || "Untitled",
-        content: journalText,
-        // mood: selectMood,
-        // tags,
-        journal_date: date
-      });
-        showToast({ type: 'success', text: 'Journal Saved!' });
+        await createJournal(payLoad);
+        showToast( 'Journal Saved!', 'success' );
       }
-      handleClear();
-      fetchAll();
+      navigate('/journals');
+
     } catch (err) {
       showToast("Action failed", "error");
+    }finally{
+      setLoading(false);
     }
   };
 
   const handleClear = () => {
     setJournalTitle('');
     setJournalText('');
-    setEditId(null);
-    showToast({ text: "", type: "" });
+    setSelectMood("Calm");
+    // SetTags('');
+    setDate('');
   };
 
   const weeklyStats = useMemo(() => {
     if (!Array.isArray(journals)) return { total: 0, thisWeek: 0, topMood: "N/A" };
+
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
-    const thisWeekCount = journals.filter(j => new Date(j.journal_date) >= lastWeek).length;
+    
+    const thisWeekCount = journals.filter(j => new Date(j.journalDate) >= lastWeek).length;
     return { total: journals.length, thisWeek: thisWeekCount, topMood: "Calm" };
   }, [journals]);
 
   return (
     <div className="dashboard-container">
       <Sidebar />
-      {toast.show && (
-        <div className={`toast-box ${toast.type}`}>
-          <span className="toast-icon">{toast.type === 'error' ? '⚠️' : '✅'}</span>
-          {toast.message}
-        </div>
-      )}
+      <Toast show={toast.show} message={toast.message} type={toast.type} />
       <main className="main-content">
         <header className="top-header">
           <div className="welcome-section">
@@ -118,18 +143,18 @@ const CreateJournal = () => {
           </div>
 
           <div className="search-bar-container">
-            <div className="search-wrapper">
+            {/* <div className="search-wrapper">
               <img src={SearchIcon} alt="search" className='search-icon' style={{ filter: 'grayscale(1) opacity(0.5)' }} />
-              <input type="text" placeholder="Search..." className="search-input" />
-            </div>
-            <div className="profile-circle">
+              <input type="text" placeholder="Search..." className="search-input" value={searchTerm} onChange={handleSearch} />
+            </div> */}
+            <div className="profile-circle" onClick={() => navigate('/profile')}>
               <img src={ProfileImg} alt="Profile" />
             </div>
           </div>
         </header>
     
     <div className="text-entryarea">
-      <h3 className="heading">New Journal</h3>
+      <h3 className="heading">{isEditMode ? "Edit Journal" : "New Journal"}</h3>
       <div className="entry-box">
 
         <div className="title-feelings">
@@ -150,15 +175,9 @@ const CreateJournal = () => {
         </div>
       
       <div className="tag-date">
-        <div className="tagsBox">
-          <label htmlFor="tags">Tags</label>
-          <input type="tags" className='tagsInput' placeholder='#work #Growth #Personal'
-          value={tags} onChange={(e) => SetTags(e.target.value)} />
-        </div>
         <div className="dateBox">
           <label htmlFor="date" className="datetitle">Date</label>
-          <input type="date" className="dateInput" 
-          value={date} onChange={(e) => setDate(e.target.value)}/>
+          <input type="date" className="dateInput" value={date} onChange={(e) => setDate(e.target.value)}/>
         </div>
       </div>
     
@@ -168,12 +187,12 @@ const CreateJournal = () => {
       value={journalText}
       onChange={(e) => setJournalText(e.target.value)}/>
     </div>
-      </div>
+      
     
     <div className="actionbox">
-      <button className="cancel" onClick={handleSaveOrUpdate}>Cancel</button>
-      <button className="save" onClick={handleClear}>Save Journal</button>
-    </div>
+      <button className="cancel" onClick={handleClear}>Cancel</button>
+      <button className="save"  onClick={handleSaveOrUpdate}>{isEditMode ? "Update Journal" : "Save Journal"}</button>
+    </div></div>
     </div>
     </main>
   </div>

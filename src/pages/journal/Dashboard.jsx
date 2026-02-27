@@ -1,90 +1,118 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import {useNavigate} from 'react-router-dom'
-import API from '../../service/axios'
 import Sidebar from './Sidebar'
 import '../../style/dashboardstyle/dashboard.css'
 import '../../style/dashboardstyle/dashboardLayout.css'
+import Toast from '../../components/Toast'
+import { StatBox, MoodProgress } from '../../components';
 
 import SeaarchIcon from '../../assets/icons/searchicon.png'
 import ProfileImg from '../../assets/icons/profile.png'
 import EditIcon from '../../assets/icons/penciledit.png'
 import EyeIcon from '../../assets/icons/eye.png'
-
 import IconJournal from '../../assets/icons/edit.png'
 import IconWeek from '../../assets/icons/vector.png'
 import IconStreak from '../../assets/icons/Vectorjournal.png'
 
-
 import {
-  createJournal,
   getAllJournals,
   getSingleJournal, 
   updateJournal, 
   deleteJournal, 
   deleteMedia
-} from "../../service/dashboard.service"  
+} from "../../service/journal.service"  
+
+import { lastActivityDate, myStreak } from '../../service/streak.service'
+import { overallMood } from '../../service/mood.service'
+import { dashboardStats } from '../../service/dashboard.service'
+import { adminDeleteJournal } from "../../service/journal.service";
+import AdminDelJournal from '../../components/AdminDelJournal'
 
 const Dashboard = () => {
 const navigate = useNavigate();
+const [deleteModel, setDeleteModel] = useState({ show: false, journalId: null, title: "", requireAdmin: false });
 
-// const [journalTitle, setJournalTitle] = useState('');
-// const [viewJournals, setViewjournals] = useState(null)
-// const [journalText, setJournalText] = useState('');
-// const [selectFiles, setSelectFiles] = useState([]);
 const [loading, setLoading] = useState(true);
 const [userName, setUserName] = useState("User");
-const [alljournals, setAlljournals] = useState([]);
+
 const [showModal, setShowModal] = useState(false);
 const [modalData, setModalData] = useState({ content: '', date: '', files: [] });
 const [viewData, setViewData] = useState(null); 
 const [editId, setEditId] = useState(null);
+
+const [lastActivity, setLastActivity] = useState(null);
+const [streak, setStreak] = useState(0);
+const [moodSummary, setMoodSummary] = useState({Happy: 0, Calm: 0, Neutral: 0, Sad: 0});
+const [stats, setStats] = useState(null);
 const [journals, setJournals] = useState([
-   { id:1, title: "A Productive Day", content: "Today I finally completed...", mood: "Happy", tags: ["Work", "Design"], journal_date: new Date() },
-   { id:2, title: "A Productive Day", content: "Today I finally completed...", mood: "Happy", tags: ["Work", "Design"], journal_date: new Date() }
+  // { id:1, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy", journalDate: new Date() },
+  // { id:2, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy", journalDate: new Date() }
 ]);
+const [searchTerm, setSearchTerm] = useState('');
+const [filteredJournals, setFilteredJournals] = useState(journals); 
+
 const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
   };
-const fetchAll = async () => {
-  try{
-    setLoading(true);
-    const data = await getAllJournals();
 
-    let journalArray = [];
-    if (Array.isArray(data)) {
-      journalArray = data;
-    } else if (data && Array.isArray(data.journals)) {
-      journalArray = data.journals;
-    } else if (data && Array.isArray(data.data)) {
-      journalArray = data.data;
+const fetchAll = async () => {
+  try {
+    setLoading(true);
+
+    const [journalResp, streakResp, moodResp, lastActResp, dashboardResp] = await Promise.all([
+      getAllJournals(),
+      myStreak(),
+      overallMood(),
+      lastActivityDate(),
+      dashboardStats()
+    ]);
+
+    const journalArray = journalResp?.journals || journalResp?.data ||
+      (Array.isArray(journalResp) ? journalResp : []);
+  
+    if (journalArray.length > 0) {
+      setJournals(journalArray);
+      setFilteredJournals(journalArray);
     }
 
-    console.log("Fetched Journals:", journalArray);
-if(journalArray.length > 0){
-    setAlljournals(journalArray);
-    setJournals(journalArray);
-}
-  }catch(err){
-   showToast({type:"error", text:"Failed to fetch journals"})
-  }finally{
+    setStreak(streakResp?.streak || streakResp?.streakDays || 0);
+    setMoodSummary(moodResp || {});
+    setLastActivity(lastActResp?.lastActivity || lastActResp?.lastActivityDate || null);
+    setStats(dashboardResp || null);
+  } catch (err) {
+    showToast("Failed to load dashboard data", "error");
+  } finally {
     setLoading(false);
   }
 };
-useEffect(() => { fetchAll();
-  const savedName = localStorage.getItem('username');
-  if (savedName) setUserName(savedName);
- }, []);
 
-const weeklyStats = useMemo(() => {
+const handleSearch = (e) => {
+  const term = e.target.value.toLowerCase();
+  setSearchTerm(term);
+  const filtered = journals.filter(j => 
+    j.title?.toLowerCase().includes(term) || 
+    j.content?.toLowerCase().includes(term)
+  );
+  setFilteredJournals(filtered);
+};
+
+
+useEffect(() => {
+  fetchAll();
+  const savedName = localStorage.getItem('username');
+  if (savedName && savedName !== 'undefined') setUserName(savedName);
+}, []);
+
+ const weeklyStats =  useMemo(() => {
   if (!Array.isArray(journals)) {
   return { total: 0, thisWeek: 0, topMood: "N/A" };
   }
 const lastWeek = new Date();
 lastWeek.setDate(lastWeek.getDate() - 7);
 
-const thisWeekCount = journals.filter(j => new Date(j.journal_date) >= lastWeek).length;
+const thisWeekCount = journals.filter(j => new Date(j.journalDate) >= lastWeek).length;
 
 const moodCount = {};
 journals.forEach(j => {
@@ -92,6 +120,7 @@ journals.forEach(j => {
     moodCount[j.mood] = (moodCount[j.mood] || 0) + 1;
   }
 }); 
+
 const topMood = 
 Object.keys(moodCount).length > 0
 ? Object.keys(moodCount).reduce((a, b) => 
@@ -100,17 +129,17 @@ moodCount[a] > moodCount[b] ? a:b) : "Mostly Calm";
 return {
   total: journals.length,
   thisWeek: thisWeekCount,
-  topMood: topMood
+  topMood
   };
 }, [journals]);
 
 const handleUpdate = async (id, updatedData) => {
     try {
       await updateJournal(id, updatedData);
-      showToast({type:"success", tex:"Journal Updated!"});
+      showToast("Journal Updated!", "success");
       fetchAll();
     } catch (err) {
-      showToast({type:'error', text: 'Update failed'});
+      showToast("Update failed", "error");
     }
   };
 
@@ -126,21 +155,29 @@ const handleEditClick = async (id) => {
    }
 };
 
-const handleDelete = async (id) => {
-  console.log("Deleting ID:", id);
-  if(window.confirm("Delete this?")){
-    try{
-      await deleteJournal(id);
-      setAlljournals(prev => prev.filter(j => j._id !== id));
-      setJournals(prev => prev.filter (j => j._id !== id));
 
-      showToast({type:"success", text: "Journal deleted successfully"})
-    } catch(err){
-      console.error(err)
-    const errorMsg = err.response?.data?.message || err.message || "Delete failed!";
-    showToast(errorMsg,'error');
-    }
+const confirmDelete = async (id, title, requireAdmin= false) => {
+  setDeleteModel({ show: true, journalId: id, title, requireAdmin });
+};
+
+const handleDelete = async (adminKey) => {
+  const { journalId, requireAdmin } = deleteModel;
+
+  try {
+    if(requireAdmin) {
+      const userId = localStorage.getItem('userId');
+    await adminDeleteJournal(userId, journalId, adminKey);
+      showToast("Journal deleted successfully", "success");
+    } else {
+      await deleteJournal(journalId);
+      showToast("Journal deleted successfully", "success");
   }
+  fetchAll();
+    } catch (err) {
+     showToast("Delete failed", "error");
+   } finally {
+      setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false });
+    }
 };
 
 const handleMediaDelete = async (mediaId, journalId) =>{
@@ -152,28 +189,14 @@ try {
   fetchAll();
 } catch (error) {
   console.error("Delete media error:", error);
-  showToast({ type: "error", text: "Failed to delete media" });
+  showToast("Failed to delete media", "error");
 }
 };
-
-
-const handleClear = () => {
-  setSelectDate(dateToday);
-  setJournals('');
-  setSelectFiles([]);
-  showToast(null);
-  setEditId(null);
-}
 
   return (
   <div className="dashboard-container">
     <Sidebar />
-      {toast.show && (
-        <div className={`toast-box ${toast.type}`}>
-          <span className="toast-icon">{toast.type === 'error' ? '⚠️' : '✅'}</span>
-          {toast.message}
-        </div>
-      )}
+      <Toast show={toast.show} message={toast.message} type={toast.type} />
     <main className="main-content">
       <header className="top-header">
       <div className="welcome-section">
@@ -184,19 +207,41 @@ const handleClear = () => {
       <div className="search-bar-container">
         <div className="search-wrapper">
         <img src={SeaarchIcon} alt="search-icon" className='search-icon'/>
-        <input type="text" placeholder="Search..." className="search-input" />
+        <input type="text" placeholder="Search..." className="search-input" value={searchTerm} onChange={handleSearch} />
       </div>
-      <div className="profile-circle">
+      <div className="profile-circle" onClick={() => navigate('/profile')}>
         <img src={ProfileImg} alt="Profile" />
       </div>
       </div>
     </header>
 
-       <div className="stats-grid">
-        <StatBox label="Total Journals" value={weeklyStats.total} icon={IconJournal} className="stat-total" iconBg='#4318FF'/>
-        <StatBox label="This Week" value={weeklyStats.thisWeek} icon={IconStreak} className="stat-week" iconBg='#4318FF'/>
-        <StatBox label="Writing Streak" value="12 Days" icon={IconWeek} className="stat-streak" iconBg='#F4F7FE'/>
-        <StatBox label="Mood Status" value={weeklyStats.topMood} className="stat-mood-gradient" />
+      <div className="stats-grid">
+        <StatBox
+          label="Total Journals"
+          value={stats?.totalJournals || weeklyStats.total}
+          icon={IconJournal}
+          className="stat-total"
+          iconBg="#4318FF"
+        />
+        <StatBox
+          label="This Week"
+          value={stats?.thisWeekJournals || weeklyStats.thisWeek}
+          icon={IconStreak}
+          className="stat-week"
+          iconBg="#4318FF"
+        />
+        <StatBox
+          label="Writing Streak"
+          value={`${streak || 0} Days`}
+          icon={IconWeek}
+          className="stat-streak"
+          iconBg="#F4F7FE"
+        />
+        <StatBox
+          label="Mood Status"
+          value={stats?.topMood || weeklyStats.topMood}
+          className="stat-mood-gradient"
+        />
       </div>
 
       <div className="action-row">
@@ -207,9 +252,9 @@ const handleClear = () => {
       <div className="dashboard-body">
         <section className="recent-journals-section">
           <h2>Recent Journals</h2>
+
           <div className="journal-stack">
-            {journals.slice(0, 4).map((journal) => {
-              console.log("Journal object:", journal);
+            {filteredJournals.slice(0, 4).map((journal) => {
               return(
               <div key={journal._id || journal.id} className="journal-item-card">
                 <div className="card-top">
@@ -218,21 +263,18 @@ const handleClear = () => {
               {journal.mood === 'Happy' ? "😊 Happy" : "😌 Calm"}
           </span>
           </div>
-          <p className="card-date">{journal.journal_date ? new Date(journal.journal_date).toLocaleDateString() : "Date"}</p>
+
+          <p className="card-date">{journal.journalDate ? new Date(journal.journalDate).toLocaleDateString() : "Date"}</p>
           <p className="card-text">"{journal.content?.substring(0, 60)}..."</p>
                 
-          <div className="card-bottom">
-            <div className="tags">
-              <span className="tag">Work</span>
-              <span className="tag">Design</span>
-            </div>
-            <div className="actions">
-              <button className="action-btn">
+      
+            <div className="card-actions">
+              <button className="action-btn" onClick={() => navigate(`/journal/${journal._id}`)}>
               <img src={EyeIcon} alt="" /></button>
               <button className="action-btn" onClick={() => handleEditClick(journal._id || journal.id)}>
               <img src={EditIcon} alt="" /></button>
-              <button className="action-btn" onClick={() => handleDelete(journal._id || journal.id)}>🗑️</button>
-            </div>
+              <button className="action-btn" onClick={() => confirmDelete(journal._id, journal.title || "Journal")}>🗑️</button>
+         
           </div>
         </div>
       )})}
@@ -242,52 +284,28 @@ const handleClear = () => {
       <aside className="mood-summary-sidebar">
         <h2 style={{ fontSize: "20px", fontWeight: "600" }}>Mood Summary</h2>
         <div className="mood-list">
-        <MoodProgress label="Happy" percentage={65} color="#4318FF" emoji="😊" />
-        <MoodProgress label="Calm" percentage={35} color="#4318FF" emoji="😌" />
-        <MoodProgress label="Neutral" percentage={15} color="#4318FF" emoji="😐" />
-        <MoodProgress label="Sad" percentage={10} color="#4318FF" emoji="😔" />
-      </div></aside>
-      </div></main></div>
-);
-};
-  const StatBox = ({ label, value, icon, className, iconBg }) => (
-<div className={`stat-card ${className}`}>
-    <div className="stat-info" >
-           {icon && (
-        <div 
-          className="stat-icon-wrapper" 
-          style={{ backgroundColor: iconBg }}
-        >
-          <img src={icon} alt="icon" className='stat-icon' />
+          {Object.entries(moodSummary || {}).map(([label, percentage]) => {
+            const emojiMap = { Happy: "😊", Calm: "😌", Neutral: "😐", Sad: "😔" };
+            return (
+              <MoodProgress
+                key={label}
+                label={label}
+                percentage={percentage}
+                color="#4318FF"
+                emoji={emojiMap[label] || ""} />
+            );})}
         </div>
-      )}
-     <div className="info">
-      <span className="label" >{label}</span>
-      <h3 className="value">{value}</h3></div>
-    </div>
-  </div>
-);
-
-const MoodProgress = ({ label, percentage, color, emoji }) => (
-  <div className="progress-container">
-
-      <div className='emoji-col'>{emoji}</div>
-
-      <div className="content-col">
-      <div className="text-row">
-      <span>{label}</span>
-      <span>{percentage}%</span>
-    </div>
-
-    <div className="progress-bar">
-      <div 
-        className="progress-fill" 
-        style={{ width: `${percentage}%`, backgroundColor: color }} />
-        </div>
-    </div>
-</div>
-  
-  );
+      </aside>
+      </div></main>
+      <AdminDelJournal
+      show={deleteModel.show}
+      onClose={() => setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false })}
+      onDelete={handleDelete}
+      journalTitle={deleteModel.title}
+      requireAdmin={deleteModel.requireAdmin} 
+      />
+      </div>
+);};
 
 export default Dashboard
 

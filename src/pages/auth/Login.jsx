@@ -2,7 +2,8 @@ import {useState, useEffect } from 'react'
 import useAuth from '@/hooks/useAuth'
 import {useNavigate} from 'react-router-dom'
 import '../../style/authstyle/auth.css'
-import '../../style/authstyle/auth.css'
+
+import Toast from '../../components/Toast'
 import logoImg from '../../assets/img/titleLogo.png'
 
   const Login = () => {
@@ -43,49 +44,60 @@ import logoImg from '../../assets/img/titleLogo.png'
       return Object.keys(newErrors).length === 0;
     };
     
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage(null);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setMessage(null);
 
-    if(!validate()) return;
+  if (!validate()) return;
 
-    try{
-      setLoading(true);
-      const { hasPin, isVerified } = await login({
-        email: email.trim().toLowerCase(),
-        password: password.trim(),
-      });
+  try {
+    setLoading(true);
+    const { hasPin = false, isVerified = false, user } = await login({
+      email: email.trim().toLowerCase(),
+      password: password.trim(),
+    });
 
-      if(!isVerified){
-        navigate('/verification')
-      }else{
-    navigate(hasPin ? '/pin/verify' : '/pin/create');
-      }
-    }catch (error) {
-  console.error(error);
-
-  if (error.response) {
-    const status = error.response.status;
-    const backendMessage = error.response.data?.message;
-    if (status === 400) {
-      setMessage({type: "warning",text: backendMessage || "Invalid input data!"});
-    } else if (status === 401) {
-      setMessage({type: "error",text: backendMessage || "Invalid email or password!"});
-    } else if (status === 404) {
-      setMessage({type: "info", text: backendMessage || "User not found"});
-    } else if (status === 500) {
-      setMessage({type: "error",text: backendMessage || "Server error. Try again later."});
+    // Navigate based on verification and PIN
+    if (!isVerified) {
+      localStorage.setItem("pendingEmail", email);
+      navigate("/verification");
     } else {
-      setMessage({type: "error",text: "Something went wrong."});
-}
-  } else if (error.request) {
-    setMessage({type: "error", text: "Server not reachable. Please try later!" });
-  } else {
-    setMessage({type: "error",text: "Network error. Check your internet connection!"});
+      navigate(hasPin ? "/pin/verify" : "/pin/create");
+    }
+
+  } catch (error) {
+    console.error("LOGIN ERROR:", error);
+
+    const status = error?.response?.status;
+    const backendMessage = error?.response?.data?.message || error?.message || "Something went wrong!";
+
+    switch (status) {
+      case 400:
+        setMessage({ type: "warning", text: backendMessage });
+        break;
+      case 401:
+        setMessage({ type: "error", text: backendMessage });
+        break;
+      case 403:
+        if (backendMessage.toLowerCase().includes("verify")) {
+          localStorage.setItem("pendingEmail", email);
+          navigate("/verification");
+        } else {
+          setMessage({ type: "error", text: backendMessage });
+        }
+        break;
+      case 404:
+        setMessage({ type: "info", text: backendMessage });
+        break;
+      case 500:
+        setMessage({ type: "error", text: backendMessage });
+        break;
+      default:
+        setMessage({ type: "error", text: backendMessage });
+    }
+  } finally {
+    setLoading(false);
   }
-} finally {
-  setLoading(false);
-}
 
 };
  
@@ -109,7 +121,7 @@ import logoImg from '../../assets/img/titleLogo.png'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className='emailInput'
-            autoComplete='one-time-code'
+            autoComplete='email'
           />
           {errors.email && <small className='small'>{errors.email}</small>}
         </div>
@@ -121,7 +133,7 @@ import logoImg from '../../assets/img/titleLogo.png'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className='passwordInput'
-            autoComplete='new-password'
+            autoComplete='current-password'
           />
           {errors.password && <small className='small'>{errors.password}</small>}
         </div>
@@ -143,12 +155,7 @@ import logoImg from '../../assets/img/titleLogo.png'
         </p>
       </form>
 </div>
-   {message && (
-  <div className={`errBox ${message.type}`}>
-    <span>{message.text}</span>
-    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-  </div>
-      )}
+   <Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />
     </div>
   );
 

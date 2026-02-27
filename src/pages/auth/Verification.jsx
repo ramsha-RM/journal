@@ -3,6 +3,7 @@ import API from '@/service/axios'
 import useAuth from '@/hooks/useAuth'
 import '../../style/authstyle/auth.css'
 import '../../style/authstyle/verification.css';
+import Toast from '../../components/Toast'
 import {useNavigate} from 'react-router-dom'
 import logoMain from '../../assets/img/titleLogo.png'
 
@@ -46,43 +47,47 @@ const handlePaste = (e) => {
   inputs.current[newOtp.length - 1]?.focus();
 };
       
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage(null);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setMessage(null);
 
-const otpString = otp.join("");
-const email = localStorage.getItem("pendingEmail");
+  const otpString = otp.join("");
+  const email = localStorage.getItem("pendingEmail");
 
-if(!email){
-  setMessage({type:"error", text:"Session expired. Please sign up again."});
-   return;
-}
-if(otpString.length !== 6){
-    setMessage({type:"warning", text:"Please enter the 6-digit code!"});
+  if (!email) {
+    setMessage({ type: "error", text: "Session expired. Please sign up again." });
     return;
-}
-    try{
-     const res = await verifyAccount ({
-        email,
-        otp: otpString 
-      });
-      localStorage.setItem('login_token', res.token);
-    
-     const pinRes = await hasPin();
-      if (!pinRes.hasPin) {
-        navigate('/pin/create');
-      } else {
-        navigate('/pin/verify');
-      }
-    }catch(error){
-setMessage({type: "error", text: error.response?.status === 400 ? "Invalid or expired OTP!" 
-: "Something went wrong. Try again!"})
-}
+  }
+
+  if (otpString.length !== 6) {
+    setMessage({ type: "warning", text: "Please enter the 6-digit code!" });
+    return;
+  }
+
+  try {
+    const res = await verifyAccount({ email, otp: otpString });
+    if (!res.hasPin) navigate("/pin/create");
+    else navigate("/pin/verify");
+
+  } catch (error) {
+    console.error("VERIFY OTP ERROR:", error);
+    const backendMessage = error.response?.data?.message;
+
+    if (error.response?.status === 400) {
+      setMessage({ type: "error", text: "Invalid or expired OTP!" });
+    } else if (backendMessage) {
+      setMessage({ type: "error", text: backendMessage });
+    } else {
+      setMessage({ type: "error", text: "Something went wrong. Try again!" });
+    }
+  }
 };
+
 const handleReset = async () => {
   if(resendDisable) return;
   setResendDisable(true)
 
+const email = localStorage.getItem("pendingEmail");
 if(!email){
   setMessage({type:'error', text:'Session expired. Please sign up again.'})
   return;
@@ -93,9 +98,17 @@ try {
   setOtp(new Array(6).fill(""))
   inputs.current[0]?.focus();
   localStorage.removeItem('pendingEmail');
-} catch (error) {
-  setMessage({type:'error', text:error.response?.data?.message || 'Failed to resend OTP!'})
+} catch(error){
+  console.error("VERIFY OTP ERROR:", error);
+  const backendMessage = error.response?.data?.message;
+  if (error.response?.status === 400) {
+    setMessage({ type: "error", text: "Invalid or expired OTP!" });
+  } else if (backendMessage) {
+    setMessage({ type: "error", text: backendMessage });
+  } else {
+    setMessage({ type: "error", text: "Something went wrong. Try again!" });
   }
+}
   setTimeout(() =>
     setResendDisable(false), 3000);
  };
@@ -133,13 +146,8 @@ try {
       </form>
 </div>
 
-    {message && (
-  <div className={`errBox ${message.type}`}>
-    <span>{message.text}</span>
-    <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-  </div>
-        )
-      }
+    <Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />
+        
      
 </div>
   );

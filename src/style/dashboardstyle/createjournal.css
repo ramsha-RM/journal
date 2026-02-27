@@ -169,13 +169,13 @@ label {
   }
 
   .textarea {
-    min-height: 120px;
+    min-height: 220px;
     padding: 10px;
     font-size: 13px;
   }
 
   .actionbox {
-    margin-top: 15px;
+    margin-top: 25px;
   }
 
   .cancel,
@@ -184,4 +184,131 @@ label {
     font-size: 14px;
   }
 
+}
+
+
+
+
+
+
+
+
+.added-journal-container{
+display: flex;
+flex-direction: column;
+gap: 20px;
+}
+.upper-box{
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.newJournal-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2B3674;
+}
+.newJournal-btn img {
+  object-fit: cover;
+  cursor: pointer;
+}
+.newJournal-btn span {
+  margin-left: 5px;
+}
+.action-btns{
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.edit-btn{
+  width: 90px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #EDE8FF;
+  color: #4318FF;
+  border: none;
+  padding: 6px 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.edit-btn img {
+  width: 16px;
+  height: 16px;
+  object-fit: cover;
+}
+.del-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
+}
+.del-btn{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FF18181A;
+  color: #FF1818;
+  border: none;
+  padding: 6px 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.journalBox{
+ display: flex;
+ flex-direction: column;
+ gap: 15px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(112, 144, 176, 0.05)
+}
+.top-box{
+display: flex;
+align-items: center;
+}
+.journal-title{
+  font-size: 24px;
+  font-weight: 600;
+  color: #2B3674;
+  margin-right: 20px;
+}
+.date{
+  font-size: 14px;
+  color: #1B2559;
+}
+.mood{
+  font-size: 14px;
+  border:none;
+  border-radius: 35px;
+  padding: 6px 10px;
+  gap: 10px;
+  background: #F0EFFE;
+  color: #4318FF;
+  margin-left: auto;
+}
+hr{
+border: none;
+border-top: 1px solid #E9EDF7;
+}
+.textarea-box{
+display: flex;
+flex-direction: column;
+gap: 15px;
+color: #A3AED0;
+font-size: 16px;
+/* font-weight: 500; */
+line-height: 1.5;
+}
+.copy-icon{
+width: 20px;
+height: 20px;
+align-self: flex-end;
+cursor: pointer;
 }

@@ -5,35 +5,101 @@ import ProfileImg from '../../assets/icons/profile.png'
 import SeaarchIcon from '../../assets/icons/searchicon.png'
 import '../../style/dashboardstyle/dashboard.css'
 import '../../style/dashboardstyle/dashboardLayout.css'
+import Toast from '../../components/Toast'
 
 import EditIcon from '../../assets/icons/penciledit.png'
 import EyeIcon from '../../assets/icons/eye.png'
-
+import { getAllJournals, getSingleJournal, deleteJournal } from '../../service/journal.service'
+import { adminDeleteJournal } from "../../service/journal.service";
 
 const MyJournals = () => {
-
+    const navigate = useNavigate();
     const [userName, setUserName] = useState("User");
     const [journals, setJournals] = useState([
-        { id:1, title: "A Productive Day", content: "Today I finally completed...", mood: "Happy", tags: ["Work", "Design"]},
-        { id:2, title: "A Productive Day", content: "Today I finally completed...", mood: "Happy", tags: ["Work", "Design"]},
-        { id:3, title: "A Productive Day", content: "Today I finally completed...", mood: "Happy", tags: ["Work", "Design"]},
-        { id:4, title: "A Productive Day", content: "Today I finally completed...", mood: "Happy", tags: ["Work", "Design"]},
-        { id:5, title: "A Productive Day", content: "Today I finally completed...", mood: "Happy", tags: ["Work", "Design"]},
-        { id:6, title: "A Productive Day", content: "Today I finally completed...", mood: "Happy", tags: ["Work", "Design"]}
+      { id:1, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
+      { id:2, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
+      { id:3, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
+      { id:4, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
+      { id:5, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
+      { id:6, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
+      { id:7, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
+      { id:8, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/}
     ]);
+    const [filteredJournals, setFilteredJournals] = useState(journals);
+    const [searchTerm, setSearchTerm] = useState('');
     const [toast, setToast] = useState({ show: false, message: "", type: "" });
+    const [viewData, setViewData] = useState(null);
+    const [editId, setEditId] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [deleteModel, setDeleteModel] = useState({ show: false, journalId: null, title: "", requireAdmin: false });
+
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
   };
-const handleDelete = (id) => {
-    const updateList = journals.filter(item => item.id !== id);
-    setJournals(updateList);
-}
+
+  const fetchJournal = async () => {
+    try {
+   const data = await getAllJournals();
+   const jouralArray = data?.journals || data?.data || 
+   (Array.isArray(data) ? data : []);
+   if (jouralArray.length > 0) {
+     setJournals(jouralArray);
+     setFilteredJournals(jouralArray);
+   }
+  } catch (err) {
+    showToast("Failed to fetch journals", "error");
+  }
+  };
+
+  // search journals by title or content
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    const filtered = journals.filter(j =>
+      j.title?.toLowerCase().includes(term) ||
+      j.content?.toLowerCase().includes(term)
+    );
+    setFilteredJournals(filtered);
+  };
+  useEffect(() => {
+    fetchJournal();
+  }, []);
+
+  const confirmDelete = (id, title, requireAdmin = false) => {
+    setDeleteModel({ show: true, journalId: id, title, requireAdmin });
+  };
+
+  const confirmAdminDelete = (id, title) => {
+    setDeleteModel({ show: true, journalId: id, title, requireAdmin: true });
+  };
+
+  const handleDelete = async (adminKey) => {
+  const { journalId, requireAdmin } = deleteModel;
+
+  try {
+    if(requireAdmin) {
+      const userId = localStorage.getItem('userId');
+      await adminDeleteJournal(userId, journalId, adminKey);
+      showToast("Journal deleted by admin successfully", "success");
+    }else{
+      await deleteJournal(journalId);
+      showToast("Journal deleted successfully", "success");
+    }
+    fetchJournal();
+  } catch (err) {
+    const errorMsg = err.response?.data?.message || err.message || "Delete failed!";
+    showToast(errorMsg, "error");
+  } finally {
+    setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false });
+  }
+};
+
 useEffect(() => { 
   const savedName = localStorage.getItem('username');
-  if (savedName) setUserName(savedName);
- }, []);
+  if (savedName && savedName !== 'undefined') setUserName(savedName);
+}, []);
+
 const handleEditClick = async (id) => {
   try {
       const data = await getSingleJournal(id);
@@ -45,16 +111,10 @@ const handleEditClick = async (id) => {
    }
 };
 
-
   return (
     <div className='dashboard-container'>
       <Sidebar />
-      {toast.show && (
-        <div className={`toast-box ${toast.type}`}>
-          <span className="toast-icon">{toast.type === 'error' ? '⚠️' : '✅'}</span>
-          {toast.message}
-        </div>
-      )}
+      <Toast show={toast.show} message={toast.message} type={toast.type} />
     <main className="main-content">
       <header className="top-header">
       <div className="welcome-section">
@@ -64,45 +124,41 @@ const handleEditClick = async (id) => {
 
       <div className="search-bar-container">
         <input type="date" className="date"/>
-        {/* <input type="text" className="all-moods" /> */}
+  
         <div className="search-wrapper">
         <img src={SeaarchIcon} alt="search-icon" className='search-icon'/>
-        <input type="text" placeholder="Search..." className="search-input" />
+        <input type="text" placeholder="Search..." className="search-input" value={searchTerm} onChange={handleSearch} />
       </div>
-      <div className="profile-circle">
+      <div className="profile-circle" onClick={() => navigate('/profile')}>
         <img src={ProfileImg} alt="Profile" />
       </div>
       </div>
     </header>
 
 
-  <div className="journal-body" style={{ display: "block" }}>
+  <div className="journal-body" style={{ display: 'block'}}>
 <section className="journals-section-grid">
-   {journals.slice(0, 6).map((journals, index) => (
-    <div key={journals.id || index} className="journal-item-card">
+   {filteredJournals.slice(0, 10).map((journal, index) => (
+    <div key={journal._id || journal.id || index} className="journal-item-grid">
     <div className="card-top">
-    <h3>{journals.title || "A Productive Day"}</h3>
+    <h3>{journal.title || "A Productive Day"}</h3>
     <span className="mood-tag">
-        {journals.mood === 'Happy' ? "😊 Happy" : "😌 Calm"}
+        {journal.mood === 'Happy' ? "😊 Happy" : journal.mood === 'Sad' ? "😔 Sad" : journal.mood === 'Neutral' ? "😐 Neutral" : "😌 Calm"}
         </span>
         </div>
-          <p className="card-date">12 Feb 2026</p>
-          <p className="card-text">"{journals.content?.substring(0, 60)}..."</p>
+          <p className="card-date" >{journal.journalDate?.split('T')[0] || "12 Feb 2026"}</p>
+          <p className="card-text">"{journal.content?.substring(0, 60)}..."</p>
                 
-        <div className="card-bottom">
-        <div className="tags">
-            <span className="tag">Work</span>
-            <span className="tag">Design</span>
-        </div>
-        <div className="actions">
-          <button className="action-btn" onClick={() => handleEditClick(journals.id)}>
-            <img src={EyeIcon} alt="" />
-          </button>
-          <button className="action-btn"><img src={EditIcon} alt="" /></button>
-          <button className="action-btn" onClick={() => handleDelete(journals.id)}>🗑️</button>
+        <div className="card-actions">
+          <button className="action-btn" onClick={() => navigate(`/journal/${journal._id}`)}>
+          <img src={EyeIcon} alt="" /></button>
+          <button className="action-btn" onClick={() => navigate(`/create/${journal._id}`)}>
+          <img src={EditIcon} alt="" /></button>
+          <button className="action-btn" onClick={() => handleDelete(journal._id)}>🗑️</button>
+          
         </div>
     </div>
-        </div>
+        
    ))}
 </section>
 </div>
