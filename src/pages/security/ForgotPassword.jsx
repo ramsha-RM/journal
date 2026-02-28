@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import API from '@/service/axios';
 import { useNavigate } from 'react-router-dom';
-import "../../style/authStyle/resetPassword.css"
+import "../../style/authstyle/resetPassword.css"
 import Toast from '../../components/Toast'
 import authBGImg from '../../assets/img/Ractangle.png'
 

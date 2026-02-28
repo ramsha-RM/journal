@@ -5,7 +5,6 @@ import logoImg from '../../assets/img/titleLogo.png'
 import '../../style/authstyle/auth.css'
 import '../../style/authstyle/verification.css';
 import Toast from '../../components/Toast'
-import API from '@/service/axios'
 
 const Verifypin = () => {
   const navigate = useNavigate();
@@ -66,22 +65,6 @@ setLoading(true);
 try {
  await verifyPin({ pin: pinStr });
   localStorage.setItem("pin_verified", "true");
-  // const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || 'login_token';
-  // const storedLoginToken = localStorage.getItem(LOGIN_KEY);
-  // const res = await verifyPin ({ pin: pinStr })
-  // const ACCESS_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || 'access_token';
-  // const loginToken = res.data.token || res.data.loginToken;
-  // const accessToken = res.data.accessToken;
-  // if (!loginToken && !accessToken) {
-  //   setMessage({ type: 'error', text: 'Token missing from response' });
-  //   return;
-  // }
-  // if (loginToken) localStorage.setItem(LOGIN_KEY, loginToken);
-  // if (accessToken) {
-  //   localStorage.setItem(ACCESS_KEY, accessToken);
-  //   localStorage.setItem('pin_verified', 'true');
-  // }
-
   navigate('/dashboard');
 
 } catch (error) {
@@ -101,6 +84,7 @@ if(status === 404){
    setLoading(false);
  }
 }
+
   return (
      <div className="auth-wrapper">
         <div className="auth-card">

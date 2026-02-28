@@ -78,11 +78,10 @@ const CreateJournal = () => {
   };
 
 
-  useEffect(() => {
-    fetchAll();
-    const savedName = localStorage.getItem('username');
-    if (savedName && savedName !== 'undefined') setUserName(savedName);
-  }, []);
+ useEffect(() => {
+  const savedName = localStorage.getItem('username');
+  setUserName(savedName && savedName !== 'undefined' ? savedName : "User");
+}, []);
 
   const handleSaveOrUpdate = async () => {
     if (!journalText.trim()) {

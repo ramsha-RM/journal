@@ -16,14 +16,14 @@ const MyJournals = () => {
     const navigate = useNavigate();
     const [userName, setUserName] = useState("User");
     const [journals, setJournals] = useState([
-      { id:1, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
-      { id:2, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
-      { id:3, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
-      { id:4, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
-      { id:5, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
-      { id:6, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
-      { id:7, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/},
-      { id:8, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" /*, tags: ["Work", "Design"]*/}
+      // { id:1, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" },
+      // { id:2, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" },
+      // { id:3, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" },
+      // { id:4, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" },
+      // { id:5, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" },
+      // { id:6, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" },
+      // { id:7, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" },
+      // { id:8, title: "A Productive Day", content: "Today I finally completed the dashboard design…", mood: "Happy" }
     ]);
     const [filteredJournals, setFilteredJournals] = useState(journals);
     const [searchTerm, setSearchTerm] = useState('');
@@ -95,9 +95,9 @@ const MyJournals = () => {
   }
 };
 
-useEffect(() => { 
+useEffect(() => {
   const savedName = localStorage.getItem('username');
-  if (savedName && savedName !== 'undefined') setUserName(savedName);
+  setUserName(savedName && savedName !== 'undefined' ? savedName : "User");
 }, []);
 
 const handleEditClick = async (id) => {
@@ -146,11 +146,22 @@ const handleEditClick = async (id) => {
         {journal.mood === 'Happy' ? "😊 Happy" : journal.mood === 'Sad' ? "😔 Sad" : journal.mood === 'Neutral' ? "😐 Neutral" : "😌 Calm"}
         </span>
         </div>
-          <p className="card-date" >{journal.journalDate?.split('T')[0] || "12 Feb 2026"}</p>
+          <p className="card-date" >{journal?.journal_date ? new Date(journal.journal_date).toLocaleDateString("en-US", {
+             weekday: "short",
+             year: "numeric",
+             month: "short",
+             day: "numeric"
+            }) : new Date().toLocaleDateString()}</p>
           <p className="card-text">"{journal.content?.substring(0, 60)}..."</p>
                 
-        <div className="card-actions">
-          <button className="action-btn" onClick={() => navigate(`/journal/${journal._id}`)}>
+      <div className="card-actions">
+          <button className="action-btn" onClick={() => {
+           const journalId = journal?._id || journal?.id;
+           if (!journalId) {
+           console.error("Journal ID missing:", journal);
+           showToast("Invalid journal ID", "error"); return; }
+            navigate(`/journal/${journalId}`); }}>
+
           <img src={EyeIcon} alt="" /></button>
           <button className="action-btn" onClick={() => navigate(`/create/${journal._id}`)}>
           <img src={EditIcon} alt="" /></button>

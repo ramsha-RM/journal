@@ -100,9 +100,8 @@ const handleSearch = (e) => {
 
 
 useEffect(() => {
-  fetchAll();
   const savedName = localStorage.getItem('username');
-  if (savedName && savedName !== 'undefined') setUserName(savedName);
+  setUserName(savedName && savedName !== 'undefined' ? savedName : "User");
 }, []);
 
  const weeklyStats =  useMemo(() => {
@@ -264,12 +263,22 @@ try {
           </span>
           </div>
 
-          <p className="card-date">{journal.journalDate ? new Date(journal.journalDate).toLocaleDateString() : "Date"}</p>
+          <p className="card-date">{journal?.journal_date ? new Date(journal.journal_date).toLocaleDateString("en-US", {
+             weekday: "short",
+             year: "numeric",
+             month: "short",
+             day: "numeric"
+            }) : new Date().toLocaleDateString()}</p>
           <p className="card-text">"{journal.content?.substring(0, 60)}..."</p>
                 
       
             <div className="card-actions">
-              <button className="action-btn" onClick={() => navigate(`/journal/${journal._id}`)}>
+          <button className="action-btn" onClick={() => {
+           const journalId = journal?._id || journal?.id;
+           if (!journalId) {
+           console.error("Journal ID missing:", journal);
+           showToast("Invalid journal ID", "error"); return; }
+            navigate(`/journal/${journalId}`); }}>
               <img src={EyeIcon} alt="" /></button>
               <button className="action-btn" onClick={() => handleEditClick(journal._id || journal.id)}>
               <img src={EditIcon} alt="" /></button>
@@ -281,22 +290,26 @@ try {
           </div>
         </section>
 
-      <aside className="mood-summary-sidebar">
-        <h2 style={{ fontSize: "20px", fontWeight: "600" }}>Mood Summary</h2>
-        <div className="mood-list">
-          {Object.entries(moodSummary || {}).map(([label, percentage]) => {
-            const emojiMap = { Happy: "😊", Calm: "😌", Neutral: "😐", Sad: "😔" };
-            return (
-              <MoodProgress
-                key={label}
-                label={label}
-                percentage={percentage}
-                color="#4318FF"
-                emoji={emojiMap[label] || ""} />
-            );})}
-        </div>
-      </aside>
-      </div></main>
+<aside className="mood-summary-sidebar">
+  <h2 style={{ fontSize: "20px", fontWeight: "600" }}>Mood Summary</h2>
+  <div className="mood-list">
+    {Object.entries(moodSummary || {}).map(([label, percentage]) => {
+      const emojiMap = { Happy: "😊", Calm: "😌", Neutral: "😐", Sad: "😔" };
+      return (
+        <MoodProgress
+          key={label}
+          label={label}
+          percentage={parseInt(percentage, 10) || 0}  
+          color="#4318FF"
+          emoji={emojiMap[label] || ""}
+        />
+      );
+    })}
+  </div>
+</aside>
+      </div>
+      </main>
+
       <AdminDelJournal
       show={deleteModel.show}
       onClose={() => setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false })}

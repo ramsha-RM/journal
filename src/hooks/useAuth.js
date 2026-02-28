@@ -1,93 +1,83 @@
-import API from '../service/axios';
+import API from "../service/axios";
 
-const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || 'login_token';
-const ACCESS_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || 'access_token';
+const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || "login_token";
+const ACCESS_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || "access_token";
 
 export default function useAuth() {
-    const checkLockPreferences = async () => {
-        const res = await API.get('/lock/preferences');
-        return res.data;
-    };
 
-    const changeLockPreferences = async () => {
-        const res = await API.put('/lock/preferences');
-        return res.data;
-    };
+    const setTokens = ({ accessToken, loginToken }) => {
+    if (accessToken) localStorage.setItem(ACCESS_KEY, accessToken);
+    if (loginToken) localStorage.setItem(LOGIN_KEY, loginToken);
+  };
 
-    const hasPin = async () => {
-        try{
-        const res = await API.get('/pin/has-pin');
-        return res.data;
-        }catch(error){
-            console.error("Error checking PIN existence:", error.response?.data || error.message);
-            throw error;
-        }  
-    };
+  // Lock preferences
+  const checkLockPreferences = async () => (await API.get("/lock/preferences")).data;
+  const changeLockPreferences = async () => (await API.put("/lock/preferences")).data;
 
-    const login = async ( email, password ) => { 
-        try {
-            const res = await API.post('/auth/login', { email, password });    
-            const { accessToken, loginToken, user } = res.data;
+  // Register
+  const register = async (data) => {
+    const res = await API.post("/auth/register", data);
+    if (res.data?.email) localStorage.setItem("pendingEmail", res.data.email);
+    return res.data;
+  };
 
-        if (accessToken) localStorage.setItem(ACCESS_KEY, accessToken);
-        if (loginToken) localStorage.setItem(LOGIN_KEY, loginToken);
+  // Login
+ const login = async (email, password) => {
+    const res = await API.post("/auth/login", { email, password });
+    const { accessToken, loginToken, user } = res.data;
 
-    localStorage.setItem("username", user?.username || user?.name || "");
+    setTokens({ accessToken, loginToken });
+
+    localStorage.setItem("username", user?.username || user?.name || "User");
     localStorage.setItem("email", user?.email || "");
-    if (user?.id || user?._id) localStorage.setItem("userId", user?.id || user?._id);
-            
-    const hasPinValue = await hasPin().then((res) => !!res?.hasPin);
-            return { 
-                hasPin: hasPinValue,
-                isVerified: user?.isEmailVerified || false,
-                user,
-            };
-        } catch (error) {
-            console.log("BACKEND ERROR DETAILS:", error.response?.data);
-            throw error; 
-        }
-    };
+    localStorage.setItem("userId", user?.id || user?._id || "");
 
-    const register = async (data) => { 
-        const res = await API.post('/auth/register', data);
-        return res.data;
-    };
-const verifyAccount = async (data) => {
-    const res = await API.post('/auth/verify', data);
+    const hasPinValue = await hasPin().then(r => !!r?.hasPin).catch(() => false);
+    return { hasPin: hasPinValue, isVerified: user?.isEmailVerified || false, user };
+  };
+  
+  // Verify account / PIN
+  const verifyAccount = async (data) => {
+    const res = await API.post("/auth/verify-account", data);
     const resp = res.data || {};
 
-    // Extract tokens separately
-    const loginToken = resp.loginToken || resp.token || resp.login_token || null;
-    const accessToken = resp.accessToken || resp.access_token;
+    setTokens({
+      accessToken: resp.accessToken || resp.access_token,
+      loginToken: resp.loginToken || resp.token
+    });
 
-    // Store them in localStorage under separate keys
-    if (loginToken) localStorage.setItem(LOGIN_KEY, loginToken);
-    if (accessToken) localStorage.setItem(ACCESS_KEY, accessToken);
-
-    // Store user info
     const user = resp.user || {};
-    if (user.username || user.name || user.email) {
-        localStorage.setItem("username", user.username || user.name || user.email);
-    }
+    localStorage.setItem("username", user.username || user.name || "User");
     if (user.email) localStorage.setItem("email", user.email);
 
-    // Optionally set Axios default header for accessToken immediately
-    if (accessToken) API.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-    const hasPinValue = await hasPin().then((res) => !!res?.hasPin).catch(() => false);
+    const hasPinValue = await hasPin().then(r => !!r?.hasPin).catch(() => false);
+    return { hasPin: hasPinValue, isVerified: user?.isEmailVerified || false, user };
+  };
 
-    return {
-        hasPin: hasPinValue,
-        isVerified: user?.isEmailVerified || false,
-        user,
-    };
-};
+  // PIN APIs
+  const hasPin = async () => (await API.get("/pin/has-pin")).data;
+  const createPin = async (data) => (await API.post("/pin/create", data)).data;
+  const verifyPin = async (data) => {
+    const res = await API.post("/pin/verify", data);
+    const { accessToken, loginToken } = res.data;
 
-    return {
-        checkLockPreferences,
-        changeLockPreferences,
-        login,
-        register,
-        verifyAccount,
-        hasPin,
-    };
+    if (accessToken) {
+      localStorage.setItem(ACCESS_KEY, accessToken);
+      API.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+    }
+    if (loginToken) localStorage.setItem(LOGIN_KEY, loginToken);
+
+    return res.data;
+  };
+
+  return {
+    checkLockPreferences,
+    changeLockPreferences,
+    login,
+    register,
+    verifyAccount,
+    hasPin,
+    createPin,
+    verifyPin,
+  };
 }

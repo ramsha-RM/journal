@@ -51,13 +51,13 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   setMessage(null);
 
-  const otpString = otp.join("");
-  const email = localStorage.getItem("pendingEmail");
+    const otpString = otp.join("");
 
-  if (!email) {
-    setMessage({ type: "error", text: "Session expired. Please sign up again." });
-    return;
-  }
+const email = localStorage.getItem("pendingEmail"); 
+if (!email) {
+  setMessage({ type: "error", text: "Session expired. Please sign up again." });
+  return;
+}
 
   if (otpString.length !== 6) {
     setMessage({ type: "warning", text: "Please enter the 6-digit code!" });
@@ -66,6 +66,7 @@ const handleSubmit = async (e) => {
 
   try {
     const res = await verifyAccount({ email, otp: otpString });
+    localStorage.removeItem('pendingEmail');
     if (!res.hasPin) navigate("/pin/create");
     else navigate("/pin/verify");
 

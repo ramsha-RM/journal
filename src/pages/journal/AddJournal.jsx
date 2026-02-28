@@ -28,9 +28,9 @@ const AddJournal = () => {
     const moodEmojis = { Happy: "😄", Calm: "😌", Neutral: "😐", Sad: "😔" }
     
     useEffect(() => {
-      const name = localStorage.getItem('username');
-      if (name && name !== 'undefined') setUserName(name);
-    }, []);
+  const savedName = localStorage.getItem('username');
+  setUserName(savedName && savedName !== 'undefined' ? savedName : "User");
+}, []);
 
     useEffect(() => {
       if (!id) {
@@ -91,7 +91,8 @@ const AddJournal = () => {
         
         <div className="added-journal-container">
           <div className="upper-box">
-            <div className="newJournal-btn"><img src={BackbtnImg} alt="Back Button" />
+            <div className="newJournal-btn"><img src={BackbtnImg} alt="Back Button" 
+            onClick={() => navigate('/dashboard')} />
             <span>New Journals</span></div>
             <div className="action-btns">
             <button className="edit-btn" onClick={handleEdit} disabled={loading}><img src={EditIcon} alt="Edit" /> Edit</button>   
@@ -101,7 +102,12 @@ const AddJournal = () => {
            <div className="top-box">
             <div className="heading-date">
             <h2 className='journal-title'>{journal?.title || "New Beginning"}</h2>
-            <p className="date">{journal?.journalDate && new Date(journal.journalDate).toLocaleDateString()}</p></div>
+            <p className="date">{journal?.journal_date ? new Date(journal.journal_date).toLocaleDateString("en-US", {
+             weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+            }) : new Date().toLocaleDateString()}</p></div>
             <p className="mood">{journal?.mood ? `${moodEmojis[journal.mood] || "😌"} ${journal.mood}` : "Happy"}</p></div> 
         <hr />
         <div className="textarea-box">

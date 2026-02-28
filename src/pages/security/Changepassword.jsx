@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import API from '@/service/axios';
-import "../../style/authStyle/resetPassword.css" 
+import "../../style/authstyle/resetPassword.css" 
 import authBGImg from '../../assets/img/Ractangle.png'
 
 const Changepassword = () => {
