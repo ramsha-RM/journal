@@ -36,12 +36,11 @@ export const deleteMedia = async (mediaId) => {
 };
 
 export const deleteJournal = async (id) => {
-  const journalId = String(id).trim();
-  if (!journalId) {
-    throw new Error("Journal ID is required");
+  if (!id || isNaN(id)) {
+    throw new Error("Invalid journal ID");
   }
-  const res = await API.delete(`/journals/${journalId}`);
-  return res.data;
+
+  return await API.delete(`/journals/${id}`);
 };
 
 export const adminDeleteJournal = async (userId, journalId, adminapi) => {

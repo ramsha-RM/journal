@@ -10,54 +10,38 @@ const API = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-
-const protectedRoutes = [
-  "/journals",
-  "/dashboard",
-  "/lock/preferences",
-  "/streaks",
-  "/profiles/me",
-];
-
-
-const pinRoutes = ["/pin", "/auth/verification"];
-
-API.interceptors.request.use((config) => {
+  API.interceptors.request.use((config) => {
   const loginToken = localStorage.getItem(LOGIN_KEY);
   const accessToken = localStorage.getItem(ACCESS_KEY);
-  const urlPath = config.url?.replace(config.baseURL, "") || config.url || "";
+  
 
-  if (pinRoutes.some(route => urlPath.startsWith(route)) && loginToken) {
+  const pinRoutes = ["/pin", "/auth/verification", "/auth/verify-account"];
+  const isPinRoute = pinRoutes.some(route => config.url?.includes(route));
+
+  if (isPinRoute && loginToken) {
     config.headers.Authorization = `Bearer ${loginToken}`;
-  } else if (protectedRoutes.some(route => urlPath.startsWith(route)) && accessToken) {
+  } else if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
   return config;
-});
+}, (error) => Promise.reject(error));
 
 
 API.interceptors.response.use(
-  res => res,
-  error => {
+  (res) => res,
+  (error) => {
     const status = error.response?.status;
-    const url = error.config?.url || "";
 
-    if ([401, 403, 423].includes(status)) {
-      
-      if (protectedRoutes.some(route => url.includes(route))) {
-        localStorage.removeItem(ACCESS_KEY);
-        window.location.href = "/pin/verify"; 
-        return Promise.reject(error);
-      }
+    if (status === 423) {
 
+      localStorage.removeItem(ACCESS_KEY);
+      window.location.href = "/pin/verify";
+    } 
+    else if ([401, 403].includes(status)) {
 
-      if (pinRoutes.some(route => url.includes(route))) {
-        const loginToken = localStorage.getItem(LOGIN_KEY);
-        if (!loginToken) logout("/");
-        return Promise.reject(error);
-      }
-
+      localStorage.removeItem(ACCESS_KEY);
+      localStorage.removeItem(LOGIN_KEY);
       logout("/"); 
     }
 

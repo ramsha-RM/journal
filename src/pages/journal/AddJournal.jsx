@@ -55,19 +55,28 @@ const AddJournal = () => {
       navigate(`/create/${id}`);
     };
 
-    const handleDelete = async (id) => {
-      if (window.confirm("Delete this?")) {
-        try {
-          await deleteJournal(id);
-          showToast("Journal deleted successfully", "success");
-          navigate('/journals');
-        } catch (err) {
-          console.error(err);
-          const errorMsg = err.response?.data?.message || err.message || "Delete failed!";
-          showToast(errorMsg, "error");
-        }
+  const handleDelete = async (adminKey) => {
+    const { journalId, requireAdmin } = deleteModel;
+    if (!journalId) return;
+
+    try {
+      setLoading(true);
+      if (requireAdmin) {
+        const userId = localStorage.getItem('userId');
+        await adminDeleteJournal(userId, journalId, adminKey);
+      } else {
+        await deleteJournal(journalId);
       }
-    };
+      showToast("Journal deleted successfully", "success");
+      fetchAll();
+    } catch (err) {
+      showToast("Delete failed", "error");
+      console.error(err);
+    } finally {
+      setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false });
+      setLoading(false);
+    }
+  };
     const dummyText = ` Today marks the start of a new chapter. I decided to take journaling seriously as a tool for self-reflection and mental clarity.
             Writing helps me organize my thoughts and process emotions in a healthy way. Here's to showing up for myself every day.Spent the entire day indoors reading and journaling.
             Made some hot chocolate and listened to lo-fi music. Days like these are necessary for recharging. I didn't accomplish anything productive in the traditional sense, but I feel more at peace than I have in weeks.
@@ -96,7 +105,7 @@ const AddJournal = () => {
             <span>New Journals</span></div>
             <div className="action-btns">
             <button className="edit-btn" onClick={handleEdit} disabled={loading}><img src={EditIcon} alt="Edit" /> Edit</button>   
-            <button className="del-btn" onClick={() => journal && handleDelete(journal._id)} disabled={loading || !journal}><img src={DeleteIcon} alt="Delete" /> Delete</button>   
+            <button className="del-btn" onClick={handleDelete}><img src={DeleteIcon} alt="Delete" /> Delete</button>   
             </div></div>
             <div className="journalBox">
            <div className="top-box">

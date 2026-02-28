@@ -79,7 +79,7 @@ const handleSave = async () => {
       bio,
       profile_picture: profilePic || ""
     };
-    // axios interceptor will automatically attach the access token
+   
     await API.patch('/profiles/me', body);
     setMessage({ type: 'success', text: 'Profile updated successfully!' });
   } catch (err) {
