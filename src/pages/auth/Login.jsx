@@ -76,7 +76,7 @@ import logoImg from '../../assets/img/titleLogo.png'
         setMessage({ type: "warning", text: backendMessage });
         break;
       case 401:
-        setMessage({ type: "error", text: backendMessage });
+        setMessage({ type: "error", text:backendMessage || "Invalid email or password" });
         break;
       case 403:
         if (backendMessage.toLowerCase().includes("verify")) {

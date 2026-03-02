@@ -5,9 +5,9 @@ import Toast from "../../components/Toast";
 import AdminDelJournal from "../../components/AdminDelJournal";
 import "../../style/dashboardstyle/dashboard.css";
 import "../../style/dashboardstyle/dashboardLayout.css";
-
 import SeaarchIcon from "../../assets/icons/searchicon.png";
 import ProfileImg from "../../assets/icons/profile.png";
+
 import IconJournal from "../../assets/icons/edit.png";
 import IconWeek from "../../assets/icons/vector.png";
 import IconStreak from "../../assets/icons/Vectorjournal.png";
