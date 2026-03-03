@@ -7,16 +7,18 @@ import "../../style/dashboardstyle/dashboard.css";
 import "../../style/dashboardstyle/dashboardLayout.css";
 import SeaarchIcon from "../../assets/icons/searchicon.png";
 import ProfileImg from "../../assets/icons/profile.png";
+import EyeIcon from "../../assets/icons/eye.png";
+import EditIcon from "../../assets/icons/penciledit.png";
 
 import IconJournal from "../../assets/icons/edit.png";
 import IconWeek from "../../assets/icons/vector.png";
 import IconStreak from "../../assets/icons/Vectorjournal.png";
-import EyeIcon from "../../assets/icons/eye.png";
 
 import { getAllJournals, deleteJournal, adminDeleteJournal } from "../../service/journal.service";
 import { myStreak } from "../../service/streak.service";
 import { overallMood } from "../../service/mood.service";
 import { dashboardStats } from "../../service/dashboard.service";
+import MoodProgress from "../../components/MoodProgress";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -50,10 +52,14 @@ const Dashboard = () => {
       const journalArray = journalResp?.journals || journalResp?.data || [];
       setJournals(journalArray);
       setFilteredJournals(journalArray);
-
       setStreak(streakResp?.streak || 0);
-      setMoodSummary(moodResp || {});
       setStats(dashboardResp || null);
+      setMoodSummary({
+      Happy: parseFloat(moodResp?.Happy) || 0,
+      Calm: parseFloat(moodResp?.Calm) || 0,
+      Neutral: parseFloat(moodResp?.Neutral) || 0,
+      Sad: parseFloat(moodResp?.Sad) || 0,
+});
     } catch {
       showToast("Failed to load dashboard data", "error");
     } finally {
@@ -78,20 +84,24 @@ const Dashboard = () => {
   };
 
   const weeklyStats = useMemo(() => {
-    if (!Array.isArray(journals)) return { total: 0, thisWeek: 0, topMood: "N/A" };
+    if (!Array.isArray(journals)) return { total: 0, thisWeek: 0, topMood: "Mostly calm" };
+
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
+
     const thisWeekCount = journals.filter((j) => new Date(j.journal_date) >= lastWeek).length;
 
     const moodCount = {};
     journals.forEach((j) => {
-      if (j.mood) moodCount[j.mood] = (moodCount[j.mood] || 0) + 1;
-    });
-
+    if (j.mood) {
+    const mood = j.mood.charAt(0).toUpperCase() + j.mood.slice(1).toLowerCase();
+    moodCount[mood] = (moodCount[mood] || 0) + 1;
+  }
+});
     const topMood =
-      Object.keys(moodCount).length > 0
-        ? Object.keys(moodCount).reduce((a, b) => (moodCount[a] > moodCount[b] ? a : b))
-        : "N/A";
+    Object.keys(moodCount).length > 0
+    ? Object.keys(moodCount).reduce((a, b) => (moodCount[a] > moodCount[b] ? a : b))
+    : "Mostly calm";
 
     return { total: journals.length, thisWeek: thisWeekCount, topMood };
   }, [journals]);
@@ -122,6 +132,17 @@ const Dashboard = () => {
     }
   };
 
+  const totalMoods = Object.values(moodSummary).reduce(
+  (sum, val) => sum + (Number(val) || 0),
+  0
+) || 1;
+
+const moodPercentages = Object.fromEntries(
+  Object.entries(moodSummary).map(([label, count]) => [
+    label,
+    ((Number(count) || 0) / totalMoods) * 100,
+  ])
+);
   const moodEmojis = { Happy: "😊", Calm: "😌", Neutral: "😐", Sad: "😔" };
 
   return (
@@ -158,7 +179,7 @@ const Dashboard = () => {
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-info">
-              <div className="stat-icon-wrapper">
+              <div className="stat-icon-wrapper" style={{ backgroundColor: "#4318FF" }}>
                 <img src={IconJournal} alt="journals" />
               </div>
               <div>
@@ -170,7 +191,7 @@ const Dashboard = () => {
 
           <div className="stat-card">
             <div className="stat-info">
-              <div className="stat-icon-wrapper">
+              <div className="stat-icon-wrapper" style={{ backgroundColor: "#4318FF" }}>
                 <img src={IconStreak} alt="week" />
               </div>
               <div>
@@ -207,51 +228,65 @@ const Dashboard = () => {
           {/* Left: Recent Journals */}
           <div className="recent-journals-section">
             <h2>Recent Journals</h2>
-            {filteredJournals.slice(0, 4).map((journal) => (
-              <div className="journal-item-card" key={journal._id}>
-                <div className="card-top">
-                  <h3>{journal.title || "Untitled"}</h3>
-                  <p className="card-date">{journal.journal_date?.slice(0, 10)}</p>
-                </div>
-                <div className="card-text">{journal.content}</div>
-                <div className="card-actions">
-                  <button
-                    className="action-btn"
-                    onClick={() => navigate(`/journal/${journal._id}`)}
-                  >
-                    <img src={EyeIcon} alt="view" />
-                  </button>
-                  <button
-                    className="action-btn"
-                    onClick={() => confirmDelete(journal._id, journal.title)}
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </div>
-            ))}
+               <section className="dashboard-section-grid">
+                 {filteredJournals.map((journal, index) => {
+                   const journalId = journal._id || journal.id || index;
+                   const moodEmoji =
+                       journal.mood === "Happy"
+                         ? "😊 Happy"
+                         : journal.mood === "Sad"
+                         ? "😔 Sad"
+                         : journal.mood === "Neutral"
+                         ? "😐 Neutral"
+                         : "😌 Calm";
+       
+                     return (
+                       <div key={journalId} className="journal-item-grid">
+                         <div className="card-top">
+                           <h3>{journal.title || "Untitled"}</h3>
+                           <span className="mood-tag">{moodEmoji}</span>
+                         </div>
+                         <p className="card-date">
+                           {journal.journal_date
+                             ? new Date(journal.journal_date).toLocaleDateString()
+                             : new Date().toLocaleDateString()}
+                         </p>
+                         <p className="card-text">
+                           "{journal.content?.substring(0, 60)}..."
+                         </p>
+                         <div className="card-actions">
+                           <button
+                             className="action-btn"
+                             onClick={() => navigate(`/journal/${journalId}`)}
+                           >
+                             <img src={EyeIcon} alt="View" />
+                           </button>
+                           <button
+                             className="action-btn"
+                             onClick={() => navigate(`/create/${journalId}`)}
+                           >
+                             <img src={EditIcon} alt="Edit" />
+                           </button>
+                           <button
+                             className="action-btn"
+                             onClick={() => confirmDelete(journalId, journal.title)}
+                           >
+                             🗑️
+                           </button>
+                         </div>
+                       </div>
+                   );
+                   })}
+               </section>
           </div>
 
           {/* Right: Mood Summary */}
           <div className="mood-summary-sidebar">
             <h2>Mood Summary</h2>
             <div className="mood-list">
-              {Object.entries(moodSummary).map(([label, value]) => (
-                <div className="progress-container" key={label}>
-                  <div className="emoji-col">{moodEmojis[label]}</div>
-                  <div className="content-col">
-                    <div className="text-row">
-                      <span>{label}</span>
-                      <span>{parseInt(value) || 0}%</span>
-                    </div>
-                    <div className="progress-bar">
-                      <div
-                        className="progress-fill"
-                        style={{ width: `${parseInt(value) || 0}%`, background: "#4318FF" }}
-                      />
-                    </div>
-                  </div>
-                </div>
+              {Object.entries(moodPercentages).map(([label, percent]) => (
+                <MoodProgress
+                key={label} label={label} percentage={percent} color="#4318ff" emoji={moodEmojis[label]} />
               ))}
             </div>
           </div>

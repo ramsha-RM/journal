@@ -52,14 +52,14 @@ import logoImg from '../../assets/img/titleLogo.png'
 
   try {
     setLoading(true);
-    const { hasPin = false, isVerified = false, user } = await login(
+    const { hasPin, isVerified  } = await login(
       email.trim().toLowerCase(),
       password.trim(),
     );
 
     // Navigate based on verification and PIN
     if (!isVerified) {
-      localStorage.setItem("pendingEmail", email);
+      // localStorage.setItem("pendingEmail", email);
       navigate("/verification");
     } else {
       navigate(hasPin ? "/pin/verify" : "/pin/create");

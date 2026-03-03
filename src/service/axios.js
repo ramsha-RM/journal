@@ -15,14 +15,19 @@ const API = axios.create({
   const accessToken = localStorage.getItem(ACCESS_KEY);
   
 
-  const pinRoutes = ["/pin", "/auth/verification", "/auth/verify-account"];
-  const isPinRoute = pinRoutes.some(route => config.url?.includes(route));
-
-  if (isPinRoute && loginToken) {
-    config.headers.Authorization = `Bearer ${loginToken}`;
-  } else if (accessToken) {
+  // const pinRoutes = ["/pin", "/auth/verification", "/auth/verify-account"];
+  // const isPinRoute = pinRoutes.some(route => config.url?.includes(route));
+  if(accessToken){
     config.headers.Authorization = `Bearer ${accessToken}`;
+  }else if (loginToken) {
+    config.headers.Authorization = `Bearer ${loginToken}`;
   }
+
+  // if (isPinRoute && loginToken) {
+  //   config.headers.Authorization = `Bearer ${loginToken}`;
+  // } else if (accessToken) {
+  //   config.headers.Authorization = `Bearer ${accessToken}`;
+  // }
 
   return config;
 }, (error) => Promise.reject(error));
@@ -33,18 +38,14 @@ API.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
 
-    if (status === 423) {
-
+    if(status === 401) {
+      localStorage.removeItem(LOGIN_KEY);
       localStorage.removeItem(ACCESS_KEY);
+      window.location.href = "/";
+    }
+    if (status === 423) {
       window.location.href = "/pin/verify";
     } 
-    else if ([401, 403].includes(status)) {
-
-      localStorage.removeItem(ACCESS_KEY);
-      localStorage.removeItem(LOGIN_KEY);
-      logout("/"); 
-    }
-
     return Promise.reject(error);
   }
 );

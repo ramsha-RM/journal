@@ -18,19 +18,19 @@ import AddJournal from './pages/journal/AddJournal';
 
 const ProtectRoute = () => {
   const ACCESS_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || "access_token";
-  const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || "login_token";
+  // const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || "login_token";
   
   const hasAccessToken = !!localStorage.getItem(ACCESS_KEY);
-  const hasLoginToken = !!localStorage.getItem(LOGIN_KEY);
+  // const hasLoginToken = !!localStorage.getItem(LOGIN_KEY);
 
 
-  if (!hasLoginToken && !hasAccessToken) {
+  if (!hasAccessToken) {
     return <Navigate to="/" />;
   }
 
-  if (hasLoginToken && !hasAccessToken) {
-    return <Navigate to="/pin/verify" />;
-  }
+  // if (hasLoginToken && !hasAccessToken) {
+  //   return <Navigate to="/pin/verify" />;
+  // }
 
   return <Outlet />;
 };

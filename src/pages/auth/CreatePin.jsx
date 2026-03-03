@@ -45,10 +45,7 @@ const CreatePin = () => {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasteData = e.clipboardData
-      .getData('text')
-      .replace(/\D/g, '')
-      .slice(0, 4);
+    const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4);
 
     if (!pasteData) return;
 

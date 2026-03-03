@@ -11,7 +11,7 @@ import DeleteIcon from '../../assets/icons/redtrash.png';
 import CopyIcon from '../../assets/icons/copyicon.png';
 
 import { useParams } from 'react-router-dom';
-import { getSingleJournal, deleteJournal } from '../../service/journal.service';
+import { getSingleJournal, deleteJournal, adminDeleteJournal } from '../../service/journal.service';
 
 const AddJournal = () => {
     const navigate = useNavigate();
@@ -20,7 +20,7 @@ const AddJournal = () => {
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState({ show: false, message: "", type: "" });
     const [userName, setUserName] = useState('User');
-
+    const [deleteModel, setDeleteModel] = useState({ show: false, journalId: null, title: "", requireAdmin: false });
       const showToast = (message, type = "success") => {
       setToast({ show: true, message, type });
       setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
@@ -38,43 +38,44 @@ const AddJournal = () => {
         navigate('/journals');
         return;
       }
-      const handleJournalFetch = async () => {
-        try{
-          const data = await getSingleJournal(id);
-          setJournal(data);
-          
-        }catch(err) {
-          console.error(err);
-          showToast('Failed to load journal', 'error');
-        }
-      };
-      handleJournalFetch();
-    }, [id]);
-
-    const handleEdit = async () => {
-      navigate(`/create/${id}`);
+       const fetchJournal = async () => {
+      try {
+        const data = await getSingleJournal(id);
+        setJournal(data);
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to load journal', 'error');
+      }
     };
 
-  const handleDelete = async (adminKey) => {
-    const { journalId, requireAdmin } = deleteModel;
-    if (!journalId) return;
+    fetchJournal();
+  }, [id, navigate]);
+
+  const handleEdit = () => {
+    navigate(`/create/${id}`);
+  };
+
+
+    const handleDelete = async () => {
+    if (!id) return;
 
     try {
       setLoading(true);
-      if (requireAdmin) {
-        const userId = localStorage.getItem('userId');
-        await adminDeleteJournal(userId, journalId, adminKey);
-      } else {
-        await deleteJournal(journalId);
-      }
-      showToast("Journal deleted successfully", "success");
-      fetchAll();
+      await deleteJournal(id); // for admin, use adminDeleteJournal if needed
+      showToast('Journal deleted successfully', 'success');
+      navigate('/dashboard');
     } catch (err) {
-      showToast("Delete failed", "error");
       console.error(err);
+      showToast('Delete failed', 'error');
     } finally {
-      setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false });
       setLoading(false);
+    }
+  };
+
+  const handleCopy = () => {
+    if (journal?.content) {
+      navigator.clipboard.writeText(journal.content);
+      showToast('Journal copied to clipboard');
     }
   };
     const dummyText = ` Today marks the start of a new chapter. I decided to take journaling seriously as a tool for self-reflection and mental clarity.
@@ -111,18 +112,18 @@ const AddJournal = () => {
            <div className="top-box">
             <div className="heading-date">
             <h2 className='journal-title'>{journal?.title || "New Beginning"}</h2>
-            <p className="date">{journal?.journal_date ? new Date(journal.journal_date).toLocaleDateString("en-US", {
-             weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-            }) : new Date().toLocaleDateString()}</p></div>
+          <p className="date">{journal?.journal_date ? new Date(journal.journal_date).toLocaleDateString("en-US", {
+            weekday: "short",
+            year: "numeric",
+            month: "short",
+            day: "numeric"}) : new Date().toLocaleDateString()}</p></div>
             <p className="mood">{journal?.mood ? `${moodEmojis[journal.mood] || "😌"} ${journal.mood}` : "Happy"}</p></div> 
         <hr />
         <div className="textarea-box">
             <p className="journal-text">{journal?.content?.trim() ? journal.content : dummyText}</p>
            </div>
-           <img src={CopyIcon} alt="Copy" className="copy-icon" />
+           {journal?.content && (<img src={CopyIcon} alt="Copy" className="copy-icon"
+           onClick={handleCopy} />)}
         </div>
       </div> 
     </main>

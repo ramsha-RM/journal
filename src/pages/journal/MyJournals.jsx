@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Toast from "../../components/Toast";
+import AdminDelJournal from "../../components/AdminDelJournal";
 import "../../style/dashboardstyle/dashboard.css";
 import "../../style/dashboardstyle/dashboardLayout.css";
 
@@ -9,7 +10,7 @@ import SeaarchIcon from "../../assets/icons/searchicon.png";
 import ProfileImg from "../../assets/icons/profile.png";
 import EyeIcon from "../../assets/icons/eye.png";
 import EditIcon from "../../assets/icons/penciledit.png";
-import { getAllJournals, deleteJournal } from "../../service/journal.service";
+import { getAllJournals, deleteJournal, adminDeleteJournal } from "../../service/journal.service";
 
 const MyJournals = () => {
   const navigate = useNavigate();
@@ -17,7 +18,12 @@ const MyJournals = () => {
   const [filteredJournals, setFilteredJournals] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
-
+  const [deleteModel, setDeleteModel] = useState({
+    show: false,
+    journalId: null,
+    title: "",
+    requireAdmin: false,
+  });
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
@@ -49,17 +55,29 @@ const MyJournals = () => {
     setFilteredJournals(filtered);
   };
 
-  const handleDelete = async (id) => {
-    if (!id) return;
-    if (!window.confirm("Delete this journal?")) return;
-    try {
-      await deleteJournal(id);
-      showToast("Journal deleted successfully");
-      fetchJournals();
-    } catch (err) {
-      showToast("Delete failed", "error");
+  const confirmDelete = (journalId, title) => {
+  setDeleteModel({ show: true, journalId, title, requireAdmin: false });
+};
+
+const handleDelete = async (adminKey) => {
+  const { journalId, requireAdmin } = deleteModel;
+  if (!journalId) return;
+
+  try {
+    if (requireAdmin) {
+      const userId = localStorage.getItem("userId");
+      await adminDeleteJournal(userId, journalId, adminKey);
+    } else {
+      await deleteJournal(journalId);
     }
-  };
+    showToast("Journal deleted successfully");
+    fetchJournals();
+  } catch {
+    showToast("Delete failed", "error");
+  } finally {
+    setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false });
+  }
+};
 
   const userName = localStorage.getItem("username") || "User";
 
@@ -137,7 +155,7 @@ const MyJournals = () => {
                     </button>
                     <button
                       className="action-btn"
-                      onClick={() => handleDelete(journalId)}
+                       onClick={() => confirmDelete(journalId, journal.title)}
                     >
                       🗑️
                     </button>
@@ -148,6 +166,15 @@ const MyJournals = () => {
           )}
         </section>
       </main>
+
+
+      <AdminDelJournal
+        show={deleteModel.show}
+        onClose={() => setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false })}
+        onDelete={handleDelete}
+        journalTitle={deleteModel.title}
+        requireAdmin={deleteModel.requireAdmin}
+      />
     </div>
   );
 };
