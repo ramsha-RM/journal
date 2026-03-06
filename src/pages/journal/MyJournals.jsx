@@ -7,13 +7,17 @@ import "../../style/dashboardstyle/dashboard.css";
 import "../../style/dashboardstyle/dashboardLayout.css";
 
 import SeaarchIcon from "../../assets/icons/searchicon.png";
-import ProfileImg from "../../assets/icons/profile.png";
+import ProImg from "../../assets/icons/profile.png";
 import EyeIcon from "../../assets/icons/eye.png";
 import EditIcon from "../../assets/icons/penciledit.png";
 import { getAllJournals, deleteJournal, adminDeleteJournal } from "../../service/journal.service";
-
+import { useName } from "../../hooks/useName";
+import { useProfile } from "../../hooks/useProfile";
+import UserImg from "../../assets/icons/profile-edit.svg";
 const MyJournals = () => {
   const navigate = useNavigate();
+ const  [userName] = useName();   
+  const { profileImg } = useProfile();
   const [journals, setJournals] = useState([]);
   const [filteredJournals, setFilteredJournals] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,15 +83,13 @@ const handleDelete = async (adminKey) => {
   }
 };
 
-  const userName = localStorage.getItem("username") || "User";
-
   return (
     <div className="dashboard-container">
       <Sidebar />
       <Toast show={toast.show} message={toast.message} type={toast.type} />
 
       <main className="main-content">
-        {/* Top Header */}
+  
         <header className="top-header">
           <div className="welcome-section">
             <p>Hi {userName},</p>
@@ -105,12 +107,11 @@ const handleDelete = async (adminKey) => {
                />
              </div>
              <div className="profile-circle" onClick={() => navigate("/profile")}>
-               <img src={ProfileImg} alt="profile" />
+               <img className={!profileImg ? "default-icon" : ""}  src={profileImg || ProImg} alt="profile" />
              </div>
            </div>
         </header>
 
-        {/* Journals Grid */}
         <section className="journals-section-grid">
           {filteredJournals.length === 0 ? (
             <p style={{ color: "#707EAE" }}>No journals found.</p>

@@ -9,7 +9,7 @@ import logoMain from '../../assets/img/titleLogo.png';
 const CreatePin = () => {
   const navigate = useNavigate();
   const { createPin, hasPin } = useAuth();
-
+ 
   const [pin, setPin] = useState(new Array(4).fill(''));
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -54,51 +54,58 @@ const CreatePin = () => {
 
     pinRefs.current[newPin.length - 1]?.focus();
   };
+  
+const handleCreatePin = async (e) => {
+  e.preventDefault();
+  const pinStr = pin.join('');
 
-  const handleCreatePin = async (e) => {
-    e.preventDefault();
-    const pinStr = pin.join('');
+  if (pinStr.length !== 4) {
+    setMessage({ type: 'error', text: 'PIN must be 4 digits!' });
+    return;
+  }
 
-    if (pinStr.length !== 4) {
-      setMessage({ type: 'error', text: 'PIN must be 4 digits!' });
+  setMessage(null);
+  setLoading(true);
+
+  try {
+    let token = localStorage.getItem("access_token");
+    if (!token) {
+      const loginToken = localStorage.getItem("login_token");
+      if (loginToken) {
+        localStorage.setItem("access_token", loginToken);
+        token = loginToken;
+      }
+    }
+
+    const pinCheck = await hasPin();
+
+    if (pinCheck?.hasPin) {
+      setMessage({
+        type: 'warning',
+        text: 'PIN already exists. Please verify!',
+      });
+      navigate('/pin/verify');
       return;
     }
 
-    setMessage(null);
-    setLoading(true);
+    await createPin({ pin: pinStr });
 
-    try {
-      const pinCheck = await hasPin();
+    navigate('/pin/verify');
+  } catch (error) {
+    console.error('Create PIN error:', error);
 
-      if (pinCheck?.hasPin) {
-        setMessage({
-          type: 'warning',
-          text: 'PIN already exists. Please verify!',
-        });
-        navigate('/pin/verify');
-        return;
-      }
-
-      await createPin({ pin: pinStr });
-
-      navigate('/pin/verify');
-    } catch (error) {
-      console.error('Create PIN error:', error);
-
-      if (!error.response) {
-        setMessage({ type: 'error', text: 'Server not reachable.' });
-      } else {
-        setMessage({
-          type: 'error',
-          text:
-            error.response?.data?.message ||
-            'Something went wrong. Please try again.',
-        });
-      }
-    } finally {
-      setLoading(false);
+    if (!error.response) {
+      setMessage({ type: 'error', text: 'Server not reachable.' });
+    } else {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Something went wrong. Please try again.',
+      });
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleReset = () => {
     setPin(new Array(4).fill(''));

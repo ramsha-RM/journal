@@ -96,15 +96,17 @@
   align-items: center;
   justify-content: center;
 }
+.profile-circle img.default-icon {
+  filter: invert(1);
+}
 
 .profile-circle img {
-  width: 28px;
-  height: 28px;
+  width: 100%;
+  height: 100%;
   background-color: #404040;
   border-radius: 50%;
   object-fit: cover;
   cursor: pointer;
-  filter: invert(1);
 }
 
 .action-row {

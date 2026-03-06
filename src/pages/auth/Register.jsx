@@ -53,9 +53,9 @@ const validate = () => {
         email: email.trim().toLowerCase(),
         passwordHash: password.trim(),
       });
-
-localStorage.setItem('pendingEmail', email.trim().toLowerCase());
 setMessage({type: "success", text: "Account created successfully!"});
+localStorage.setItem('pendingEmail', email.trim().toLowerCase());
+localStorage.setItem('pendingName', userName.trim());
 
 setTimeout(() => {
   navigate('/verification');

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { logout } from "../utils/auth";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || "login_token";
@@ -23,12 +22,6 @@ const API = axios.create({
     config.headers.Authorization = `Bearer ${loginToken}`;
   }
 
-  // if (isPinRoute && loginToken) {
-  //   config.headers.Authorization = `Bearer ${loginToken}`;
-  // } else if (accessToken) {
-  //   config.headers.Authorization = `Bearer ${accessToken}`;
-  // }
-
   return config;
 }, (error) => Promise.reject(error));
 
@@ -39,9 +32,12 @@ API.interceptors.response.use(
     const status = error.response?.status;
 
     if(status === 401) {
+      const accessToken = localStorage.getItem(ACCESS_KEY);
+      if (accessToken) {
       localStorage.removeItem(LOGIN_KEY);
       localStorage.removeItem(ACCESS_KEY);
       window.location.href = "/";
+      }
     }
     if (status === 423) {
       window.location.href = "/pin/verify";

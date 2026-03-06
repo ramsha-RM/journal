@@ -16,7 +16,6 @@ export const getSingleJournal = async (id) => {
     throw new Error('Journal ID is required to fetch');
   }
   const res = await API.get(`/journals/${journalId}`);
-  console.log("Fetched journal data:", res.data);
   return res.data;
 };
 

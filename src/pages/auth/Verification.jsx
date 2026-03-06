@@ -16,7 +16,7 @@ const [resendDisable, setResendDisable] = useState(false);
 const inputs = useRef([]);
 
 const handleChange = (element, index) => {
-  if(!/^\d?$/.test(element .value)) return;
+  if(!/^\d?$/.test(element.value)) return;
 
   const newOtp = [...otp];
   newOtp[index] = element.value;
@@ -28,11 +28,14 @@ const handleChange = (element, index) => {
   const handleKeyDown = (e, index) => {
     if(e.key === "Backspace") {
     e.preventDefault();
-
     const newOtp = [...otp];
-   newOtp[index] = "";
+    if(otp[index]){
+    newOtp[index] = "";
     setOtp(newOtp);
+    }else if(index > 0){
+   inputs.current[index - 1].focus();
     }
+   }
   };
 
 const handlePaste = (e) => {
@@ -64,13 +67,30 @@ if (!email) {
     return;
   }
 
-  try {
-    const res = await verifyAccount({ email, otp: otpString });
-    localStorage.removeItem('pendingEmail');
-    if (!res.hasPin) navigate("/pin/create");
-    else navigate("/pin/verify");
+try {
+  const payload = {
+    email: String(email).trim(),
+    otp: String(otpString).trim()
+  }
+  if(!payload.email || payload.otp.length !== 6){
+  setMessage({ type: "error", text: "Please enter a valid 6-digit OTP and email!" });
+  return;
+  }
+   console.log("VERIFY ACCOUNT PAYLOAD:", payload);
+  const res = await verifyAccount(payload); 
 
-  } catch (error) {
+ 
+
+ if (res?.token) {
+  localStorage.setItem("access_token", res.token);
+}
+
+  localStorage.removeItem("pendingEmail");
+
+  if (res?.hasPin === false) navigate("/pin/create");
+  else navigate("/pin/verify");
+
+} catch (error) {
     console.error("VERIFY OTP ERROR:", error);
     const backendMessage = error.response?.data?.message;
 
@@ -98,7 +118,7 @@ try {
   setMessage({type:'success', text:'OTP resent successfully!'})
   setOtp(new Array(6).fill(""))
   inputs.current[0]?.focus();
-  localStorage.removeItem('pendingEmail');
+
 } catch(error){
   console.error("VERIFY OTP ERROR:", error);
   const backendMessage = error.response?.data?.message;
@@ -133,7 +153,7 @@ try {
          {otp.map((value, index) => (
           <input type="text" key={index} maxLength={1} ref={(el) => (inputs.current[index] = el)}
           value={value} onChange={(e) => handleChange(e.target, index)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => handleKeyDown(e, index)}
           onPaste={handlePaste} className='otp' />
          ))}
        </div>

@@ -97,7 +97,7 @@
   margin-bottom: 20px;
 }
 
-/* Journal Card */
+
 .journal-item-card {
   background: #FFFFFF;
   padding: 25px;
@@ -144,21 +144,6 @@
   font-style: italic;
   margin-bottom: 20px;
 }
-
-/* .card-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.tag {
-  background: #F4F7FE;
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #2B3674;
-  margin-right: 8px;
-} */
 
 .card-actions {
   display: flex;

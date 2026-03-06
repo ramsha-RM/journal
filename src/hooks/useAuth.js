@@ -1,112 +1,133 @@
+import { useState } from "react";
 import API from "../service/axios";
 
 const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || "login_token";
 const ACCESS_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || "access_token";
 
-export default function useAuth() {
+const useAuth = () => {
+  const [user, setUser] = useState(null);
 
-  const setLoginToken = (token) => {
-    if (token) localStorage.setItem(LOGIN_KEY, token);
-  };
+  const getLoginToken = () => localStorage.getItem(LOGIN_KEY);
+  const getAccessToken = () => localStorage.getItem(ACCESS_KEY);
 
-  const setAccessToken = (token) => {
-      localStorage.setItem(ACCESS_KEY, token);
-      localStorage.removeItem(LOGIN_KEY); 
+  const setTokens = (loginToken, accessToken) => {
+    if (loginToken) localStorage.setItem(LOGIN_KEY, loginToken);
+    if (accessToken) localStorage.setItem(ACCESS_KEY, accessToken);
   };
 
   const clearTokens = () => {
-    localStorage.removeItem(ACCESS_KEY);
     localStorage.removeItem(LOGIN_KEY);
+    localStorage.removeItem(ACCESS_KEY);
   };
-
-  // Lock preferences
-  const checkLockPreferences = async () =>
-    (await API.get("/lock/preferences")).data;
-
-  const changeLockPreferences = async () =>
-    (await API.put("/lock/preferences")).data;
 
   // Register
   const register = async (data) => {
-    const res = await API.post("/auth/register", data);
-    if (res.data?.email)
-      localStorage.setItem("pendingEmail", res.data.email);
-    return res.data;
-  };
+    try {
+      const res = await API.post("/auth/register", data);
 
-  //  LOGIN 
-  const login = async (email, password) => {
-    clearTokens();
-    const res = await API.post("/auth/login", { email, password });
-    console.log("LOGIN RESPONSE:", res.data);
-    const loginToken = res.data.token;
-    const user = res.data.user;
-
-    setLoginToken(loginToken);
-
-    localStorage.setItem("username", user?.username || user?.name || "User");
-    localStorage.setItem("email", user?.email || "");
-    localStorage.setItem("userId", user?.id || user?._id || "");
-
-    const hasPinValue = await hasPin();
-
-    return {
-      hasPin: hasPinValue,
-      isVerified: user?.isEmailVerified || false,
-      user,
-    };
-  };
-
-  // Verify account 
-  const verifyAccount = async (data) => {
-    const res = await API.post("/auth/verify-account", data);
-
-    if (res.data?.loginToken) {
-      setLoginToken(res.data.loginToken);
+      if (res.data?.login_token) {
+        setTokens(res.data.login_token, null);
+        }
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
     }
-
-    const user = res.user || {};
-    localStorage.setItem("username", user.username || user.name || "User");
-    if (user.email)
-      localStorage.setItem("email", user.email);
-
-    const hasPinValue = await hasPin();
-
-    return {
-      hasPin: hasPinValue,
-      isVerified: user?.isEmailVerified || false,
-      user,
-    };
   };
 
-  // PIN APIs
-  const hasPin = async () =>{
-   const res = await API.get("/pin/has-pin");
-   return res.data?.hasPin || false;
-  };
+  // Verify Account
+const verifyAccount = async (data) => {
+  try {
+    const loginToken = localStorage.getItem(LOGIN_KEY);
 
-  const createPin = async (data) =>
-    (await API.post("/pin/create", data)).data;
+    const res = await API.post( "/auth/verify-account", data,
+      {
+        headers: { Authorization: `Bearer ${loginToken}`,},
+      });
 
-  // VERIFY PIN 
-  const verifyPin = async (data) => {
-    const res = await API.post("/pin/verify", data);
-    const { accessToken } = res.data;
-
-    setAccessToken(accessToken);
-
+    if (res.data?.token) {
+      setTokens(null, res.data.token);
+    }
     return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+  // Create PIN
+  const createPin = async (pin) => {
+    try {
+      const accessToken = getAccessToken();
+
+      const res = await API.post( "/auth/create-pin", { pin },
+        {
+          headers: { Authorization: `Bearer ${accessToken}`, },
+        });
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  };
+
+  // Verify PIN
+  const verifyPin = async (pin) => {
+    try {
+      const accessToken = getAccessToken();
+
+      const res = await API.post("/auth/verify-pin", { pin },
+        {
+         headers: { Authorization: `Bearer ${accessToken}`, },
+        });
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  };
+
+  // Login
+  const login = async (data) => {
+    try {
+      const res = await API.post("/auth/login", data);
+
+      if (res.data?.access_token) {
+        setTokens(null, res.data.access_token);
+      }
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  };
+
+  // Check if user has PIN
+  const hasPin = async () => {
+    try {
+      const accessToken = getAccessToken();
+
+      const res = await API.get("/auth/has-pin", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,},
+      });
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  };
+
+  // Logout
+  const logout = () => {
+    clearTokens();
+    setUser(null);
   };
 
   return {
-    checkLockPreferences,
-    changeLockPreferences,
-    login,
     register,
     verifyAccount,
-    hasPin,
     createPin,
     verifyPin,
-    clearTokens,
+    login,
+    hasPin,
+    logout,
+    user,
   };
-}
+};
+
+export default useAuth;

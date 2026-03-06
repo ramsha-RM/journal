@@ -6,7 +6,7 @@ import AdminDelJournal from "../../components/AdminDelJournal";
 import "../../style/dashboardstyle/dashboard.css";
 import "../../style/dashboardstyle/dashboardLayout.css";
 import SeaarchIcon from "../../assets/icons/searchicon.png";
-import ProfileImg from "../../assets/icons/profile.png";
+import ProImg from "../../assets/icons/profile.png";
 import EyeIcon from "../../assets/icons/eye.png";
 import EditIcon from "../../assets/icons/penciledit.png";
 
@@ -19,12 +19,16 @@ import { myStreak } from "../../service/streak.service";
 import { overallMood } from "../../service/mood.service";
 import { dashboardStats } from "../../service/dashboard.service";
 import MoodProgress from "../../components/MoodProgress";
+import { useAuthLock } from "../../hooks/useAuthLock";
+import { useName } from "../../hooks/useName";
+import { useProfile } from "../../hooks/useProfile";
+import UserImg from "../../assets/icons/profile-edit.svg";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-
+  const [ userName ] = useName();   
+  const { profileImg } = useProfile();
   const [loading, setLoading] = useState(false);
-  const [userName, setUserName] = useState("User");
   const [journals, setJournals] = useState([]);
   const [filteredJournals, setFilteredJournals] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,11 +71,15 @@ const Dashboard = () => {
     }
   };
 
+  const userId = localStorage.getItem("userId"); 
   useEffect(() => {
+    setJournals([]);
+    setFilteredJournals([]);
+    setStreak(0);
+    setMoodSummary({ Happy: 0, Calm: 0, Neutral: 0, Sad: 0 });
+
     fetchAll();
-    const savedName = localStorage.getItem("username");
-    setUserName(savedName && savedName !== "undefined" ? savedName : "User");
-  }, []);
+  }, [userId]);
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
@@ -170,7 +178,7 @@ const moodPercentages = Object.fromEntries(
               />
             </div>
             <div className="profile-circle" onClick={() => navigate("/profile")}>
-              <img src={ProfileImg} alt="profile" />
+              <img className={!profileImg ? "default-icon" : ""}  src={profileImg || ProImg} alt="profile" />
             </div>
           </div>
         </header>

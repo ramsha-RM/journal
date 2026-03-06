@@ -4,7 +4,8 @@ import Sidebar from './Sidebar';
 import '../../style/dashboardstyle/createjournal.css';
 import '../../style/dashboardstyle/dashboardLayout.css'
 import Toast from '../../components/Toast'
-
+import { useName } from "../../hooks/useName";
+import { useProfile } from "../../hooks/useProfile"; 
 import BackbtnImg from '../../assets/icons/Backbtn.png';
 import EditIcon from '../../assets/icons/blueedit.png';
 import DeleteIcon from '../../assets/icons/redtrash.png';
@@ -15,22 +16,18 @@ import { getSingleJournal, deleteJournal, adminDeleteJournal } from '../../servi
 
 const AddJournal = () => {
     const navigate = useNavigate();
+    const [ userName ]= useName();   
+    const { profileImg } = useProfile();
     const { id } = useParams();
     const [journal, setJournal] = useState(null);
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState({ show: false, message: "", type: "" });
-    const [userName, setUserName] = useState('User');
     const [deleteModel, setDeleteModel] = useState({ show: false, journalId: null, title: "", requireAdmin: false });
       const showToast = (message, type = "success") => {
       setToast({ show: true, message, type });
       setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
     };
     const moodEmojis = { Happy: "😄", Calm: "😌", Neutral: "😐", Sad: "😔" }
-    
-    useEffect(() => {
-  const savedName = localStorage.getItem('username');
-  setUserName(savedName && savedName !== 'undefined' ? savedName : "User");
-}, []);
 
     useEffect(() => {
       if (!id) {
