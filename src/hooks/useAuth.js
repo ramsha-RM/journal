@@ -14,7 +14,7 @@ const useAuth = () => {
   const setAccessToken = (token) => token && localStorage.setItem(ACCESS_KEY, token);
    
 const setSessionData = (res) => {
-  console.log("FULL BACKEND RESPONSE:", res);
+  // console.log("FULL BACKEND RESPONSE:", res);
 
   const token = res.accessToken || res.token || res.access_token;
   if (token) {
@@ -51,7 +51,11 @@ const setSessionData = (res) => {
     try {
       const res = await API.post("/auth/verify-account", payload);
       if (res.data?.token) setLoginToken(res.data.token);
-      return res.data;
+      const hasPinStatus = res.data?.hasPin ?? res.data?.user?.pinVerified ?? false;
+      return {
+        ...res.data,
+        hasPin: hasPinStatus
+      }
     } catch (error) {
       throw error.response?.data || error;
     }

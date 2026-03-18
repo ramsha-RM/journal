@@ -67,7 +67,7 @@ const handlePaste = (e) => {
 
     try {
      const res = await verifyPin(pinStr);
-     console.log("Verify PIN response:", res);
+    //  console.log("Verify PIN response:", res);
 
     if (res?.accessToken) {
       localStorage.setItem(ACCESS_KEY, res.accessToken);

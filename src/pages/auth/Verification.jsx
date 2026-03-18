@@ -54,10 +54,11 @@ const Verification = () => {
 
     try {
       const res = await verifyAccount({ email, otp: otpString });
-      if (res?.token) localStorage.setItem("login_token", res.token);
+      // console.log("Vercel Verify Response:", res);
+      // if (res?.token) localStorage.setItem("login_token", res.token);
 
+       setMessage({ type: "success", text: "Account verified!" });
       localStorage.removeItem("pendingEmail");
-
       if (!res?.hasPin) navigate("/pin/create");
       else navigate("/pin/verify");
     } catch (error) {
@@ -92,7 +93,7 @@ const Verification = () => {
     setMessage({ type: "success", text: "Email verified!" });
     } catch (error) {
       setMessage({ type: "error", text: error?.response?.data?.message || "Something went wrong!" });
-      setresendTimer(fasle);
+      setresendTimer(0);
     } finally {
       setTimeout(() => setResendDisable(false), 3000);
     }
