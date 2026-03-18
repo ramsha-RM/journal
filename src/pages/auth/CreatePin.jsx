@@ -1,115 +1,129 @@
-import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useAuth from '@/hooks/useAuth';
-import '../../style/authstyle/auth.css';
-import '../../style/authstyle/verification.css';
-import Toast from '../../components/Toast';
-import logoMain from '../../assets/img/titleLogo.png';
+import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
+
+import "../../style/authstyle/auth.css";
+import "../../style/authstyle/verification.css";
+
+import Toast from "../../components/Toast";
+import logoMain from "../../assets/img/titleLogo.png";
 
 const CreatePin = () => {
   const navigate = useNavigate();
-  const { createPin, hasPin } = useAuth();
- 
-  const [pin, setPin] = useState(new Array(4).fill(''));
-  const [message, setMessage] = useState(null);
+  const { createPin } = useAuth();
+
+  const [pin, setPin] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null);
+
   const pinRefs = useRef([]);
 
+  useEffect(() => {
+    const hasPin = localStorage.getItem("hasPin");
+
+    if (hasPin === "true") {
+      navigate("/pin/verify");
+    }
+  }, [navigate]);
+
   const handleChange = (value, index) => {
-    if (!/^\d$/.test(value)) return;
+    if (!/^\d?$/.test(value)) return;
 
     const newPin = [...pin];
     newPin[index] = value;
     setPin(newPin);
 
-    if (index < 3) {
+    if (value && index < 3) {
       pinRefs.current[index + 1]?.focus();
     }
   };
 
+
   const handleKeyDown = (e, index) => {
-    if (e.key === 'Backspace') {
-      e.preventDefault();
+    if (e.key === "Backspace") {
       const newPin = [...pin];
 
-      if (pin[index] === '' && index > 0) {
-        newPin[index - 1] = '';
-        setPin(newPin);
+      if (pin[index] === "" && index > 0) {
         pinRefs.current[index - 1]?.focus();
-      } else {
-        newPin[index] = '';
-        setPin(newPin);
       }
+
+      newPin[index] = "";
+      setPin(newPin);
     }
   };
 
+
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4);
+
+    const pasteData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 4);
 
     if (!pasteData) return;
 
-    const newPin = pasteData.split('');
+    const newPin = pasteData.split("");
     setPin(newPin);
 
     pinRefs.current[newPin.length - 1]?.focus();
   };
-  
-const handleCreatePin = async (e) => {
-  e.preventDefault();
-  const pinStr = pin.join('');
 
-  if (pinStr.length !== 4) {
-    setMessage({ type: 'error', text: 'PIN must be 4 digits!' });
-    return;
-  }
+  const handleCreatePin = async (e) => {
+    e.preventDefault();
 
-  setMessage(null);
-  setLoading(true);
+    const pinStr = pin.join("");
 
-  try {
-    let token = localStorage.getItem("access_token");
-    if (!token) {
-      const loginToken = localStorage.getItem("login_token");
-      if (loginToken) {
-        localStorage.setItem("access_token", loginToken);
-        token = loginToken;
-      }
-    }
-
-    const pinCheck = await hasPin();
-
-    if (pinCheck?.hasPin) {
+    if (pinStr.length !== 4) {
       setMessage({
-        type: 'warning',
-        text: 'PIN already exists. Please verify!',
+        type: "error",
+        text: "PIN must be 4 digits",
       });
-      navigate('/pin/verify');
       return;
     }
 
-    await createPin({ pin: pinStr });
+    setLoading(true);
+    setMessage(null);
 
-    navigate('/pin/verify');
-  } catch (error) {
-    console.error('Create PIN error:', error);
+    try {
+      const res = await createPin(pinStr);
+      localStorage.setItem("hasPin", "true");
 
-    if (!error.response) {
-      setMessage({ type: 'error', text: 'Server not reachable.' });
-    } else {
       setMessage({
-        type: 'error',
-        text: error.response?.data?.message || 'Something went wrong. Please try again.',
+        type: "success",
+        text: "PIN created successfully",
       });
+
+      setTimeout(() => {
+        navigate("/pin/verify");
+      }, 1200);
+    } catch (error) {
+      // console.error("Create PIN error:", error);
+
+      if (error?.response?.status === 409) {
+        setMessage({
+          type: "success",
+          text: "PIN already exists. Redirecting to verify.",
+        });
+
+        setTimeout(() => {
+          navigate("/pin/verify");
+        }, 1500);
+      } else {
+        setMessage({
+          type: "error",
+          text:
+            error?.response?.data?.message ||
+            "Something went wrong. Try again.",
+        });
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleReset = () => {
-    setPin(new Array(4).fill(''));
-    setMessage(null);
+    setPin(["", "", "", ""]);
     pinRefs.current[0]?.focus();
   };
 

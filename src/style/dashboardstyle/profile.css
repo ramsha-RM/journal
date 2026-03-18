@@ -5,7 +5,7 @@
   margin-bottom: 20px;
 }
 .profile-form{
-    background: #ffffff;
+  background: #ffffff;
   padding: 25px;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(112, 144, 176, 0.05);
@@ -23,13 +23,12 @@
   height: 80px;
   border-radius: 50%;     
   overflow: hidden;
-  /* border: 2px solid #ccc; */
   cursor: pointer;
+  background: rgba(237, 232, 255, 1);
   position: relative;   
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #EDE8FF; 
 }
 .edit-img img {
   width: 100%;
@@ -37,9 +36,7 @@
   object-fit: cover;
   transition: transform 0.2s ease;
 }
-.edit-img:hover img, .profile-image {
-  transform: scale(1.05);
-}
+
 .profile-image.default {
   width: 50%;
   height: 50%;

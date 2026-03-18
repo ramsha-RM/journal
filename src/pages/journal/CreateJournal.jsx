@@ -6,14 +6,16 @@ import '../../style/dashboardstyle/dashboardLayout.css';
 import Toast from '../../components/Toast';
 import ProIcon from '../../assets/icons/profile.png';
 import UserImg from "../../assets/icons/profile-edit.svg";
-import { useName } from "../../hooks/useName";
-import { useProfile } from "../../hooks/useProfile";
+
 import {
   getSingleJournal,
   createJournal,
   getAllJournals,
   updateJournal,
 } from "../../service/journal.service";
+
+import { useName } from "../../hooks/useName";
+import { useProfile } from "../../hooks/useProfile";
 
 const CreateJournal = () => {
   const navigate = useNavigate();
@@ -42,7 +44,6 @@ const CreateJournal = () => {
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
   };
 
-  // Fetch single journal if editing
   useEffect(() => {
     if (!id) return;
     const fetchSingleJournal = async () => {

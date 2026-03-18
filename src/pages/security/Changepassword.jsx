@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import API from '@/service/axios';
 import "../../style/authstyle/resetPassword.css" 
-import authBGImg from '../../assets/img/Ractangle.png'
+// import authBGImg from '../../assets/img/Ractangle.png'
+import ShowHidePass from '../../components/ShowHidePass';
 
 const Changepassword = () => {
 const navigate = useNavigate();
@@ -61,38 +62,45 @@ const [message, setMessage] = useState(null);
     };
 
   return (
-    <div className="passwordBg" style={{ backgroundImage: `url(${authBGImg})` }}>
-       <form className="resetForm" onSubmit={handlePassword}>
-       <h1 className="auth-heading">Change Password</h1>
-    <div className="inputs">
-       <div className="currPassword">
-        <label className="password-label">Current Password</label>
-      <input type="password"  value={currentPassword} 
-        onChange={(e) => setCurrentPassword(e.target.value)}/></div>
+    <div className="modal-overlay">
+      <form className="modal-content resetForm" onSubmit={handlePassword}>
+        <h2 className="pass-heading">Change Password</h2>
+        <p className='btext'>Update your password below.</p>
 
-        <div className="newPassword">
-          <label className="password-label">New Password</label>
-        <input type="password"  value={newPassword} 
-      onChange={(e) => setNewPassword(e.target.value)}/></div>
-
-        <div className="confPassword">
-          <label className="password-label">Confirm Password</label>
-              <input type="password" value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)} /></div></div>
-
-          <div className="actionbtn">
-      <button className="clear" onClick={() => navigate("/dashboard")}>Cancel</button>
-      <button className='passwordbtn' type='submit'>Update Password</button>
+      <div className="input-container" style={{
+        display: "flex", flexDirection: "column",  gap: "12px"
+      }}>
+        <ShowHidePass 
+          label="Current Password" 
+          value={currentPassword} 
+          onChange={(e) => setCurrentPassword(e.target.value)} 
+        />
+        <ShowHidePass 
+          label="New Password" 
+          value={newPassword} 
+          onChange={(e) => setNewPassword(e.target.value)} 
+        />
+        <ShowHidePass 
+          label="Confirm Password" 
+          value={confirmPassword} 
+          onChange={(e) => setConfirmPassword(e.target.value)} 
+        />
       </div>
-     </form>
-            {message && (
+
+        <div className="actionbtn">
+          <button type="button" className="clear" onClick={() => navigate("/dashboard")}>Cancel</button>
+          <button className='passwordbtn' type='submit'>Update</button>
+        </div>
+      </form>
+
+      {message && (
         <div className={`message ${message.type}`}>
           <span>{message.text}</span>
           <button className="closeBtn" onClick={() => setMessage(null)}>❌</button>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 export default Changepassword

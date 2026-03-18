@@ -9,125 +9,114 @@ const useAuth = () => {
 
   const getLoginToken = () => localStorage.getItem(LOGIN_KEY);
   const getAccessToken = () => localStorage.getItem(ACCESS_KEY);
+  
+  const setLoginToken = (token) => token && localStorage.setItem(LOGIN_KEY, token);
+  const setAccessToken = (token) => token && localStorage.setItem(ACCESS_KEY, token);
+   
+const setSessionData = (res) => {
+  console.log("FULL BACKEND RESPONSE:", res);
 
-  const setTokens = (loginToken, accessToken) => {
-    if (loginToken) localStorage.setItem(LOGIN_KEY, loginToken);
-    if (accessToken) localStorage.setItem(ACCESS_KEY, accessToken);
-  };
+  const token = res.accessToken || res.token || res.access_token;
+  if (token) {
+    setAccessToken(token);
+    
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+        
+        if (payload.sub) {
+          localStorage.setItem("userId", String(payload.sub));
+        } 
+      }
+    } catch (err) {
+      // console.error("FATAL: Token decoding failed:", err);
+    }
+  } 
+};
 
-  const clearTokens = () => {
-    localStorage.removeItem(LOGIN_KEY);
-    localStorage.removeItem(ACCESS_KEY);
-  };
-
-  // Register
   const register = async (data) => {
     try {
       const res = await API.post("/auth/register", data);
+      localStorage.setItem("pendingEmail", data.email);
+      localStorage.setItem("pendingName", data.name);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Registration failed");
+    }
+  };
 
-      if (res.data?.login_token) {
-        setTokens(res.data.login_token, null);
-        }
+  const verifyAccount = async (payload) => {
+    try {
+      const res = await API.post("/auth/verify-account", payload);
+      if (res.data?.token) setLoginToken(res.data.token);
       return res.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   };
 
-  // Verify Account
-const verifyAccount = async (data) => {
+   const login = async ({ email, password }) => {
   try {
-    const loginToken = localStorage.getItem(LOGIN_KEY);
+    localStorage.clear();
+    const res = await API.post("/auth/login", { email, password });
+    
+    setSessionData(res.data);
+    
+    const userData = res.data?.user || {};
+    localStorage.setItem("username", userData.name || "User");
 
-    const res = await API.post( "/auth/verify-account", data,
-      {
-        headers: { Authorization: `Bearer ${loginToken}`,},
-      });
+    setUser({
+      id: localStorage.getItem("userId"), 
+      email: userData.email,
+      username: userData.name || userData.email?.split('@')[0],
+      isVerified: userData.isEmailVerified,
+      hasPin: userData.pinVerified || false,
+    });
 
-    if (res.data?.token) {
-      setTokens(null, res.data.token);
-    }
-    return res.data;
+    return { 
+        isVerified: userData.isEmailVerified, 
+        hasPin: userData.pinVerified || false 
+    };
   } catch (error) {
     throw error.response?.data || error;
   }
 };
 
-  // Create PIN
   const createPin = async (pin) => {
-    try {
-      const accessToken = getAccessToken();
+    const token = getLoginToken() || getAccessToken();
+    if (!token) throw new Error("Login token missing");
 
-      const res = await API.post( "/auth/create-pin", { pin },
-        {
-          headers: { Authorization: `Bearer ${accessToken}`, },
-        });
-      return res.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
+    const res = await API.post("/pin/create", { pin }, {
+      headers: { Authorization: `Bearer ${token}` } 
+    });
+
+    setSessionData(res.data);
+    return res.data;
   };
 
-  // Verify PIN
   const verifyPin = async (pin) => {
-    try {
-      const accessToken = getAccessToken();
+    const token = getLoginToken() || getAccessToken(); 
+    if (!token) throw new Error("Authentication token missing");
 
-      const res = await API.post("/auth/verify-pin", { pin },
-        {
-         headers: { Authorization: `Bearer ${accessToken}`, },
-        });
-      return res.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
+    const res = await API.post("/pin/verify", { pin }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (res.data) setSessionData(res.data);
+    
+    return res.data;
   };
-
-  // Login
-  const login = async (data) => {
-    try {
-      const res = await API.post("/auth/login", data);
-
-      if (res.data?.access_token) {
-        setTokens(null, res.data.access_token);
-      }
-      return res.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  };
-
-  // Check if user has PIN
-  const hasPin = async () => {
-    try {
-      const accessToken = getAccessToken();
-
-      const res = await API.get("/auth/has-pin", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,},
-      });
-      return res.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  };
-
-  // Logout
   const logout = () => {
-    clearTokens();
+    localStorage.removeItem(LOGIN_KEY);
+    localStorage.removeItem(ACCESS_KEY);
+    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
     setUser(null);
+    window.location.href = "/";
   };
-
-  return {
-    register,
-    verifyAccount,
-    createPin,
-    verifyPin,
-    login,
-    hasPin,
-    logout,
-    user,
-  };
+  return { register, verifyAccount, login, createPin, verifyPin, logout, user };
 };
 
 export default useAuth;

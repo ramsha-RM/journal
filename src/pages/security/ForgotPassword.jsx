@@ -3,7 +3,7 @@ import API from '@/service/axios';
 import { useNavigate } from 'react-router-dom';
 import "../../style/authstyle/resetPassword.css"
 import Toast from '../../components/Toast'
-import authBGImg from '../../assets/img/Ractangle.png'
+// import authBGImg from '../../assets/img/Ractangle.png'
 
 const Forgotpassword = () => {
     const navigate = useNavigate();
@@ -29,16 +29,21 @@ const Forgotpassword = () => {
         }
     };
   return (
-    <div className="passwordBg" style={{ backgroundImage: `url(${authBGImg})` }}>
-        <form onSubmit={handleForgot} className='resetForm'>
+    <div className="modal-overlay">
+         <form onSubmit={handleForgot} className='modal-content resetForm'>
+       <h2 className='auth-heading'>Forgot Password</h2>
+       <p className='textline'>Enter your email to reset your password.</p>
+  
+      <div className="input-group">
+       <label className="password-label">Email</label>
+       <input type="email"  value={email} onChange={(e) => setEmail(e.target.value)}/>
+      </div>
 
-           <p className='textline'>Enter your email for Set your password.</p>
-        <input type="email" placeholder='Enter your email'  value={email} 
-      onChange={(e) => setEmail(e.target.value)}/>
-
-      <button type="submit" className='passwordbtn'>Send your link</button>
-      <p className="bottomtext">Check your inbox after submitting!</p>
-</form>
+      <div className="action-row">
+      <button type="submit" className='passwordbtn'>Send Link</button>
+     </div>
+     <p className="btext">Check your inbox after submitting!</p>
+    </form>
 <Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />
     </div>
   )

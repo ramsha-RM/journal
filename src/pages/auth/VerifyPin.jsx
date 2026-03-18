@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react'
-import {useNavigate} from 'react-router-dom'
+import {replace, useNavigate} from 'react-router-dom'
 import useAuth from '@/hooks/useAuth'
 import logoImg from '../../assets/img/titleLogo.png'
 import '../../style/authstyle/auth.css'
@@ -53,37 +53,73 @@ const handlePaste = (e) => {
   };
 
    const handleSubmit = async (e) => {
-  e.preventDefault();
-  setMessage(null);
+    e.preventDefault();
+    setMessage(null);
 
-  const pinStr = pin.join("");
-if(pinStr.length !== 4){
-  setMessage({type:'error', text:'Please enter your 4-digit pin!'});
-  return;
-}
-setLoading(true);
-try {
- await verifyPin({ pin: pinStr });
-  localStorage.setItem("pin_verified", "true");
-  navigate('/dashboard');
+    const ACCESS_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || "access_token";
+    const pinStr = pin.join('');
+    if (pinStr.length !== 4) {
+      setMessage({ type: 'error', text: 'Please enter your 4-digit PIN!' });
+      return;
+    }
 
-} catch (error) {
-if(error.response){
-  const status = error.response?.status;
-if(status === 404){
-    setMessage({type:'error', text:'Please first create a PIN'});
-  }else if(status === 403){
-    setMessage({type:'error', text:'Wrong PIN'});
-  }else if(status === 500){
-    setMessage({type:'error', text:'Server error'});
-  }else{
-    setMessage({type:'error', text:'Network issue. Please try later!'})
-  }
-  }
- }finally{
-   setLoading(false);
- }
-}
+    setLoading(true);
+
+    try {
+     const res = await verifyPin(pinStr);
+     console.log("Verify PIN response:", res);
+
+    if (res?.accessToken) {
+      localStorage.setItem(ACCESS_KEY, res.accessToken);
+    }
+
+    if(res?.userId){
+      localStorage.setItem("userId", res.userId);
+    }
+    localStorage.removeItem("login_token");
+    setMessage({ type: "success", text: "PIN confirmed!",
+      });
+
+console.log("DEBUG: Saving Token...");
+console.log("Key Used:", ACCESS_KEY);
+console.log("Token Value:", res?.accessToken);
+
+localStorage.setItem(ACCESS_KEY, res.accessToken);
+localStorage.setItem("userId", res.userId);
+
+// VERIFY IMMEDIATELY
+const savedToken = localStorage.getItem(ACCESS_KEY);
+console.log("DEBUG: Token found in storage after save:", savedToken);
+
+      setTimeout(() => {
+        window.location.replace("/dashboard")
+      }, 800);
+    } catch (error) {
+      console.error('Verify PIN error:', error);
+
+      const serverMsg = error?.message;
+      if (Array.isArray(serverMsg)) {
+        setMessage({ type: 'error', text: serverMsg.join(' | ') });
+      } else if (typeof serverMsg === 'string') {
+        setMessage({ type: 'error', text: serverMsg });
+      } else if (error?.response) {
+        const status = error.response.status;
+        if (status === 404) {
+          setMessage({ type: 'error', text: 'Please first create a PIN' });
+        } else if (status === 403) {
+          setMessage({ type: 'error', text: 'Wrong PIN' });
+        } else if (status === 500) {
+          setMessage({ type: 'error', text: 'Server error' });
+        } else {
+          setMessage({ type: 'error', text: 'Network issue. Please try later!' });
+        }
+      } else {
+        setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
      <div className="auth-wrapper">
@@ -113,7 +149,7 @@ if(status === 404){
           ))}
         </div>
             
-        <button disabled={pin.join("").length !== 4 || loading} type='submit' className="primary-btn">{loading ? "Verifying..." : "Continue"}</button>
+        <button disabled={pin.join("").length !== 4 || loading} type='submit' className="primary-btn">Continue</button>
         <p className="verifyText">Back to
         <span onClick={() => navigate("/pin/create")} >changes PIN</span> </p>
         </form>

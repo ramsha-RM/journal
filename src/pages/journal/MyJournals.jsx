@@ -14,8 +14,10 @@ import { getAllJournals, deleteJournal, adminDeleteJournal } from "../../service
 import { useName } from "../../hooks/useName";
 import { useProfile } from "../../hooks/useProfile";
 import UserImg from "../../assets/icons/profile-edit.svg";
+
 const MyJournals = () => {
   const navigate = useNavigate();
+
  const  [userName] = useName();   
   const { profileImg } = useProfile();
   const [journals, setJournals] = useState([]);
@@ -37,8 +39,8 @@ const MyJournals = () => {
     try {
       const data = await getAllJournals();
       const journalArray = data?.journals || data?.data || (Array.isArray(data) ? data : []);
-      setJournals(journalArray);
-      setFilteredJournals(journalArray);
+      setJournals(data);
+      setFilteredJournals(data);
     } catch (err) {
       showToast("Failed to fetch journals", "error");
     }
@@ -92,8 +94,8 @@ const handleDelete = async (adminKey) => {
   
         <header className="top-header">
           <div className="welcome-section">
-            <p>Hi {userName},</p>
-            <h1>My Journals</h1>
+            <p>Hi {userName || "User"},</p>
+            <h1>Welcome to Notevia!</h1>
           </div>
            <div className="search-bar-container">
              <div className="search-wrapper">
@@ -111,7 +113,8 @@ const handleDelete = async (adminKey) => {
              </div>
            </div>
         </header>
-
+      
+      <h3 className="heading">My Journals</h3>
         <section className="journals-section-grid">
           {filteredJournals.length === 0 ? (
             <p style={{ color: "#707EAE" }}>No journals found.</p>
@@ -125,7 +128,7 @@ const handleDelete = async (adminKey) => {
                   ? "😔 Sad"
                   : journal.mood === "Neutral"
                   ? "😐 Neutral"
-                  : "😌 Calm";
+                  : "😌 Calm";   
 
               return (
                 <div key={journalId} className="journal-item-grid">

@@ -1,45 +1,23 @@
-// import { useState, useEffect } from "react";
-
-// export const useProfile = () => {
-//   const [profileImg, setProfileImg] = useState(null);
-
-//   useEffect(() => {
-//     const storedImg = localStorage.getItem("profileImg");
-//     if (storedImg) setProfileImg(storedImg);
-
-//     const handleStoreImg = () => {
-//       const updateImg = localStorage.getItem("profileImg");
-//       setProfileImg(updateImg);
-//     };
-//     window.addEventListener("storage", handleStoreImg);
-
-//     return() => {
-//       window.removeEventListener("storage", handleStoreImg);
-//     };
-//   }, []);
-
-//   const updateProfileImage = (img) => {
-//     setProfileImg(img);
-//     localStorage.setItem("profileImg", img);
-//   };
-
-//   return { profileImg, updateProfileImage }; 
-// };
-
 import { useState, useEffect } from "react";
 
 export const useProfile = () => {
-  const [profileImg, setProfileImg] = useState(null);
-
-  useEffect(() => {
-    const storedImg = localStorage.getItem("profileImg");
-    if (storedImg) setProfileImg(storedImg);
-  }, []);
+  const [profileImg, setProfileImg] = useState(() => {
+    return localStorage.getItem("profileImg") || null;
+  });
 
   const updateProfileImage = (img) => {
     setProfileImg(img);
-    localStorage.setItem("profileImg", img);
+    if (img) localStorage.setItem("profileImg", img);
   };
+
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setProfileImg(localStorage.getItem("profileImg"));
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   return { profileImg, updateProfileImage };
 };

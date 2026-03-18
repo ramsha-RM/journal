@@ -4,7 +4,9 @@ import API from '@/service/axios';
 
 import "../../style/authstyle/resetPassword.css"
 import { useSearchParams } from 'react-router-dom'
-import authBGImg from '../../assets/img/Ractangle.png'
+// import authBGImg from '../../assets/img/Ractangle.png'
+import Toast from '../../components/Toast'
+import ShowHidePass from '../../components/ShowHidePass';
 
 const Resetpassword = () => {
   const {state} = useLocation();
@@ -37,26 +39,36 @@ const Resetpassword = () => {
     }
   };
   return (
-    <div className="passwordBg" style={{ backgroundImage: `url(${authBGImg})` }}>
-        <div className="container">
-          <h2 className='auth-heading'>Reset your password</h2>
-          <form className="resetForm" onSubmit={handleSubmit}>
-              <p className='textline'>Enter your password for change your password.</p>
-              
+    <div className="modal-overlay">
+          <form className="modal-content resetForm" onSubmit={handleSubmit}>
+      <h2 className='auth-heading'>Reset Password</h2>
+      <p className='textline'>Enter the OTP and your new password.</p>
+  
+      <div className="input-group">
+        <label className="password-label">Email</label>
         <input type="email" className="email" value={email} readOnly />
-        <input type="text" placeholder="Enter OTP from email"
-        value={otp} onChange={(e) => setOtp(e.target.value)} />
-        <input type="password" placeholder='New password' value={newPassword} 
-      onChange={(e) => setNewPassword(e.target.value)} />
-       <button  className='passwordbtn'  type="submit">Reset Password</button>
+      </div>
+      <div className="input-group">
+        <label className="password-label">OTP</label>
+        <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} />
+      </div>
+       <div className="input-container" style={{
+        display: "flex", flexDirection: "column",  gap: "12px"
+      }}>
+        <ShowHidePass 
+          label="New Password" 
+          value={newPassword} 
+         onChange={(e) => setNewPassword(e.target.value)} 
+        /></div>
 
-      <p className="bottomtext">Choose a strong password!</p>
-      </form>        
-        </div>
-        {message && <div className={`message ${message.type}`}>{message.text}
-              <button type='button' className="closeBtn" onClick={() => setMessage(null)}>❌</button>
-            </div>
-            }
+      <div className="action-row">
+        <button className='passwordbtn' type="submit">Reset Password</button>
+      </div>
+
+    </form>
+
+   
+        <Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />
     </div>
   );
 }

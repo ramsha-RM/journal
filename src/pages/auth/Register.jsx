@@ -5,6 +5,7 @@ import '../../style/authstyle/auth.css'
 import '../../style/authstyle/auth.css'
 import Toast from '../../components/Toast'
 import logoMain from '../../assets/img/titleLogo.png'
+import ShowHidePass from '../../components/ShowHidePass'
 
   const Register = () => {
   const navigate = useNavigate();
@@ -48,15 +49,18 @@ const validate = () => {
 
     try{
       setLoading(true);
+      localStorage.clear();
+      
         await register({
         name: userName?.trim(),
         email: email.trim().toLowerCase(),
         passwordHash: password.trim(),
       });
-setMessage({type: "success", text: "Account created successfully!"});
-localStorage.setItem('pendingEmail', email.trim().toLowerCase());
-localStorage.setItem('pendingName', userName.trim());
 
+localStorage.setItem('pendingEmail', email.trim().toLowerCase());
+localStorage.setItem('username', userName.trim());
+  
+setMessage({type: "success", text: "Account created successfully!"});
 setTimeout(() => {
   navigate('/verification');
 }, 1500);
@@ -115,30 +119,19 @@ setTimeout(() => {
           {errors.email && <small className='small'>{errors.email}</small>}
         </div>
 
-        <div className='passwordBox'>
-          <label htmlFor="Password" className="passwordLabel">Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword( e.target.value)} 
-            className='passwordInput' autoComplete='new-password' />
+        <ShowHidePass 
+        label="Password"  name="password"
+        value={password} onChange={(e) => setPassword(e.target.value)}/>
           {errors.password && <small className='small'>{errors.password}</small>}
         </div>
-
-        {/* <div className='passwordBox'>
-          <label htmlFor="confirm Password" className="passwordLabel">Confirm Password</label>
-          <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} 
-            className='passwordInput' autoComplete='new-password' />
-          {errors.confirmPassword && <small className='small'>{errors.confirmPassword}</small>}
-        </div> */}
-</div>
         <button type='submit' className='primary-btn' disabled={loading}>{loading ? "Creating account..." : "Create Account"}</button>
 
         <p className="bottomtext">
           Already have an account! <span onClick={() => navigate('/')}>Login</span>
         </p>
-</form>
+     </form>
       </div>
  
-
-    
   <Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />
       </div>
 

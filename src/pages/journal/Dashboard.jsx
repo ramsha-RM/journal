@@ -3,67 +3,90 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Toast from "../../components/Toast";
 import AdminDelJournal from "../../components/AdminDelJournal";
+import MoodProgress from "../../components/MoodProgress";
+
 import "../../style/dashboardstyle/dashboard.css";
 import "../../style/dashboardstyle/dashboardLayout.css";
+
 import SeaarchIcon from "../../assets/icons/searchicon.png";
 import ProImg from "../../assets/icons/profile.png";
 import EyeIcon from "../../assets/icons/eye.png";
 import EditIcon from "../../assets/icons/penciledit.png";
-
 import IconJournal from "../../assets/icons/edit.png";
 import IconWeek from "../../assets/icons/vector.png";
 import IconStreak from "../../assets/icons/Vectorjournal.png";
 
-import { getAllJournals, deleteJournal, adminDeleteJournal } from "../../service/journal.service";
+import {
+  getAllJournals,
+  deleteJournal,
+  adminDeleteJournal,
+} from "../../service/journal.service";
 import { myStreak } from "../../service/streak.service";
 import { overallMood } from "../../service/mood.service";
-import { dashboardStats } from "../../service/dashboard.service";
-import MoodProgress from "../../components/MoodProgress";
-import { useAuthLock } from "../../hooks/useAuthLock";
+
 import { useName } from "../../hooks/useName";
 import { useProfile } from "../../hooks/useProfile";
-import UserImg from "../../assets/icons/profile-edit.svg";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [ userName ] = useName();   
+
+  const [userName] = useName();
   const { profileImg } = useProfile();
+
   const [loading, setLoading] = useState(false);
   const [journals, setJournals] = useState([]);
   const [filteredJournals, setFilteredJournals] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [streak, setStreak] = useState(0);
-  const [moodSummary, setMoodSummary] = useState({ Happy: 0, Calm: 0, Neutral: 0, Sad: 0 });
-  const [stats, setStats] = useState(null);
-  const [deleteModel, setDeleteModel] = useState({ show: false, journalId: null, title: "", requireAdmin: false });
+  const [moodSummary, setMoodSummary] = useState({
+    Happy: 0,
+    Calm: 0,
+    Neutral: 0,
+    Sad: 0,
+  });
+
+  const [deleteModel, setDeleteModel] = useState({
+    show: false,
+    journalId: null,
+    title: "",
+    requireAdmin: false,
+  });
+
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
+    setTimeout(() => {
+      setToast({ show: false, message: "", type: "" });
+    }, 3000);
   };
 
   const fetchAll = async () => {
     try {
       setLoading(true);
-      const [journalResp, streakResp, moodResp, dashboardResp] = await Promise.all([
+
+      setJournals([]);
+      setFilteredJournals([]);
+      setMoodSummary({ Happy: 0, Calm: 0, Neutral: 0, Sad: 0 });
+      setStreak(0);
+
+      const [journalResp, streakResp, moodResp] = await Promise.all([
         getAllJournals(),
         myStreak(),
         overallMood(),
-        dashboardStats(),
       ]);
 
-      const journalArray = journalResp?.journals || journalResp?.data || [];
+      const journalArray = journalResp;
       setJournals(journalArray);
       setFilteredJournals(journalArray);
       setStreak(streakResp?.streak || 0);
-      setStats(dashboardResp || null);
+
       setMoodSummary({
-      Happy: parseFloat(moodResp?.Happy) || 0,
-      Calm: parseFloat(moodResp?.Calm) || 0,
-      Neutral: parseFloat(moodResp?.Neutral) || 0,
-      Sad: parseFloat(moodResp?.Sad) || 0,
-});
+        Happy: parseFloat(moodResp?.Happy) || 0,
+        Calm: parseFloat(moodResp?.Calm) || 0,
+        Neutral: parseFloat(moodResp?.Neutral) || 0,
+        Sad: parseFloat(moodResp?.Sad) || 0,
+      });
     } catch {
       showToast("Failed to load dashboard data", "error");
     } finally {
@@ -71,51 +94,99 @@ const Dashboard = () => {
     }
   };
 
-  const userId = localStorage.getItem("userId"); 
-  useEffect(() => {
-    setJournals([]);
-    setFilteredJournals([]);
-    setStreak(0);
-    setMoodSummary({ Happy: 0, Calm: 0, Neutral: 0, Sad: 0 });
 
-    fetchAll();
-  }, [userId]);
+useEffect(() => {
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    navigate("/");
+    return;
+  }
+
+  if (!userId || userId === "undefined") {
+    console.warn("UserID missing, but token exists. Attempting recovery...");
+    setTimeout(() => fetchAll(), 500); 
+    return;
+  }
+
+  fetchAll();
+}, [navigate]);
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    setFilteredJournals(
-      journals.filter(
-        (j) => j.title?.toLowerCase().includes(term) || j.content?.toLowerCase().includes(term)
-      )
+
+    const filtered = journals.filter(
+      (j) =>
+        j.title?.toLowerCase().includes(term) ||
+        j.content?.toLowerCase().includes(term)
     );
+
+    setFilteredJournals(filtered);
   };
 
   const weeklyStats = useMemo(() => {
-    if (!Array.isArray(journals)) return { total: 0, thisWeek: 0, topMood: "Mostly calm" };
+    if (!Array.isArray(journals))
+      return { total: 0, thisWeek: 0, topMood: "Mostly calm" };
 
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
 
-    const thisWeekCount = journals.filter((j) => new Date(j.journal_date) >= lastWeek).length;
+    const thisWeekCount = journals.filter((j) => {
+    const jDate = new Date(j.journal_date || j.journalDate);
+    return jDate >= lastWeek;
+  }).length;
 
     const moodCount = {};
+
     journals.forEach((j) => {
-    if (j.mood) {
-    const mood = j.mood.charAt(0).toUpperCase() + j.mood.slice(1).toLowerCase();
-    moodCount[mood] = (moodCount[mood] || 0) + 1;
-  }
-});
+      if (j.mood) {
+        const mood =
+          j.mood.charAt(0).toUpperCase() + j.mood.slice(1).toLowerCase();
+        moodCount[mood] = (moodCount[mood] || 0) + 1;
+      }
+    });
+
     const topMood =
-    Object.keys(moodCount).length > 0
-    ? Object.keys(moodCount).reduce((a, b) => (moodCount[a] > moodCount[b] ? a : b))
-    : "Mostly calm";
+      Object.keys(moodCount).length > 0
+        ? Object.keys(moodCount).reduce((a, b) =>
+            moodCount[a] > moodCount[b] ? a : b
+          )
+        : "Mostly calm";
 
     return { total: journals.length, thisWeek: thisWeekCount, topMood };
   }, [journals]);
 
+  const moodPercentages = useMemo(() => {
+    const totalMoods =
+      Object.values(moodSummary).reduce(
+        (sum, val) => sum + (Number(val) || 0),
+        0
+      ) || 1;
+
+    return Object.fromEntries(
+      Object.entries(moodSummary).map(([label, count]) => [
+        label,
+        ((Number(count) || 0) / totalMoods) * 100,
+      ])
+    );
+  }, [moodSummary]);
+
+  const moodEmojis = {
+    Happy: "😊",
+    Calm: "😌",
+    Neutral: "😐",
+    Sad: "😔",
+  };
+
   const confirmDelete = (journalId, title) => {
-    setDeleteModel({ show: true, journalId, title, requireAdmin: false });
+    setDeleteModel({
+      show: true,
+      journalId,
+      title,
+      requireAdmin: false,
+    });
   };
 
   const handleDelete = async (adminKey) => {
@@ -124,35 +195,28 @@ const Dashboard = () => {
 
     try {
       setLoading(true);
+
       if (requireAdmin) {
         const userId = localStorage.getItem("userId");
         await adminDeleteJournal(userId, journalId, adminKey);
       } else {
         await deleteJournal(journalId);
       }
+
       showToast("Journal deleted successfully");
       fetchAll();
     } catch {
       showToast("Delete failed", "error");
     } finally {
-      setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false });
+      setDeleteModel({
+        show: false,
+        journalId: null,
+        title: "",
+        requireAdmin: false,
+      });
       setLoading(false);
     }
   };
-
-  const totalMoods = Object.values(moodSummary).reduce(
-  (sum, val) => sum + (Number(val) || 0),
-  0
-) || 1;
-
-const moodPercentages = Object.fromEntries(
-  Object.entries(moodSummary).map(([label, count]) => [
-    label,
-    ((Number(count) || 0) / totalMoods) * 100,
-  ])
-);
-  const moodEmojis = { Happy: "😊", Calm: "😌", Neutral: "😐", Sad: "😔" };
-
   return (
     <div className="dashboard-container">
       <Sidebar />
@@ -162,7 +226,7 @@ const moodPercentages = Object.fromEntries(
         {/* Top Header */}
         <header className="top-header">
           <div className="welcome-section">
-            <p>Hi {userName},</p>
+            <p>Hi {userName || "User"},</p>
             <h1>Welcome to Notevia!</h1>
           </div>
 
@@ -230,12 +294,16 @@ const moodPercentages = Object.fromEntries(
             </div>
           </div>
         </div>
+        <div className="dashboardbtns">
+          <button className="newbtn" onClick={() => navigate('/create')}> + New Journal</button>
+          <button className="allbtn" onClick={() => navigate('/journals')}>View All Journals</button>
+        </div>
 
         {/* Dashboard Body: Journals Left / Mood Right */}
         <div className="dashboard-body">
           {/* Left: Recent Journals */}
           <div className="recent-journals-section">
-            <h2>Recent Journals</h2>
+            <h2 className="heading">Recent Journals</h2>
                <section className="dashboard-section-grid">
                  {filteredJournals.map((journal, index) => {
                    const journalId = journal._id || journal.id || index;
@@ -290,7 +358,7 @@ const moodPercentages = Object.fromEntries(
 
           {/* Right: Mood Summary */}
           <div className="mood-summary-sidebar">
-            <h2>Mood Summary</h2>
+            <h2 className="heading">Mood Summary</h2>
             <div className="mood-list">
               {Object.entries(moodPercentages).map(([label, percent]) => (
                 <MoodProgress

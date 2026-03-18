@@ -1,0 +1,69 @@
+.modal-overlay-logout{
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content{
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 400px;
+    gap: 10px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.log-heading {
+  color: #2b3674;
+  margin-bottom: 12px;
+  font-size: 1.25rem;
+}
+
+.log-msg {
+  color: #707eae;
+  font-size: 0.95rem; 
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.log-actions {
+    flex: 1;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.yesbtn {
+  background: #f4f7fe;
+  color: #2b3674;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 70px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.nobtn {
+  background: #F5E1E7;
+  color: #f87171;
+  border: 1px solid #f87171;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 70px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.yesbtn:hover{
+    background: #c7d2fe;
+}
+.nobtn:hover{
+    background: #f87171;
+    color: white;
+}
