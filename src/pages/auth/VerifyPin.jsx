@@ -80,22 +80,22 @@ const handlePaste = (e) => {
     setMessage({ type: "success", text: "PIN confirmed!",
       });
 
-console.log("DEBUG: Saving Token...");
-console.log("Key Used:", ACCESS_KEY);
-console.log("Token Value:", res?.accessToken);
+// console.log("DEBUG: Saving Token...");
+// console.log("Key Used:", ACCESS_KEY);
+// console.log("Token Value:", res?.accessToken);
 
 localStorage.setItem(ACCESS_KEY, res.accessToken);
 localStorage.setItem("userId", res.userId);
 
-// VERIFY IMMEDIATELY
+
 const savedToken = localStorage.getItem(ACCESS_KEY);
-console.log("DEBUG: Token found in storage after save:", savedToken);
+// console.log("DEBUG: Token found in storage after save:", savedToken);
 
       setTimeout(() => {
         window.location.replace("/dashboard")
       }, 800);
     } catch (error) {
-      console.error('Verify PIN error:', error);
+      // console.error('Verify PIN error:', error);
 
       const serverMsg = error?.message;
       if (Array.isArray(serverMsg)) {
