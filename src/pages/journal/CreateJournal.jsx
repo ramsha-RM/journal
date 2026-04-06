@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import '../../style/dashboardstyle/createjournal.css';
@@ -10,7 +10,6 @@ import UserImg from "../../assets/icons/profile-edit.svg";
 import {
   getSingleJournal,
   createJournal,
-  getAllJournals,
   updateJournal,
 } from "../../service/journal.service";
 
@@ -30,10 +29,6 @@ const CreateJournal = () => {
   const [journalTitle, setJournalTitle] = useState('');
   const [journalText, setJournalText] = useState('');
   const [selectMood, setSelectMood] = useState("Calm");
-  const [journals, setJournals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredJournals, setFilteredJournals] = useState([]);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -83,8 +78,6 @@ const CreateJournal = () => {
       navigate('/journals');
     } catch {
       showToast("Action failed", "error");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -94,14 +87,6 @@ const CreateJournal = () => {
     setSelectMood("Calm");
     setDate(new Date().toISOString().split('T')[0]);
   };
-
-  const weeklyStats = useMemo(() => {
-    if (!Array.isArray(journals)) return { total: 0, thisWeek: 0, topMood: "N/A" };
-    const lastWeek = new Date();
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    const thisWeekCount = journals.filter(j => new Date(j.journalDate) >= lastWeek).length;
-    return { total: journals.length, thisWeek: thisWeekCount, topMood: "Calm" };
-  }, [journals]);
 
   return (
     <div className="dashboard-container">

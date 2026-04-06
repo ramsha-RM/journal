@@ -19,7 +19,7 @@ const Forgotpassword = () => {
       return;
     }
         try {
-           const res = await API.post("/auth/forgot-password", {  email });
+           await API.post("/auth/forgot-password", {  email });
             setMessage({type:"success",  text:"OTP sent to your email. Please check inbox."})
             setTimeout(() => {
             navigate("/password/reset", { state: { email } });

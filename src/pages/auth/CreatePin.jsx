@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 
@@ -18,13 +18,14 @@ const CreatePin = () => {
 
   const pinRefs = useRef([]);
 
-  useEffect(() => {
-    const hasPin = localStorage.getItem("hasPin");
+  // useEffect(() => {
+  //   const hasPin = localStorage.getItem("hasPin");
 
-    if (hasPin === "true") {
-      navigate("/pin/verify");
-    }
-  }, [navigate]);
+  //   if (hasPin === "true") {
+  //     navigate("/pin/verify");
+  //   }
+  // }, [navigate]);
+      const isChanging = localStorage.getItem("hasPin") === "true";
 
   const handleChange = (value, index) => {
     if (!/^\d?$/.test(value)) return;
@@ -60,11 +61,12 @@ const CreatePin = () => {
       .getData("text")
       .replace(/\D/g, "")
       .slice(0, 4);
-
+  
     if (!pasteData) return;
 
     const newPin = pasteData.split("");
-    setPin(newPin);
+    const finalPin = [...newPin, ...new Array(4 - newPin.length).fill("")];
+    setPin(finalPin);
 
     pinRefs.current[newPin.length - 1]?.focus();
   };
@@ -86,7 +88,7 @@ const CreatePin = () => {
     setMessage(null);
 
     try {
-      const res = await createPin(pinStr);
+      await createPin(pinStr);
       localStorage.setItem("hasPin", "true");
 
       setMessage({
@@ -95,7 +97,11 @@ const CreatePin = () => {
       });
 
       setTimeout(() => {
+        if (isChanging) {
+          window.location.replace("/dashboard");
+        } else {
         navigate("/pin/verify");
+        }
       }, 1200);
     } catch (error) {
       // console.error("Create PIN error:", error);
@@ -122,12 +128,6 @@ const CreatePin = () => {
     }
   };
 
-  const handleReset = () => {
-    setPin(["", "", "", ""]);
-    pinRefs.current[0]?.focus();
-  };
-
-
   return (
     <div className="auth-wrapper">
       <div className="auth-card">
@@ -137,9 +137,7 @@ const CreatePin = () => {
 
         <form onSubmit={handleCreatePin} className="verifyCard">
           <h2 className="auth-heading">Create PIN</h2>
-          <p className="textline">
-            This will be used to secure your Journal
-          </p>
+          <p className="textline">"This will be used to secure your Journal"</p>
           <p className="securityline">
             Your journals are locked for security. Only you can access them
             with your PIN.
@@ -167,13 +165,12 @@ const CreatePin = () => {
           <button
             type="submit"
             className="primary-btn"
-            disabled={loading || pin.join('').length !== 4}
-          >
+            disabled={loading || pin.join('').length !== 4} >
             {loading ? 'Creating PIN...' : 'Continue'}
           </button>
 
           <p className="createpintext">
-            Create a 4-digit PIN to secure your journal entries.
+            "Create a 4-digit PIN to secure your journal entries."
           </p>
         </form>
       </div>

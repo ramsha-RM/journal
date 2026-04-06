@@ -20,7 +20,7 @@ export const getAllJournals = async () => {
           const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
           const payload = JSON.parse(window.atob(base64));
           currentId = payload.sub;
-        } catch (e) {
+        } catch {
           console.error("Could not parse token for ID");
         }
       }

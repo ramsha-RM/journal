@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export const useProfile = () => {
   const [profileImg, setProfileImg] = useState(() => {
     return localStorage.getItem("profileImg") || null;
   });
 
-  const updateProfileImage = (img) => {
+  const updateProfileImage = useCallback((img) => {
     setProfileImg(img);
     if (img) localStorage.setItem("profileImg", img);
-  };
+  }, []);
 
 
   useEffect(() => {

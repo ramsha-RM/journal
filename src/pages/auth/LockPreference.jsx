@@ -23,11 +23,12 @@ const LockPreference = () => {
 
     return (
       <select value={preference} onChange={handleChange}>
+        <option value="off">Off</option>
         <option value="immediately">Immediately</option>
-        <option value="1min">1 minute</option>
-        <option value="5min">5 minutes</option>
-        <option value="10min">10 minutes</option>
-        <option value="30min">30 minutes</option>
+        <option value="1 min">1 minute</option>
+        <option value="5 min">5 minutes</option>
+        <option value="10 min">10 minutes</option>
+        <option value="30 min">30 minutes</option>
       </select>
     )
 }

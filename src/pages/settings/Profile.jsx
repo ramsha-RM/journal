@@ -24,32 +24,33 @@ const Profile = () => {
   const [profilePic, setProfilePic] = useState(UserImg);
   const [newPic, setNewPic] = useState(null);
   const [joinedDate, setJoinedDate] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState(null);
-  const isUploaded = profileImg && profileImg !== UserImg;
-  const hasCustomimg = profileImg === UserImg || profileImg === ProImg || !profileImg;
+
+  const hasCustomimg = profileImg && profileImg !== UserImg && profileImg !== ProImg;
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        setLoading(true);
-
+        setIsInitialLoading(true);
         const res = await API.get("/profiles/me");
         const data = res.data;
 
         setFullName(data.full_name || localStorage.getItem("username") || "");
         setBio(data.bio || "");
         setDob(data.date_of_birth || "");
-        setEmail(data.email || localStorage.getItem("pendingEmail") || "");
+        
+        const token = localStorage.getItem("access_token");
+        if (token) {
+          const parts = token.split('.');
+          if (parts.length === 3) {
+            const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(atob(base64));
+            setEmail(payload.email);
+          }
+        }
 
-        const name = data.full_name || localStorage.getItem("username") || "User";
-        updateName(name);
-        localStorage.setItem("username", name);
-
-    const token = localStorage.getItem("access_token");
-    if (token) {
-     const payload = JSON.parse(atob(token.split('.')[1]));
-     setEmail(payload.email);
-      }
         if (data.profile_picture) {
           setProfilePic(data.profile_picture);
           updateProfileImage(data.profile_picture);
@@ -57,15 +58,14 @@ const Profile = () => {
 
         if (data.created_at) {
           const created = new Date(data.created_at);
-          const options = { year: "numeric", month: "short" };
-
-          setJoinedDate(
-            `Joined ${created.toLocaleDateString(undefined, options)}`
-          );
+          setJoinedDate(`Joined ${created.toLocaleDateString(undefined, { year: "numeric", month: "short" })}`);
         }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
 
+        const name = data.full_name || localStorage.getItem("username") || "User";
+        updateName(name);
+        localStorage.setItem("username", name);
+
+      } catch (error) {
         if (error.response?.status === 401) {
           localStorage.clear();
           navigate("/");
@@ -73,62 +73,55 @@ const Profile = () => {
           setMessage({ type: "error", text: "Failed to load profile" });
         }
       } finally {
-        setLoading(false);
+        setIsInitialLoading(false);
       }
     };
-
     fetchProfile();
-  }, []);
+  }, [navigate, updateName, updateProfileImage]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    const preview = URL.createObjectURL(file);
-    setProfilePic(preview);
+    setProfilePic(URL.createObjectURL(file));
     setNewPic(file);
   };
 
   const handleSave = async () => {
     try {
-      setLoading(true);
-
-      const formData = new FormData();
-      formData.append("full_name", fullName);
-      formData.append("bio", bio || "");
-      if (dob) formData.append("date_of_birth", dob);
+      setIsSaving(true);
+      let res;
 
       if (newPic) {
+        const formData = new FormData();
+        formData.append("full_name", fullName);
+        formData.append("bio", bio || "");
+        if (dob) formData.append("date_of_birth", dob);
         formData.append("profile_picture", newPic);
+
+        res = await API.patch("/profiles/me", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+      } else {
+        const payload = { full_name: fullName, bio: bio || "" };
+        if (dob) payload.date_of_birth = dob;
+        res = await API.patch("/profiles/me", payload);
       }
 
-      const res = await API.patch("/profiles/me", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      const savedImg = res.data.profile_picture;
-
-      if (savedImg) {
-        setProfilePic(savedImg);
-        updateProfileImage(savedImg);
+      if (res.data.profile_picture) {
+        setProfilePic(res.data.profile_picture);
+        updateProfileImage(res.data.profile_picture);
       }
 
       updateName(fullName);
       localStorage.setItem("username", fullName);
       setNewPic(null);
-
-      setMessage({
-        type: "success",
-        text: "Profile updated successfully",
-      });
+      setMessage({ type: "success", text: "Profile updated successfully" });
     } catch (error) {
-      console.error("Error saving profile:", error);
-      setMessage({
-        type: "error",
-        text: "Failed to update profile",
-      });
+      const errRes = error?.response?.data?.message;
+      const errorText = Array.isArray(errRes) ? errRes[0] : errRes || "Update failed";
+      setMessage({ type: "error", text: errorText });
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -140,18 +133,8 @@ const Profile = () => {
   return (
     <div className="dashboard-container">
       <Sidebar />
-
-      {message && (
-        <Toast
-          show={true}
-          message={message.text}
-          type={message.type}
-          onClose={() => setMessage(null)} /> )}
-
-        <LogoutMsg
-        show={showLogout}
-        onConfirm={handleLogout}
-        onCancel={() => setShowLogout(false)} />
+      <Toast show={!!message} message={message?.text} type={message?.type} onClose={() => setMessage(null)} />
+      <LogoutMsg show={showLogout} onConfirm={handleLogout} onCancel={() => setShowLogout(false)} />
 
       <main className="main-content">
         <header className="top-header">
@@ -159,26 +142,19 @@ const Profile = () => {
             <p>Hi {userName || "User"},</p>
             <h1>Welcome to Notevia!</h1>
           </div>
-
           <div className="profile-circle">
-          <img src={profilePic && profilePic !== UserImg && profilePic !== ProImg ? profilePic : ProImg} 
-          alt="Profile" className={profilePic && profilePic !== UserImg && profilePic !== ProImg ? "uploaded" : "default-icon"}
-        />
-      </div>
+            <img src={profilePic} alt="Profile" className={hasCustomimg ? "uploaded" : "default-icon"} />
+          </div>
         </header>
 
         <div className="profile-box">
           <h3 className="heading">Profile</h3>
-
           <div className="profile-form">
             <div className="userdata">
               <div className="edit-img">
-            <img src={hasCustomimg ? UserImg : profileImg} alt="Profile" className={profilePic && profilePic !== UserImg 
-            ? "profile-image uploaded" : "profile-image default"} />
-
-             <input type="file" accept="image/*" onChange={handleImageChange} />
+                <img src={profilePic} alt="Profile" className={hasCustomimg ? "profile-image uploaded" : "profile-image default"} />
+                <input type="file" accept="image/*" onChange={handleImageChange} />
               </div>
-
               <div className="username-date">
                 <p className="username">{userName}</p>
                 <p className="joineddate">{joinedDate}</p>
@@ -188,10 +164,8 @@ const Profile = () => {
             <div className="name-email">
               <div className="namebox">
                 <label>Full Name</label>
-             <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)}
-               placeholder="Enter your full name" />
+                <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name" />
               </div>
-
               <div className="emailbox">
                 <label>Email</label>
                 <input type="email" value={email} readOnly />
@@ -200,17 +174,14 @@ const Profile = () => {
 
             <div className="textareabox">
               <label>Bio</label>
-              <textarea value={bio}  onChange={(e) => setBio(e.target.value)}
-                placeholder="Write something about yourself..." />
+              <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Write something about yourself..." />
             </div>
 
             <div className="profile-buttons">
-              <button className="logout-btn" onClick={() => setShowLogout(true)}> Logout</button>
-
-              <button className="change-pass-btn" onClick={() => navigate("/password/change")} > Change Password </button>
-
-              <button className="save-btn" onClick={handleSave}  disabled={loading}>
-                {loading ? "Saving..." : "Save Changes"}
+              <button className="logout-p-btn" onClick={() => setShowLogout(true)}>Logout</button>
+              <button className="change-pass-btn" onClick={() => navigate("/password/change")}>Change Password</button>
+              <button className="save-btn" onClick={handleSave} disabled={isSaving || isInitialLoading}>
+                {isSaving ? <><span className="spinner"></span> Saving...</> : "Save Changes"}
               </button>
             </div>
           </div>

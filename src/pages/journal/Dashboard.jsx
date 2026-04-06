@@ -33,7 +33,6 @@ const Dashboard = () => {
   const [userName] = useName();
   const { profileImg } = useProfile();
 
-  const [loading, setLoading] = useState(false);
   const [journals, setJournals] = useState([]);
   const [filteredJournals, setFilteredJournals] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -63,8 +62,6 @@ const Dashboard = () => {
 
   const fetchAll = async () => {
     try {
-      setLoading(true);
-
       setJournals([]);
       setFilteredJournals([]);
       setMoodSummary({ Happy: 0, Calm: 0, Neutral: 0, Sad: 0 });
@@ -89,8 +86,6 @@ const Dashboard = () => {
       });
     } catch {
       showToast("Failed to load dashboard data", "error");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -111,7 +106,7 @@ useEffect(() => {
   }
 
   fetchAll();
-}, [navigate]);
+}, [navigate]); 
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
@@ -174,10 +169,10 @@ useEffect(() => {
   }, [moodSummary]);
 
   const moodEmojis = {
-    Happy: "😊",
-    Calm: "😌",
+    Happy: "😍",
+    Calm: "😊",
     Neutral: "😐",
-    Sad: "😔",
+    Sad: "😢",
   };
 
   const confirmDelete = (journalId, title) => {
@@ -194,7 +189,6 @@ useEffect(() => {
     if (!journalId) return;
 
     try {
-      setLoading(true);
 
       if (requireAdmin) {
         const userId = localStorage.getItem("userId");
@@ -214,7 +208,6 @@ useEffect(() => {
         title: "",
         requireAdmin: false,
       });
-      setLoading(false);
     }
   };
   return (

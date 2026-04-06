@@ -11,8 +11,6 @@ import ShowHidePass from '../../components/ShowHidePass';
 const Resetpassword = () => {
   const {state} = useLocation();
   const navigate = useNavigate();
-  const [params] = useSearchParams();
-  const token = params.get("token");
   const [newPassword, setNewPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [message, setMessage] = useState(null);

@@ -9,10 +9,10 @@ const Verification = () => {
   const navigate = useNavigate();
   const { verifyAccount } = useAuth();
  
-  const [resendTimer, setresendTimer] = useState(26);
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [message, setMessage] = useState(null);
   const [resendDisable, setResendDisable] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
   const inputs = useRef([]);
 
   const handleChange = (el, idx) => {
@@ -57,7 +57,7 @@ const Verification = () => {
       // console.log("Vercel Verify Response:", res);
       // if (res?.token) localStorage.setItem("login_token", res.token);
 
-       setMessage({ type: "success", text: "Account verified!" });
+       setMessage({ type: "success", text: "Account verified successfully. You are now logged in." });
       localStorage.removeItem("pendingEmail");
       if (!res?.hasPin) navigate("/pin/create");
       else navigate("/pin/verify");
@@ -69,7 +69,7 @@ const Verification = () => {
   const handleResend = async () => {
     if (resendDisable) return;
     setResendDisable(true);
-    setresendTimer(26);
+    setResendTimer(26);
 
     const email = localStorage.getItem("pendingEmail");
     if (!email) return setMessage({ type: "error", text: "Session expired. Please sign up again." });
@@ -81,7 +81,7 @@ const Verification = () => {
       inputs.current[0]?.focus();
 
       const interval = setInterval(() => {
-        setresendTimer(prev => {
+        setResendTimer(prev => {
            if(prev <= 1) {
           clearInterval(interval);
           setResendDisable(false);
@@ -90,10 +90,9 @@ const Verification = () => {
            return prev - 1;
         });
       }, 1000);
-    setMessage({ type: "success", text: "Email verified!" });
     } catch (error) {
       setMessage({ type: "error", text: error?.response?.data?.message || "Something went wrong!" });
-      setresendTimer(0);
+      setResendTimer(0);
     } finally {
       setTimeout(() => setResendDisable(false), 3000);
     }
@@ -105,7 +104,7 @@ const Verification = () => {
         <div className="logo"><img src={logoMain} alt="logo" /></div>
         <form onSubmit={handleSubmit} className="verifyCard">
           <h1 className="auth-heading">Verify Your Email</h1>
-          <p>We’ve sent a 6-digit code to</p>
+          <p className="textline">We’ve sent a 6-digit code to</p>
           <p className="pendingEmail">{localStorage.getItem("pendingEmail")}</p>
 
           <div className="otpBox">

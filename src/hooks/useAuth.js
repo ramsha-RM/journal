@@ -14,8 +14,6 @@ const useAuth = () => {
   const setAccessToken = (token) => token && localStorage.setItem(ACCESS_KEY, token);
    
 const setSessionData = (res) => {
-  // console.log("FULL BACKEND RESPONSE:", res);
-
   const token = res.accessToken || res.token || res.access_token;
   if (token) {
     setAccessToken(token);
@@ -30,8 +28,8 @@ const setSessionData = (res) => {
           localStorage.setItem("userId", String(payload.sub));
         } 
       }
-    } catch (err) {
-      // console.error("FATAL: Token decoding failed:", err);
+    } catch {
+      // console.error("FATAL: Token decoding failed");
     }
   } 
 };
@@ -65,7 +63,7 @@ const setSessionData = (res) => {
   try {
     localStorage.clear();
     const res = await API.post("/auth/login", { email, password });
-    
+    if(res.data)
     setSessionData(res.data);
     
     const userData = res.data?.user || {};
@@ -88,30 +86,30 @@ const setSessionData = (res) => {
   }
 };
 
+  const getValidToken = () => getAccessToken() || getLoginToken();
+
   const createPin = async (pin) => {
-    const token = getLoginToken() || getAccessToken();
-    if (!token) throw new Error("Login token missing");
+    const token = getValidToken();
+    if (!token) throw new Error("Authentication token missing");
 
-    const res = await API.post("/pin/create", { pin }, {
-      headers: { Authorization: `Bearer ${token}` } 
-    });
-
+    const res = await API.post("/pin/create", { pin }); // interceptor adds token
     setSessionData(res.data);
     return res.data;
   };
 
-  const verifyPin = async (pin) => {
-    const token = getLoginToken() || getAccessToken(); 
-    if (!token) throw new Error("Authentication token missing");
+const verifyPin = async (pin) => {
+  const token = getValidToken();
+  if (!token) throw new Error("Authentication token missing");
 
-    const res = await API.post("/pin/verify", { pin }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
+  try {
+    const res = await API.post("/pin/verify", { pin }); // interceptor adds token
     if (res.data) setSessionData(res.data);
-    
     return res.data;
-  };
+  } catch (error) {
+    console.error("PIN verification failed:", error.response?.status, error.response?.data);
+    throw error.response?.data || error;
+  }
+};
   const logout = () => {
     localStorage.removeItem(LOGIN_KEY);
     localStorage.removeItem(ACCESS_KEY);

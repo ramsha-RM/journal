@@ -1,50 +1,54 @@
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-export const useAuthLock = () => {
-    const navigate = useNavigate();
+export const useAuthLock = (preference) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const timerRef = useRef(null);
 
-    useEffect(() => {
-        if(!preference || preference === "off") return;
+  useEffect(() => {
+    if (!preference || preference === "off" || location.pathname === "/pin/verify") {
+      return;
+    }
 
-        let timer;
-        const getTimeInMs = () => {
-            switch(preference) {
-                case "immediately":
-                return 0;
-                case "1min":
-                    return 60000;
-                case "5min":
-                    return  300000;
-                case "10min":
-                    return 600000;
-                case "30 min":
-                    return 1800000;
-                default:
-                    return null;
-            }
-        };
-        const resetTimer = () => {
-            clearTimeout(timer);
-            timer = setTimeout(() => {
-                navigate("/pin/verify");
-            }, getTimeInMs());
+    const getTimeInMs = () => {
+
+      const val = preference.toString().split(" ")[0]; 
+      
+      switch (val) {
+        case "immediately": return 1000; 
+        case "1": return 60000;
+        case "5": return 300000;
+        case "10": return 600000;
+        case "30": return 1800000;
+        default: return null;
+      }
     };
-        window.addEventListener("mousemove", resetTimer);
-        window.addEventListener("keydown", resetTimer);
-        window.addEventListener("click", resetTimer);
-        window.addEventListener("scroll", resetTimer);
-        document.addEventListener("visibilitychange", resetTimer);
 
-        resetTimer();
+    const time = getTimeInMs();
+    if (!time) return;
 
-  return () => {
-            clearTimeout(timer);
-            window.removeEventListener("mousemove", resetTimer);
-            window.removeEventListener("keydown", resetTimer);
-            window.removeEventListener("click", resetTimer);
-            window.removeEventListener("scroll", resetTimer);
-            document.removeEventListener("visibilitychange", resetTimer);
-  };
-    }, [navigate, preference]);
+    const lockApp = () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      
+      timerRef.current = setTimeout(() => {        if (location.pathname !== "/pin/verify") {
+          navigate("/pin/verify", { state: { isTimeout: true } });
+        }
+      }, time);
+    };
+
+    const resetTimer = () => lockApp();
+
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    events.forEach(event => window.addEventListener(event, resetTimer));
+    document.addEventListener("visibilitychange", resetTimer);
+
+    resetTimer();
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      events.forEach(event => window.removeEventListener(event, resetTimer));
+      document.removeEventListener("visibilitychange", resetTimer);
+    };
+  }, [navigate, preference, location.pathname]);
 };

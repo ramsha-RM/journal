@@ -8,4 +8,4 @@ export const checkLockPreferences = async () => {
 export const changeLockPreferences = async (data) => {
     const res = await API.put("/lock/preferences", data);
     return res.data;
-}
+} 

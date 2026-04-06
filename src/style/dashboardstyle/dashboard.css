@@ -238,10 +238,10 @@
 }
 
 .newbtn, .allbtn {
-  padding: 8px 16px; 
+  padding: 10px 20px; 
   width: 170px;
-  max-height: 70px;
-  height: auto;      
+  /* max-height: 70px;
+  height: auto;       */
   border-radius: 70px;
   border: none;
   cursor: pointer;

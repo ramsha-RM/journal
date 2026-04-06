@@ -2,7 +2,6 @@ import React, {useState } from 'react'
 import useAuth from '@/hooks/useAuth'
 import {useNavigate} from 'react-router-dom'
 import '../../style/authstyle/auth.css'
-import '../../style/authstyle/auth.css'
 import Toast from '../../components/Toast'
 import logoMain from '../../assets/img/titleLogo.png'
 import ShowHidePass from '../../components/ShowHidePass'
@@ -14,6 +13,7 @@ import ShowHidePass from '../../components/ShowHidePass'
   const [userName, setUserName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   // const [confirmPassword, setConfirmPassword] = useState('')
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
@@ -60,7 +60,7 @@ const validate = () => {
 localStorage.setItem('pendingEmail', email.trim().toLowerCase());
 localStorage.setItem('username', userName.trim());
   
-setMessage({type: "success", text: "Account created successfully!"});
+setMessage({type: "success", text: "Registration successful. Please check your email to verify your account."});
 setTimeout(() => {
   navigate('/verification');
 }, 1500);

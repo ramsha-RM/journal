@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export const useName = () => {
   const [userName, setUserName] = useState(() => {
     return localStorage.getItem("username") || "User";
   });
 
-  const updateName = (name) => {
+  const updateName = useCallback((name) => {
     setUserName(name);
     localStorage.setItem("username", name);
-  };
+  }, []);
 
   useEffect(() => {
     const handleStorageChange = () => {

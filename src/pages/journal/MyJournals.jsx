@@ -38,17 +38,17 @@ const MyJournals = () => {
   const fetchJournals = async () => {
     try {
       const data = await getAllJournals();
-      const journalArray = data?.journals || data?.data || (Array.isArray(data) ? data : []);
       setJournals(data);
       setFilteredJournals(data);
-    } catch (err) {
+    } catch (error) {
+      console.error("Fetch journals error:", error);
       showToast("Failed to fetch journals", "error");
     }
   };
 
   useEffect(() => {
     fetchJournals();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
@@ -78,7 +78,8 @@ const handleDelete = async (adminKey) => {
     }
     showToast("Journal deleted successfully");
     fetchJournals();
-  } catch {
+  } catch (error) {
+    console.error("Delete journal error:", error);
     showToast("Delete failed", "error");
   } finally {
     setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false });

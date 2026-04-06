@@ -4,8 +4,7 @@ import Sidebar from './Sidebar';
 import '../../style/dashboardstyle/createjournal.css';
 import '../../style/dashboardstyle/dashboardLayout.css'
 import Toast from '../../components/Toast'
-import { useName } from "../../hooks/useName";
-import { useProfile } from "../../hooks/useProfile"; 
+import { useName } from "../../hooks/useName"; 
 import BackbtnImg from '../../assets/icons/Backbtn.png';
 import EditIcon from '../../assets/icons/blueedit.png';
 import DeleteIcon from '../../assets/icons/redtrash.png';
@@ -45,7 +44,7 @@ const AddJournal = () => {
             try {
                 const data = await getSingleJournal(id);
                 setJournal(data);
-            } catch (err) {
+            } catch {
                 showToast('Failed to load journal', 'error');
             }
         };
@@ -62,7 +61,7 @@ const AddJournal = () => {
         });
     };
 
-    const handleDelete = async (adminKey = null) => {
+    const handleDelete = async () => {
         try {
             setLoading(true);
             await deleteJournal(id); 
@@ -71,7 +70,7 @@ const AddJournal = () => {
             setDeleteModel({ show: false, title: "", requireAdmin: false });
             
             setTimeout(() => navigate('/dashboard'), 1500);
-        } catch (err) {
+        } catch {
             showToast('Delete failed', 'error');
         } finally {
             setLoading(false);

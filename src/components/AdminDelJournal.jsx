@@ -1,5 +1,4 @@
 import React, {useState} from 'react'
-import { adminDeleteJournal } from '../service/journal.service';
 import '../style/dashboardstyle/deleteModal.css';
 
 const AdminDelJournal = ({show, onClose, onDelete, journalTitle, requireAdmin}) => {

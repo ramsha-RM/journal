@@ -4,14 +4,12 @@ import DashboardImg from '../../assets/icons/dashboardedit.png'
 import JournalImg from '../../assets/icons/journal.png'
 import AddJournalImg from '../../assets/icons/addjournal.png'
 import ProfileImg from '../../assets/icons/profile.png'
+import SettingImg from '../../assets/icons/setting.png'
 
 import '../../style//dashboardstyle/sidebar.css'
-import { useNavigate } from 'react-router-dom'
 import { NavLink } from 'react-router-dom'
 
 const Sidebar = () => {
-  const navigate = useNavigate();
-
   return (
     <div className='sidebar'>
 
@@ -35,9 +33,13 @@ const Sidebar = () => {
           <img src={ProfileImg} alt="" /> Profile
         </NavLink>
 
+        <NavLink to="/setting" className="iconText">
+          <img src={SettingImg} alt="" /> Settings
+        </NavLink>
+
     </div>
     </div>
   )
-}
 
+}
 export default Sidebar

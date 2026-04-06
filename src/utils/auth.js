@@ -7,7 +7,8 @@ export function clearTokens() {
     localStorage.removeItem(ACCESS_KEY);
     localStorage.removeItem('pin_verified');
     localStorage.removeItem('username');
-  } catch (e) {
+  } catch {
+    
   }
 }
 

@@ -101,7 +101,7 @@
 
 .profile-circle img.default-icon {
   filter: invert(1);
-  background: rgba(235, 216, 255, 0.46); 
+  background: #52386e75; 
 }
 
 .profile-circle img.uploaded {

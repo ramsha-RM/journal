@@ -33,24 +33,17 @@ const [message, setMessage] = useState(null);
             await API.post("/auth/change-password", {  
               currentPassword,
               newPassword
-         },
-          {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem(import.meta.env.VITE_LOGIN_TOKEN_KEY)}`
-          }
-         }
-        );
+         });
             setMessage({type: "success", text: "Password changed successfully!" })
            setTimeout(() => {
              navigate("/dashboard");
            }, 2000);
         } catch (error) {
            if (error.response) {
-        const status = error.response.status;
-        if (status === 401) {
+        if (error.response.status === 401) {
           setMessage({ type: "error", text: "Unauthorized. Please login again." });
           setTimeout(() => navigate("/login"), 2000);
-        } else if (status === 403) {
+        } else if (error.response.status === 403) {
           setMessage({ type: "error", text: "Current password is incorrect!" });
         } else {
           setMessage({ type: "error", text: "Server error. Try again later." });
