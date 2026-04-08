@@ -22,8 +22,10 @@ const AdminDelJournal = ({show, onClose, onDelete, journalTitle, requireAdmin}) 
     <div className='modal-overlay' onClick={(e) => { if(e.target === e.currentTarget) onClose(); }}>
 
       <div className="modal-content">
-        <h2 className='modal-heading'>Delete confirm</h2>
-        <p className='modal-text'>Are you sure you want to delete "{journalTitle}"?</p>
+        <p className='warning-icon'>⚠️</p>
+        <h2 className='modal-heading'>Delete Journal</h2>
+        <p className='modal-text'>Are you sure you want to delete "{journalTitle}"?<br />
+        <strong>Deleted forever</strong></p>
         {requireAdmin && (
           <input
             type="password"

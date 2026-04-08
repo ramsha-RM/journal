@@ -94,6 +94,19 @@
   height: 100%; 
 }
 
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+}
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+}
+
 .password-input input:focus{
   border-color: #4318FF;
   background: #ffffff;

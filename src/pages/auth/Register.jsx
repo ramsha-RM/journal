@@ -86,7 +86,7 @@ setTimeout(() => {
   } else if (error.request) {
     setMessage({type: "error", text: "Server not reachable. Please try later!"});
   } else {
-    setMessage({ type: "error", text: "Network error. Check your internet connection!"});
+    setMessage({ type: "error", text: error.message || "Unexpected error occurred!" });
   }
 } finally {
   setLoading(false);

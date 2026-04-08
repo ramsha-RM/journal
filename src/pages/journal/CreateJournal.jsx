@@ -100,8 +100,10 @@ const CreateJournal = () => {
             <p>Hi {userName || "User"},</p>
             <h1>Welcome to Notevia!</h1>
           </div>
-          <div className="profile-circle" onClick={() => navigate('/profile')}>
+          <div className="profile-sec" onClick={() => navigate('/profile')}>
+            <div className="profile-circle">
             <img className={!profileImg ? "default-icon" : ""}  src={profileImg ||  ProIcon} alt="Profile" />
+            </div>
           </div>
         </header>
 

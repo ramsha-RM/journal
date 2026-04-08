@@ -234,8 +234,10 @@ useEffect(() => {
                 onChange={handleSearch}
               />
             </div>
-            <div className="profile-circle" onClick={() => navigate("/profile")}>
+            <div className="profile-sec" onClick={() => navigate("/profile")}>
+            <div className="profile-circle">
               <img className={!profileImg ? "default-icon" : ""}  src={profileImg || ProImg} alt="profile" />
+              </div>
             </div>
           </div>
         </header>

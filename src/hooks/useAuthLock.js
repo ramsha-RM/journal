@@ -16,7 +16,7 @@ export const useAuthLock = (preference) => {
       const val = preference.toString().split(" ")[0]; 
       
       switch (val) {
-        case "immediately": return 1000; 
+        case "immediately": return "instant"; 
         case "1": return 60000;
         case "5": return 300000;
         case "10": return 600000;
@@ -26,12 +26,29 @@ export const useAuthLock = (preference) => {
     };
 
     const time = getTimeInMs();
+
+    // 🔥 Immediate lock (on tab/app leave)
+    if (time === "instant") {
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === "hidden") {
+          navigate("/pin/verify", { state: { isTimeout: true } });
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }
+
     if (!time) return;
 
     const lockApp = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      
-      timerRef.current = setTimeout(() => {        if (location.pathname !== "/pin/verify") {
+
+      timerRef.current = setTimeout(() => {
+        if (location.pathname !== "/pin/verify") {
           navigate("/pin/verify", { state: { isTimeout: true } });
         }
       }, time);

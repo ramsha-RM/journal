@@ -30,54 +30,81 @@ const Profile = () => {
 
   const hasCustomimg = profileImg && profileImg !== UserImg && profileImg !== ProImg;
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setIsInitialLoading(true);
-        const res = await API.get("/profiles/me");
-        const data = res.data;
+useEffect(() => {
 
-        setFullName(data.full_name || localStorage.getItem("username") || "");
-        setBio(data.bio || "");
-        setDob(data.date_of_birth || "");
-        
-        const token = localStorage.getItem("access_token");
-        if (token) {
-          const parts = token.split('.');
-          if (parts.length === 3) {
-            const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-            const payload = JSON.parse(atob(base64));
-            setEmail(payload.email);
-          }
+  const cachedName = localStorage.getItem("username");
+  const cachedImg = localStorage.getItem("profileImg");
+  const cachedBio = localStorage.getItem("bio");
+  const cachedDob = localStorage.getItem("dob");
+
+  if (cachedName) {
+    setFullName(cachedName);
+    updateName(cachedName);
+  }
+  if (cachedImg) {
+    setProfilePic(cachedImg);
+    updateProfileImage(cachedImg);
+  }
+  if (cachedBio) setBio(cachedBio);
+  if (cachedDob) setDob(cachedDob);
+
+  const fetchProfile = async () => {
+    try {
+      setIsInitialLoading(true);
+      const res = await API.get("/profiles/me");
+      const data = res.data;
+
+      setFullName(data.full_name || cachedName || "");
+      setBio(data.bio || "");
+      setDob(data.date_of_birth || "");
+
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+          const payload = JSON.parse(atob(base64));
+          setEmail(payload.email);
         }
-
-        if (data.profile_picture) {
-          setProfilePic(data.profile_picture);
-          updateProfileImage(data.profile_picture);
-        }
-
-        if (data.created_at) {
-          const created = new Date(data.created_at);
-          setJoinedDate(`Joined ${created.toLocaleDateString(undefined, { year: "numeric", month: "short" })}`);
-        }
-
-        const name = data.full_name || localStorage.getItem("username") || "User";
-        updateName(name);
-        localStorage.setItem("username", name);
-
-      } catch (error) {
-        if (error.response?.status === 401) {
-          localStorage.clear();
-          navigate("/");
-        } else {
-          setMessage({ type: "error", text: "Failed to load profile" });
-        }
-      } finally {
-        setIsInitialLoading(false);
       }
-    };
-    fetchProfile();
-  }, [navigate, updateName, updateProfileImage]);
+
+      if (data.profile_picture) {
+        setProfilePic(data.profile_picture);
+        updateProfileImage(data.profile_picture);
+        localStorage.setItem("profileImg", data.profile_picture); // ⭐ FIXED KEY
+      }
+
+      if (data.created_at) {
+        const created = new Date(data.created_at);
+        setJoinedDate(
+          `Joined ${created.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+          })}`
+        );
+      }
+
+      const name = data.full_name || cachedName || "User";
+      updateName(name);
+      localStorage.setItem("username", name);
+
+      localStorage.setItem("bio", data.bio || "");
+      localStorage.setItem("dob", data.date_of_birth || "");
+
+    } catch (error) {
+      if (error.response?.status === 401) {
+        localStorage.clear();
+        navigate("/");
+      } else {
+        setMessage({ type: "error", text: "Failed to load profile" });
+      }
+    } finally {
+      setIsInitialLoading(false);
+    }
+  };
+
+  fetchProfile();
+}, [navigate, updateName, updateProfileImage]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -142,8 +169,12 @@ const Profile = () => {
             <p>Hi {userName || "User"},</p>
             <h1>Welcome to Notevia!</h1>
           </div>
-          <div className="profile-circle">
-            <img src={profilePic} alt="Profile" className={hasCustomimg ? "uploaded" : "default-icon"} />
+          <div className="profile-sec">
+            <div className="profile-circle">
+            {/* <img src={profilePic} alt="Profile" className={hasCustomimg ? "uploaded" : "default-icon"} /> */}
+            <img className={!profileImg ? "default-icon" : ""}  src={profileImg || ProImg} alt="profile" />
+            
+            </div>
           </div>
         </header>
 

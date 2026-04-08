@@ -37,7 +37,7 @@ const Resetpassword = () => {
     }
   };
   return (
-    <div className="modal-overlay">
+    <div className="auth-wrapper">
           <form className="modal-content resetForm" onSubmit={handleSubmit}>
       <h2 className='auth-heading'>Reset Password</h2>
       <p className='textline'>Enter the OTP and your new password.</p>

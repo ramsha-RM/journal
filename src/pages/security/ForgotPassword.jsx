@@ -29,7 +29,7 @@ const Forgotpassword = () => {
         }
     };
   return (
-    <div className="modal-overlay">
+    <div className="auth-wrapper">
          <form onSubmit={handleForgot} className='modal-content resetForm'>
        <h2 className='auth-heading'>Forgot Password</h2>
        <p className='textline'>Enter your email to reset your password.</p>
