@@ -36,12 +36,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   margin: 15px;
 }
 
-.otp, 
-.pin {
+.otp {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.otp input {
   width: 60px;
   height: 60px;
   border: 1px solid #d1deff;
@@ -53,8 +60,7 @@
   background: none;
 }
 
-.otp:focus, 
-.pin:focus {
+.otp input:focus {
   border-color: #4318FF;
 }
 
@@ -115,8 +121,7 @@ cursor: pointer;
     font-size: 15px;
   }
 
-  .otp,
-  .pin {
+  .otp input{
     width: 52px;
     height: 52px;
     font-size: 16px;

@@ -31,8 +31,8 @@ const validate = () => {
   }else if(!emailRegex.test(email)){
     newErrors.email = "Please enter a valid email!";
   }
-  if(!password || password.length < 6){
-    newErrors.password = "Password must be atleast 6 characters!";
+  if(!password || password.length < 8){
+    newErrors.password = "Password must be atleast 8 characters!";
   }
 //   if(password !== confirmPassword){
 //     newErrors.confirmPassword = "Passwords do not match!";

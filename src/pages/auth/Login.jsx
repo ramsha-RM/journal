@@ -54,8 +54,8 @@ const Login = () => {
       if (!res.isVerified) {
         localStorage.setItem("pendingEmail", email.trim().toLowerCase());
         navigate("/verification");
-      } else if (!res.hasPin) {
-        navigate("/pin/create");
+      // } else if (!res.hasPin) {
+      //   navigate("/pin/create");
       } else {
         window.location.href = "/pin/verify";
       }

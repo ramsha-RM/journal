@@ -6,6 +6,7 @@ import '../../style/dashboardstyle/dashboardLayout.css';
 import Toast from '../../components/Toast';
 import ProIcon from '../../assets/icons/profile.png';
 import UserImg from "../../assets/icons/profile-edit.svg";
+import Skeleton from '../../components/Skeleton';
 
 import {
   getSingleJournal,
@@ -13,11 +14,12 @@ import {
   updateJournal,
 } from "../../service/journal.service";
 
-import { useName } from "../../hooks/useName";
+import { useName } from "../../hooks/useName"; 
 import { useProfile } from "../../hooks/useProfile";
 
 const CreateJournal = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const { id } = useParams();
 
 
@@ -97,22 +99,33 @@ const CreateJournal = () => {
         {/* Header */}
         <header className="top-header">
           <div className="welcome-section">
+             {loading ? (
+      <>
+        <Skeleton width="80px" height="18px" style={{ marginBottom: "8px" }} />
+        <Skeleton width="250px" height="32px" />
+      </>
+         ) : (
+          <>
             <p>Hi {userName || "User"},</p>
             <h1>Welcome to Notevia!</h1>
+            </>
+         )}
           </div>
           <div className="profile-sec" onClick={() => navigate('/profile')}>
             <div className="profile-circle">
+              {loading ? (
+                <Skeleton width="100%" height="100%" borderRadius="50%" />
+              ) : (
             <img className={!profileImg ? "default-icon" : ""}  src={profileImg ||  ProIcon} alt="Profile" />
+              )}
             </div>
           </div>
         </header>
 
-        {/* Journal Form */}
         <div className="text-entryarea">
           <h3 className="heading">{isEditMode ? "Edit Journal" : "New Journal"}</h3>
           <div className="entry-box">
-
-            {/* Title and Mood */}
+     
             <div className="title-feelings">
               <div className="title-box">
                 <label htmlFor="title">Title</label>
@@ -139,7 +152,6 @@ const CreateJournal = () => {
               </div>
             </div>
 
-            {/* Date */}
             <div className="tag-date">
               <div className="dateBox">
                 <label htmlFor="date" className="datetitle">Date</label>
@@ -152,7 +164,6 @@ const CreateJournal = () => {
               </div>
             </div>
 
-            {/* Journal Text */}
             <div className="textBox">
               <label className="journal">Journal Entry</label>
               <textarea

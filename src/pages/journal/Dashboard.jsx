@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import Toast from "../../components/Toast";
 import AdminDelJournal from "../../components/AdminDelJournal";
 import MoodProgress from "../../components/MoodProgress";
+import Skeleton from "../../components/Skeleton";
 
 import "../../style/dashboardstyle/dashboard.css";
 import "../../style/dashboardstyle/dashboardLayout.css";
@@ -29,7 +30,7 @@ import { useProfile } from "../../hooks/useProfile";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(true);
   const [userName] = useName();
   const { profileImg } = useProfile();
 
@@ -61,23 +62,17 @@ const Dashboard = () => {
   };
 
   const fetchAll = async () => {
+    setLoading(true);
     try {
-      setJournals([]);
-      setFilteredJournals([]);
-      setMoodSummary({ Happy: 0, Calm: 0, Neutral: 0, Sad: 0 });
-      setStreak(0);
-
       const [journalResp, streakResp, moodResp] = await Promise.all([
         getAllJournals(),
         myStreak(),
         overallMood(),
       ]);
 
-      const journalArray = journalResp;
-      setJournals(journalArray);
-      setFilteredJournals(journalArray);
+      setJournals(journalResp || []);
+      setFilteredJournals(journalResp || []);
       setStreak(streakResp?.streak || 0);
-
       setMoodSummary({
         Happy: parseFloat(moodResp?.Happy) || 0,
         Calm: parseFloat(moodResp?.Calm) || 0,
@@ -86,80 +81,68 @@ const Dashboard = () => {
       });
     } catch {
       showToast("Failed to load dashboard data", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("access_token");
 
-useEffect(() => {
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("access_token");
+    if (!token) {
+      navigate("/");
+      return;
+    }
 
-  if (!token) {
-    navigate("/");
-    return;
-  }
+    if (!userId || userId === "undefined") {
+      setTimeout(() => fetchAll(), 500);
+      return;
+    }
 
-  if (!userId || userId === "undefined") {
-    console.warn("UserID missing, but token exists. Attempting recovery...");
-    setTimeout(() => fetchAll(), 500); 
-    return;
-  }
-
-  fetchAll();
-}, [navigate]); 
+    fetchAll();
+  }, [navigate]);
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-
     const filtered = journals.filter(
       (j) =>
         j.title?.toLowerCase().includes(term) ||
         j.content?.toLowerCase().includes(term)
     );
-
     setFilteredJournals(filtered);
   };
 
   const weeklyStats = useMemo(() => {
-    if (!Array.isArray(journals))
+    if (!Array.isArray(journals) || journals.length === 0)
       return { total: 0, thisWeek: 0, topMood: "Mostly calm" };
 
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
 
     const thisWeekCount = journals.filter((j) => {
-    const jDate = new Date(j.journal_date || j.journalDate);
-    return jDate >= lastWeek;
-  }).length;
+      const jDate = new Date(j.journal_date || j.journalDate);
+      return jDate >= lastWeek;
+    }).length;
 
     const moodCount = {};
-
     journals.forEach((j) => {
       if (j.mood) {
-        const mood =
-          j.mood.charAt(0).toUpperCase() + j.mood.slice(1).toLowerCase();
+        const mood = j.mood.charAt(0).toUpperCase() + j.mood.slice(1).toLowerCase();
         moodCount[mood] = (moodCount[mood] || 0) + 1;
       }
     });
 
-    const topMood =
-      Object.keys(moodCount).length > 0
-        ? Object.keys(moodCount).reduce((a, b) =>
-            moodCount[a] > moodCount[b] ? a : b
-          )
-        : "Mostly calm";
+    const topMood = Object.keys(moodCount).length > 0
+      ? Object.keys(moodCount).reduce((a, b) => (moodCount[a] > moodCount[b] ? a : b))
+      : "Mostly calm";
 
     return { total: journals.length, thisWeek: thisWeekCount, topMood };
   }, [journals]);
 
   const moodPercentages = useMemo(() => {
-    const totalMoods =
-      Object.values(moodSummary).reduce(
-        (sum, val) => sum + (Number(val) || 0),
-        0
-      ) || 1;
-
+    const totalMoods = Object.values(moodSummary).reduce((sum, val) => sum + (Number(val) || 0), 0) || 1;
     return Object.fromEntries(
       Object.entries(moodSummary).map(([label, count]) => [
         label,
@@ -168,62 +151,52 @@ useEffect(() => {
     );
   }, [moodSummary]);
 
-  const moodEmojis = {
-    Happy: "😍",
-    Calm: "😊",
-    Neutral: "😐",
-    Sad: "😢",
-  };
-
-  const confirmDelete = (journalId, title) => {
-    setDeleteModel({
-      show: true,
-      journalId,
-      title,
-      requireAdmin: false,
-    });
-  };
+  const moodEmojis = { Happy: "😍", Calm: "😊", Neutral: "😐", Sad: "😢" };
 
   const handleDelete = async (adminKey) => {
     const { journalId, requireAdmin } = deleteModel;
     if (!journalId) return;
-
     try {
-
       if (requireAdmin) {
         const userId = localStorage.getItem("userId");
         await adminDeleteJournal(userId, journalId, adminKey);
       } else {
         await deleteJournal(journalId);
       }
-
       showToast("Journal deleted successfully");
       fetchAll();
     } catch {
       showToast("Delete failed", "error");
     } finally {
-      setDeleteModel({
-        show: false,
-        journalId: null,
-        title: "",
-        requireAdmin: false,
-      });
+      setDeleteModel({ show: false, journalId: null, title: "", requireAdmin: false });
     }
   };
+
   return (
     <div className="dashboard-container">
       <Sidebar />
       <Toast show={toast.show} message={toast.message} type={toast.type} />
 
       <main className="main-content">
-        {/* Top Header */}
         <header className="top-header">
           <div className="welcome-section">
+            {loading ? (
+      <>
+        <Skeleton width="80px" height="18px" style={{ marginBottom: "8px" }} />
+        <Skeleton width="250px" height="32px" />
+      </>
+         ) : (
+          <>
             <p>Hi {userName || "User"},</p>
             <h1>Welcome to Notevia!</h1>
+          </>
+         )}
           </div>
 
           <div className="search-bar-container">
+            {loading ? (
+              <Skeleton width="100%" height="20px" borderRadius="10px" />
+            ) : (
             <div className="search-wrapper">
               <img src={SeaarchIcon} alt="search" className="search-icon" />
               <input
@@ -234,131 +207,128 @@ useEffect(() => {
                 onChange={handleSearch}
               />
             </div>
+            )}
             <div className="profile-sec" onClick={() => navigate("/profile")}>
-            <div className="profile-circle">
-              <img className={!profileImg ? "default-icon" : ""}  src={profileImg || ProImg} alt="profile" />
+              <div className="profile-circle">
+              {loading ? (
+          <Skeleton width="100%" height="100%" borderRadius="50%" />
+               ) : (
+                <img className={!profileImg ? "default-icon" : ""} src={profileImg || ProImg} alt="profile" />
+                )}
               </div>
             </div>
           </div>
         </header>
-
-        {/* Stats Cards */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-info">
-              <div className="stat-icon-wrapper" style={{ backgroundColor: "#4318FF" }}>
-                <img src={IconJournal} alt="journals" />
-              </div>
-              <div>
-                <span className="label">Total Journals</span>
-                <span className="value">{weeklyStats.total}</span>
-              </div>
+       <div className="stats-grid">
+         {[
+           { label: "Total Journals", value: weeklyStats.total, icon: IconJournal, color: "#4318FF" },
+           { label: "This Week", value: weeklyStats.thisWeek, icon: IconStreak, color: "#4318FF" },
+           { label: "Streak", value: `${streak} Days`, icon: IconWeek, color: "transparent" },
+           { label: "Mood Status", value: weeklyStats.topMood, icon: null, color: "gradient" }
+         ].map((stat, idx) => (
+         <div 
+           key={idx} 
+           className={`stat-card ${(!loading && stat.color === 'gradient') ? 'stat-mood-gradient' : ''}`}
+         >
+           <div className="stat-info">
+             {loading ? (
+             <div className="skeleton-stat-wrapper">
+                <Skeleton width="100%" height="45px" borderRadius="8px" />
+             </div>
+           ) : (
+             <>
+               {stat.icon && (
+                   <div className="stat-icon-wrapper" style={{ backgroundColor: stat.color !== 'gradient' ? stat.color : '' }}>
+                  <img src={stat.icon} alt={stat.label} />
+                </div>
+                )}
+                <div>
+                  <span className="label">{stat.label}</span>
+                        <span className="value">{stat.value}</span>
+                    </div>
+                  </>
+                )}
             </div>
           </div>
+        ))}
+      </div>
 
-          <div className="stat-card">
-            <div className="stat-info">
-              <div className="stat-icon-wrapper" style={{ backgroundColor: "#4318FF" }}>
-                <img src={IconStreak} alt="week" />
-              </div>
-              <div>
-                <span className="label">This Week</span>
-                <span className="value">{weeklyStats.thisWeek}</span>
-              </div>
-            </div>
-          </div>
+          <div className="dashboardbtns">
+         {loading ? (
+         <>
+        <Skeleton width="150px" height="45px" borderRadius="70px" />
+        <Skeleton width="180px" height="45px" borderRadius="70px" style={{ marginLeft: "12px" }} />
+        </>
+        ) : (
+       <>
+      <button className="newbtn" onClick={() => navigate('/create')}> + New Journal</button>
+      <button className="allbtn" onClick={() => navigate('/journals')}>View All Journals</button>
+    </>
+  )}
+</div>
 
-          <div className="stat-card">
-            <div className="stat-info">
-              <div className="stat-icon-wrapper">
-                <img src={IconWeek} alt="streak" />
-              </div>
-              <div>
-                <span className="label">Streak</span>
-                <span className="value">{streak} Days</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="stat-card stat-mood-gradient">
-            <div className="stat-info">
-              <div>
-                <span className="label">Mood Status</span>
-                <span className="value">{weeklyStats.topMood}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="dashboardbtns">
-          <button className="newbtn" onClick={() => navigate('/create')}> + New Journal</button>
-          <button className="allbtn" onClick={() => navigate('/journals')}>View All Journals</button>
-        </div>
-
-        {/* Dashboard Body: Journals Left / Mood Right */}
         <div className="dashboard-body">
-          {/* Left: Recent Journals */}
           <div className="recent-journals-section">
+            {loading ? (
+              <Skeleton width="20%" height="30px" style={{ marginBottom: "30px" }} />
+            ) : (
             <h2 className="heading">Recent Journals</h2>
-               <section className="dashboard-section-grid">
-                 {filteredJournals.map((journal, index) => {
-                   const journalId = journal._id || journal.id || index;
-                   const moodEmoji =
-                       journal.mood === "Happy"
-                         ? "😊 Happy"
-                         : journal.mood === "Sad"
-                         ? "😔 Sad"
-                         : journal.mood === "Neutral"
-                         ? "😐 Neutral"
-                         : "😌 Calm";
-       
-                     return (
-                       <div key={journalId} className="journal-item-grid">
-                         <div className="card-top">
-                           <h3>{journal.title || "Untitled"}</h3>
-                           <span className="mood-tag">{moodEmoji}</span>
-                         </div>
-                         <p className="card-date">
-                           {journal.journal_date
-                             ? new Date(journal.journal_date).toLocaleDateString()
-                             : new Date().toLocaleDateString()}
-                         </p>
-                         <p className="card-text">
-                           "{journal.content?.substring(0, 60)}..."
-                         </p>
-                         <div className="card-actions">
-                           <button
-                             className="action-btn"
-                             onClick={() => navigate(`/journal/${journalId}`)}
-                           >
-                             <img src={EyeIcon} alt="View" />
-                           </button>
-                           <button
-                             className="action-btn"
-                             onClick={() => navigate(`/create/${journalId}`)}
-                           >
-                             <img src={EditIcon} alt="Edit" />
-                           </button>
-                           <button
-                             className="action-btn"
-                             onClick={() => confirmDelete(journalId, journal.title)}
-                           >
-                             🗑️
-                           </button>
-                         </div>
-                       </div>
-                   );
-                   })}
-               </section>
+            )}
+            <section className="dashboard-section-grid">
+              {loading ? (
+                [...Array(3)].map((_, i) => (
+                  <div key={i} className="journal-item-grid">
+                    <Skeleton width="80%" height="24px" />
+                    <Skeleton width="40%" height="16px" style={{ margin: "8px 0" }} />
+                    <Skeleton width="100%" height="40px" />
+                  </div>
+                ))
+              ) : (
+                filteredJournals.map((journal, index) => {
+                  const journalId = journal._id || journal.id || index;
+                  const moods = { Happy: "😊 Happy", Sad: "😔 Sad", Neutral: "😐 Neutral", Calm: "😌 Calm" };
+                  return (
+                    <div key={journalId} className="journal-item-grid">
+                      <div className="card-top">
+                        <h3>{journal.title || "Untitled"}</h3>
+                        <span className="mood-tag">{moods[journal.mood] || "😌 Calm"}</span>
+                      </div>
+                      <p className="card-date">
+                        {journal.journal_date ? new Date(journal.journal_date).toLocaleDateString() : new Date().toLocaleDateString()}
+                      </p>
+                      <p className="card-text">"{journal.content?.substring(0, 60)}..."</p>
+                      <div className="card-actions">
+                        <button className="action-btn" onClick={() => navigate(`/journal/${journalId}`)}>
+                          <img src={EyeIcon} alt="View" />
+                        </button>
+                        <button className="action-btn" onClick={() => navigate(`/create/${journalId}`)}>
+                          <img src={EditIcon} alt="Edit" />
+                        </button>
+                        <button className="action-btn" onClick={() => setDeleteModel({ show: true, journalId, title: journal.title, requireAdmin: false })}>
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </section>
           </div>
 
-          {/* Right: Mood Summary */}
           <div className="mood-summary-sidebar">
+            {loading ? (
+              <Skeleton width="100%" height="30px" style={{ marginBottom: "20px" }} />
+            ) : (
             <h2 className="heading">Mood Summary</h2>
+            )}
             <div className="mood-list">
-              {Object.entries(moodPercentages).map(([label, percent]) => (
-                <MoodProgress
-                key={label} label={label} percentage={percent} color="#4318ff" emoji={moodEmojis[label]} />
-              ))}
+              {loading ? (
+                [...Array(4)].map((_, i) => <Skeleton key={i} width="100%" height="30px" style={{ marginBottom: "15px" }} />)
+              ) : (
+                Object.entries(moodPercentages).map(([label, percent]) => (
+                  <MoodProgress key={label} label={label} percentage={percent} color="#4318ff" emoji={moodEmojis[label]} />
+                ))
+              )}
             </div>
           </div>
         </div>

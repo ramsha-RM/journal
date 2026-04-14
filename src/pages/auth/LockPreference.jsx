@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { checkLockPreferences, changeLockPreferences } from '../../service/lockApi.service'
+import { changeLockPreferences, checkLockPreferences } from '../service/lock.api.service';
 import { useAuthLock } from '../../hooks/useAuthLock';
 
 const LockPreference = () => {

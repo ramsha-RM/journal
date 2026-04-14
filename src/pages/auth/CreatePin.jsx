@@ -1,10 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
-
+import OtpInput from "../../components/OtpInput";
 import "../../style/authstyle/auth.css";
 import "../../style/authstyle/verification.css";
-
 import Toast from "../../components/Toast";
 import logoMain from "../../assets/img/titleLogo.png";
 
@@ -12,75 +11,17 @@ const CreatePin = () => {
   const navigate = useNavigate();
   const { createPin } = useAuth();
 
-  const [pin, setPin] = useState(["", "", "", ""]);
+  const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
-  const pinRefs = useRef([]);
-
-  // useEffect(() => {
-  //   const hasPin = localStorage.getItem("hasPin");
-
-  //   if (hasPin === "true") {
-  //     navigate("/pin/verify");
-  //   }
-  // }, [navigate]);
-      const isChanging = localStorage.getItem("hasPin") === "true";
-
-  const handleChange = (value, index) => {
-    if (!/^\d?$/.test(value)) return;
-
-    const newPin = [...pin];
-    newPin[index] = value;
-    setPin(newPin);
-
-    if (value && index < 3) {
-      pinRefs.current[index + 1]?.focus();
-    }
-  };
-
-
-  const handleKeyDown = (e, index) => {
-    if (e.key === "Backspace") {
-      const newPin = [...pin];
-
-      if (pin[index] === "" && index > 0) {
-        pinRefs.current[index - 1]?.focus();
-      }
-
-      newPin[index] = "";
-      setPin(newPin);
-    }
-  };
-
-
-  const handlePaste = (e) => {
-    e.preventDefault();
-
-    const pasteData = e.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 4);
-  
-    if (!pasteData) return;
-
-    const newPin = pasteData.split("");
-    const finalPin = [...newPin, ...new Array(4 - newPin.length).fill("")];
-    setPin(finalPin);
-
-    pinRefs.current[newPin.length - 1]?.focus();
-  };
+  const isChanging = localStorage.getItem("hasPin") === "true";
 
   const handleCreatePin = async (e) => {
     e.preventDefault();
 
-    const pinStr = pin.join("");
-
-    if (pinStr.length !== 4) {
-      setMessage({
-        type: "error",
-        text: "PIN must be 4 digits",
-      });
+    if (pin.length !== 4) {
+      setMessage({ type: "error", text: "PIN must be 4 digits" });
       return;
     }
 
@@ -88,24 +29,19 @@ const CreatePin = () => {
     setMessage(null);
 
     try {
-      await createPin(pinStr);
+      await createPin(pin);
       localStorage.setItem("hasPin", "true");
 
-      setMessage({
-        type: "success",
-        text: "PIN created successfully",
-      });
+      setMessage({ type: "success", text: "PIN created successfully" });
 
       setTimeout(() => {
         if (isChanging) {
           window.location.replace("/dashboard");
         } else {
-        navigate("/pin/verify");
+          navigate("/pin/verify");
         }
       }, 1200);
     } catch (error) {
-      // console.error("Create PIN error:", error);
-
       if (error?.response?.status === 409) {
         setMessage({
           type: "success",
@@ -143,30 +79,14 @@ const CreatePin = () => {
             with your PIN.
           </p>
 
-          <div className="pinBox">
-            {pin.map((value, index) => (
-              <input
-                key={index}
-                ref={(el) => (pinRefs.current[index] = el)}
-                type="text"
-                inputMode="numeric"
-                pattern="\d*"
-                autoComplete="one-time-code"
-                value={value}
-                maxLength={1}
-                onChange={(e) => handleChange(e.target.value, index)}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                onPaste={handlePaste}
-                className="pin"
-              />
-            ))}
-          </div>
+          <OtpInput length={4} onChange={setPin} />
 
           <button
             type="submit"
             className="primary-btn"
-            disabled={loading || pin.join('').length !== 4} >
-            {loading ? 'Creating PIN...' : 'Continue'}
+            disabled={loading || pin.length !== 4}
+          >
+            {loading ? "Creating PIN..." : "Continue"}
           </button>
 
           <p className="createpintext">

@@ -27,19 +27,24 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-    const path = window.location.pathname;
-    
-    const authRoutes = ["/", "/pin/verify", "/verification", "/register"];
-    
-    if (status === 401 && !authRoutes.includes(path)) {
-      localStorage.removeItem(LOGIN_KEY);
-      localStorage.removeItem(ACCESS_KEY);
-      localStorage.removeItem("userId");
-      window.location.href = "/";
+    const currentPath = window.location.pathname + window.location.search;
+
+    if (status === 423) {
+      if (window.location.pathname !== "/pin/verify") {
+        localStorage.setItem("pendingRedirectAfterPin", currentPath);
+        window.location.href = "/pin/verify";
+      }
+      return Promise.reject(error);
     }
 
-    if (status === 423 && path !== "/pin/verify") {
-      window.location.href = "/pin/verify";
+    if (status === 401) {
+      const authRoutes = ["/", "/register", "/verification", "/pin/verify", "/pin/create"];
+      if (!authRoutes.includes(window.location.pathname)) {
+        localStorage.removeItem(LOGIN_KEY);
+        localStorage.removeItem(ACCESS_KEY);
+        localStorage.removeItem("userId");
+        window.location.href = "/";
+      }
     }
 
     return Promise.reject(error);
