@@ -16,6 +16,7 @@ import { useProfile } from "../../hooks/useProfile";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [userName, updateName] = useName();
   const { profileImg, updateProfileImage } = useProfile();
   
@@ -111,8 +112,11 @@ const Profile = () => {
         </header>
 
         <div className="profile-box">
+           {loading ? (
+              <Skeleton width="20%" height="30px" style={{ marginBottom: "30px" }} />
+            ) : (
           <h3 className="heading">Profile</h3>
-
+          )}  
           <div className="profile-form">
             {isInitialLoading ? (
               <div className="skeleton-form-wrapper">
