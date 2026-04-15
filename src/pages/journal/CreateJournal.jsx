@@ -41,7 +41,7 @@ const CreateJournal = () => {
 
   useEffect(() => {
     const fetchSingleJournal = async () => {
-
+      
       setLoading(true);
       try {
         if (id) {
