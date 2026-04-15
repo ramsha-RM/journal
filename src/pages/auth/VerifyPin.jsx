@@ -80,10 +80,15 @@ const VerifyPin = () => {
           </h2>
           <p className="textline">
             {isTimeout
-              ? "We’ve locked your session to keep your data safe. Enter your PIN to continue where you left off."
+              ? "Enter your PIN to continue."
               : "Please confirm your PIN"}
           </p>
-
+          <p className="securityline">
+            {isTimeout
+              ? "Your session is locked for security. Only you can access it with your PIN."
+              : "Your journals are locked for security. Only you can access them with your PIN."
+               }
+          </p>
           <OtpInput length={4} onChange={setPin} />
 
           <button
