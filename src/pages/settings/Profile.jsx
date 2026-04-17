@@ -112,7 +112,7 @@ const Profile = () => {
         </header>
 
         <div className="profile-box">
-           {loading ? (
+           {isInitialLoading ? (
               <Skeleton width="20%" height="30px" style={{ marginBottom: "30px" }} />
             ) : (
           <h3 className="heading">Profile</h3>
