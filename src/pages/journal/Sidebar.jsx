@@ -37,14 +37,14 @@ const Sidebar = ({ isAdmin }) => {
           <img src={SettingImg} alt="" /> Settings
         </NavLink>
 
-        <NavLink to="/admin" className="iconText">
+        {/* <NavLink to="/admin" className="iconText">
           <img src={AdminRoute} alt="" /> Admin Panel
-        </NavLink>
-        {/* {isAdmin && (
+        </NavLink> */}
+        {isAdmin && (
           <NavLink to="/admin" className="iconText">
             <img src={SettingImg} alt="" /> Admin Panel
           </NavLink>
-        )} */}
+        )}
       </div>
     </div>
   );
