@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import OtpInput from "../../components/OtpInput";
 import useAuth from "@/hooks/useAuth";
 import logoImg from "../../assets/img/titleLogo.png";
+import Toast from "../../components/Toast";
+
 import "../../style/authstyle/auth.css";
 import "../../style/authstyle/verification.css";
-import Toast from "../../components/Toast";
 
 const VerifyPin = () => {
   const navigate = useNavigate();
@@ -17,6 +18,13 @@ const VerifyPin = () => {
   const [loading, setLoading] = useState(false);
 
   const isTimeout = location.state?.isTimeout || false;
+
+  // Auto-submit form when PIN hits 4 digits
+  useEffect(() => {
+    if (pin.length === 4 && !loading) {
+      handleSubmit();
+    }
+  }, [pin]);
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -43,16 +51,22 @@ const VerifyPin = () => {
         localStorage.setItem("userId", res.userId);
       }
 
+      // Clean up verification state token
       localStorage.removeItem("login_token");
 
       setMessage({ type: "success", text: "PIN confirmed! Unlocking..." });
 
-      const pendingPath = localStorage.getItem("pendingRedirectAfterPin");
-
       setTimeout(() => {
+        const isAdmin = localStorage.getItem("isAdmin") === "true";
+        const pendingPath = localStorage.getItem("pendingRedirectAfterPin");
+
+        // Clear redirect storage so it doesn't linger on subsequent logins
+        localStorage.removeItem("pendingRedirectAfterPin");
+
         if (pendingPath) {
-          localStorage.removeItem("pendingRedirectAfterPin");
           navigate(pendingPath, { replace: true });
+        } else if (isAdmin) {
+          navigate("/admin", { replace: true }); 
         } else {
           navigate("/dashboard", { replace: true });
         }
@@ -79,16 +93,14 @@ const VerifyPin = () => {
             {isTimeout ? "Session Locked" : "Confirm your PIN"}
           </h2>
           <p className="textline">
-            {isTimeout
-              ? "Enter your PIN to continue."
-              : "Please confirm your PIN"}
+            {isTimeout ? "Enter your PIN to continue." : "Please confirm your PIN"}
           </p>
           <p className="securityline">
             {isTimeout
               ? "Your session is locked for security. Only you can access it with your PIN."
-              : "Your journals are locked for security. Only you can access them with your PIN."
-               }
+              : "Your journals are locked for security. Only you can access them with your PIN."}
           </p>
+          
           <OtpInput length={4} onChange={setPin} />
 
           <button
@@ -102,9 +114,7 @@ const VerifyPin = () => {
           {!isTimeout && (
             <p className="verifyText">
               Need to reset?{" "}
-              <span onClick={() => navigate("/pin/create")}>
-                Change PIN
-              </span>
+              <span onClick={() => navigate("/pin/create")}>Change PIN</span>
             </p>
           )}
         </form>

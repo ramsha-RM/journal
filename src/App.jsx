@@ -1,25 +1,32 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import useHeartbeat from './hooks/useHeartbeat';
-import { useAuthLock } from './hooks/useAuthLock';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
+import useHeartbeat from "./hooks/useHeartbeat";
+import { useAuthLock } from "./hooks/useAuthLock";
+import AdminRoute from "./components/AdminRoute";
+import Login from "./pages/auth/Login";
+import AdminLogin from "./components/AdminLogin";
+import Register from "./pages/auth/Register";
+import Verification from "./pages/auth/Verification";
+import CreatePin from "./pages/auth/CreatePin";
+import VerifyPin from "./pages/auth/VerifyPin";
 
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import Verification from './pages/auth/Verification';
-import CreatePin from './pages/auth/CreatePin';
-import VerifyPin from './pages/auth/VerifyPin';
+import Forgotpassword from "./pages/security/ForgotPassword";
+import Resetpassword from "./pages/security/ResetPassword";
+import Changepassword from "./pages/security/Changepassword";
+import Profile from "./pages/settings/Profile";
+import Setting from "./pages/settings/Setting";
+import AppLock from "./pages/auth/AppLock";
 
-import Forgotpassword from './pages/security/ForgotPassword';
-import Resetpassword from './pages/security/ResetPassword';
-import Changepassword from './pages/security/Changepassword';
-import Profile from './pages/settings/Profile';
-import Setting from './pages/settings/Setting';
-import AppLock from './pages/auth/AppLock';
-
-import Dashboard from './pages/journal/Dashboard';
-import MyJournals from './pages/journal/MyJournals';
-import CreateJournal from './pages/journal/CreateJournal';
-import AddJournal from './pages/journal/AddJournal';
-
+import Dashboard from "./pages/journal/Dashboard";
+import MyJournals from "./pages/journal/MyJournals";
+import CreateJournal from "./pages/journal/CreateJournal";
+import AddJournal from "./pages/journal/AddJournal";
+import UserData from "./pages/journal/UserData";
 
 const ProtectRoute = () => {
   const ACCESS_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || "access_token";
@@ -39,7 +46,6 @@ const ProtectRoute = () => {
   return <Outlet />;
 };
 
-
 const AppLockGuard = () => {
   const lockPreference = localStorage.getItem("app_lock") || "off";
 
@@ -48,13 +54,22 @@ const AppLockGuard = () => {
   return <Outlet />;
 };
 
+const AdminRouterWrapper = () => {
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+
+  if (!isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Outlet />;
+};
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         <Route path="/" element={<Login />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/password/forgot" element={<Forgotpassword />} />
@@ -65,7 +80,6 @@ function App() {
 
         <Route element={<ProtectRoute />}>
           <Route element={<AppLockGuard />}>
-
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/journals" element={<MyJournals />} />
             <Route path="/create" element={<CreateJournal />} />
@@ -76,12 +90,16 @@ function App() {
             <Route path="/password/change" element={<Changepassword />} />
             <Route path="/setting" element={<Setting />} />
             <Route path="/appLock" element={<AppLock />} />
-
+            <Route path="/admin" element={
+                <AdminRoute>
+                  <UserData />
+                </AdminRoute>
+              }
+            />
           </Route>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
-
       </Routes>
     </BrowserRouter>
   );

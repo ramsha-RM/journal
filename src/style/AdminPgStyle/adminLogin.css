@@ -1,0 +1,70 @@
+.adminPasskeyBox {
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+.admin-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.admin-pass-input {
+  width: 100%;
+  height: 50px;
+  padding: 0 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.admin-pass-input:focus {
+  outline: none;
+  border-color: #4318ff;
+  box-shadow: 0 0 0 3px rgba(67, 24, 255, 0.15);
+}
+
+.admin-pass-input::placeholder {
+  color: #9ca3af;
+}
+
+.admin-error {
+  display: block;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.admin-login-btn {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    #4318ff 0%,
+    #5b2cff 100%
+  );
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.admin-login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

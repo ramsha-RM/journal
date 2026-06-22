@@ -1,0 +1,117 @@
+.userData {
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fc;
+}
+
+.main-userdata {
+  flex: 1;
+  padding: 30px;
+  overflow-x: auto;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.welcome-section h1 {
+  margin: 0;
+  font-size: 32px;
+  color: #1e2a78;
+}
+
+.welcome-section p {
+  margin-top: 8px;
+  color: #7a7a7a;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 350px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 0 12px;
+}
+
+.search-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.adminpanel-search {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px 0;
+  font-size: 14px;
+  background: transparent;
+}
+
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.students-table th {
+  background: #f7f8fc;
+  color: #1e2a78;
+  font-weight: 600;
+  padding: 16px;
+  text-align: left;
+}
+
+.students-table td {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-action {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+}
+.btn-edit{
+    color: #99a4b5;
+    font-size: 19px;
+    font-weight: 600;
+
+}
+
+.btn-delete {
+  color: #ef4444;
+}
+
+.bold-text {
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #64748b;
+}
