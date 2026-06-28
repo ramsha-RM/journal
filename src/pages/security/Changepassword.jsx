@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import API from '@/service/axios';
-import "../../style/authstyle/resetPassword.css" 
-// import authBGImg from '../../assets/img/Ractangle.png'
+import API from '../../service/api.interceptor';
+import "../../style/AuthStyle/resetPassword.css" 
+
 import ShowHidePass from '../../components/ShowHidePass';
 
-const Changepassword = () => {
+const ChangePassword = () => {
 const navigate = useNavigate();
 const [loading, setLoading] = useState(false);
 const [currentPassword, setCurrentPassword] = useState("");

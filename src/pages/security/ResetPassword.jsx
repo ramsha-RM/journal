@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import API from '@/service/axios';
+import API from '../../service/api.interceptor';
 
-import "../../style/authstyle/resetPassword.css"
+import "../../style/AuthStyle/resetPassword.css"
 import { useSearchParams } from 'react-router-dom'
-// import authBGImg from '../../assets/img/Ractangle.png'
+
 import Toast from '../../components/Toast'
 import ShowHidePass from '../../components/ShowHidePass';
 
-const Resetpassword = () => {
+const ResetPassword = () => {
   const {state} = useLocation();
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");

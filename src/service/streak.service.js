@@ -1,4 +1,4 @@
-import API from "./axios"; 
+import API from "./api.interceptor"; 
 
 export const lastActivityDate = async () => {
   const res = await API.get("/streaks/last-activity");

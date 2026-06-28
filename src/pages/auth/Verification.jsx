@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import useAuth from "@/hooks/useAuth";
 import OtpInput from "../../components/OtpInput";
 import { useNavigate } from "react-router-dom";
-import API from "@/service/axios";
+import API from '../../service/api.interceptor';
 import Toast from "../../components/Toast";
 import logoMain from "../../assets/img/titleLogo.png";
 

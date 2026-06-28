@@ -1,4 +1,4 @@
-import API from "./axios";
+import API from "./api.interceptor";
 
 export const createJournal = async (data) => {
   const res = await API.post("/journals", data);

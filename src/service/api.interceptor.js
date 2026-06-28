@@ -20,6 +20,7 @@ API.interceptors.request.use((config) => {
   } else if (loginToken) {
     config.headers.Authorization = `Bearer ${loginToken}`;
   }
+
   return config;
 });
 
@@ -27,18 +28,36 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-    const currentPath = window.location.pathname + window.location.search;
+    const requestUrl = error.config?.url;
+    const currentPath =
+      window.location.pathname + window.location.search;
 
     if (status === 423) {
       if (window.location.pathname !== "/pin/verify") {
-        localStorage.setItem("pendingRedirectAfterPin", currentPath);
+        localStorage.setItem(
+          "pendingRedirectAfterPin",
+          currentPath
+        );
         window.location.href = "/pin/verify";
       }
+
       return Promise.reject(error);
     }
 
     if (status === 401) {
-      const authRoutes = ["/", "/register", "/verification", "/pin/verify", "/pin/create"];
+
+      if (requestUrl === "/users/verify-admin-key") {
+        return Promise.reject(error);
+      }
+
+      const authRoutes = [
+        "/",
+        "/register",
+        "/verification",
+        "/pin/verify",
+        "/pin/create",
+      ];
+
       if (!authRoutes.includes(window.location.pathname)) {
         localStorage.removeItem(LOGIN_KEY);
         localStorage.removeItem(ACCESS_KEY);

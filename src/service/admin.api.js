@@ -1,4 +1,4 @@
-import API from "./axios";
+import API from "./api.interceptor";
 
 export const fetchUsers = (params) =>
   API.get("/users", { params });

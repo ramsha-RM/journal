@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import API from '@/service/axios';
+import API from '../../service/api.interceptor';
 import { useNavigate } from 'react-router-dom';
-import "../../style/authstyle/resetPassword.css"
+import "../../style/AuthStyle/resetPassword.css"
 import Toast from '../../components/Toast'
-// import authBGImg from '../../assets/img/Ractangle.png'
+// import authBGImg from '../../assets/img/Rectangle.png'
 
-const Forgotpassword = () => {
+const ForgotPassword = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState(null);

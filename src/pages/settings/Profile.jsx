@@ -4,10 +4,10 @@ import Sidebar from "../journal/Sidebar";
 import Toast from "../../components/Toast";
 import LogoutMsg from "../../components/LogoutMsg";
 import Skeleton from "../../components/Skeleton";
-import API from "@/service/axios";
+import API from "../../service/api.interceptor";
 
-import "../../style/dashboardstyle/profile.css";
-import "../../style/dashboardstyle/dashboardLayout.css";
+import "../../style/DashboardStyle/profile.css";
+import "../../style/DashboardStyle/dashboardLayout.css";
 
 import ProImg from "../../assets/icons/profile.png";
 import UserImg from "../../assets/icons/profile-edit.svg";

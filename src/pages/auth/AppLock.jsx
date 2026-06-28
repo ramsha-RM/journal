@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { changeLockPreferences, checkLockPreferences } from '../../service/lock.api.service';
+import { changeLockPreferences, checkLockPreferences } from '../../service/lock.service';
 import Sidebar from "../journal/Sidebar";
 import { useName } from "../../hooks/useName";
 import Toast from "../../components/Toast";

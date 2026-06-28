@@ -1,5 +1,5 @@
 import { useState } from "react";
-import API from "../service/axios";
+import API from "../service/api.interceptor";
 
 const LOGIN_KEY = import.meta.env.VITE_LOGIN_TOKEN_KEY || "login_token";
 const ACCESS_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || "access_token";

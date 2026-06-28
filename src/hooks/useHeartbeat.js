@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { checkLockStatus } from  '../service/lock.api.service';
+import { checkLockStatus } from  '../service/lock.service';
 
 function useHeartbeat(isActive = false) {
   useEffect(() => {

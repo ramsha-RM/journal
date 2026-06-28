@@ -5,8 +5,8 @@ import { useAuthLock } from '../../hooks/useAuthLock'
 import Sidebar from '../journal/Sidebar'
 import LogoutMsg from '../../components/LogoutMsg'
 import Toast from '../../components/Toast'
-import "../../style/dashboardstyle/dashboardLayout.css";
-import "../../style/dashboardstyle/setting.css"
+import "../../style/DashboardStyle/dashboardLayout.css";
+import "../../style/DashboardStyle/setting.css"
 
 
 const Setting = () => {
