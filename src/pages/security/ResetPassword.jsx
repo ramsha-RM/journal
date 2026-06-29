@@ -71,4 +71,4 @@ const ResetPassword = () => {
   );
 }
 
-export default Resetpassword
+export default ResetPassword

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import Toast from "../../components/Toast";
 import UserDataList from "../../components/UsersDataList";
-import { fetchUsers, deleteUser } from "../../service/admin.api";
+import { fetchUsers, deleteUser } from "../../service/admin.service";
 import "../../style/AdminPgStyle/Userdata.css";
 import SeaarchIcon from "../../assets/icons/searchicon.png";
 
@@ -58,7 +58,7 @@ const adminPassKey = localStorage.getItem("adminPassKey");
   }, []);
 
   const handleEdit = (id) => {
-    
+
   };
 
   const handleDelete = async (id) => {

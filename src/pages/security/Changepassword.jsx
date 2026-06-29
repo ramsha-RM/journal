@@ -121,4 +121,4 @@ const handlePassword = async (e) => {
   );
 };
 
-export default Changepassword
+export default ChangePassword

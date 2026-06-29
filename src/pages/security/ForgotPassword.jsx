@@ -48,4 +48,4 @@ const ForgotPassword = () => {
   )
 }
 
-export default Forgotpassword
+export default ForgotPassword
