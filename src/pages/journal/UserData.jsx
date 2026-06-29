@@ -42,7 +42,7 @@ const adminPassKey = localStorage.getItem("adminPassKey");
     });
 
     setUsers(data.data || []);
-    console.log(data.data);
+
   } catch (error) {
     console.error(
       "Failed to fetch users:",
@@ -58,7 +58,7 @@ const adminPassKey = localStorage.getItem("adminPassKey");
   }, []);
 
   const handleEdit = (id) => {
-    console.log("Edit:", id);
+    
   };
 
   const handleDelete = async (id) => {

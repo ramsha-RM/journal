@@ -31,7 +31,7 @@ const useAuth = () => {
           }
         }
       } catch {
-        // console.error("FATAL: Token decoding failed");
+      
       }
     }
   };
@@ -64,13 +64,11 @@ const useAuth = () => {
 
   const verifyAdminKey = async (adminPassKey) => {
     
-     console.log("verifyAdminKey called:", adminPassKey);
     try {
       const res = await API.get("/users/verify-admin-key", {
         params: { adminPassKey },
       });
 
-console.log("API RESPONSE:", res.data);
       if (res.data?.verified) {
         localStorage.setItem("isAdminKeyVerified", "true");
         localStorage.setItem("adminPassKey", adminPassKey);
@@ -79,14 +77,14 @@ console.log("API RESPONSE:", res.data);
 
       return res.data;
     } catch (error) {
-      console.log(error.response);
+    
       throw error.response?.data || error;
     }
   };
 
   const login = async ({ email, password }) => {
     try {
-      localStorage.clear();
+      // localStorage.clear();
       const res = await API.post("/auth/login", { email, password });
       if (res.data) setSessionData(res.data);
 
@@ -116,7 +114,7 @@ console.log("API RESPONSE:", res.data);
     const token = getValidToken();
     if (!token) throw new Error("Authentication token missing");
 
-    const res = await API.post("/pin/create", { pin }); // interceptor adds token
+    const res = await API.post("/pin/create", { pin }); 
     setSessionData(res.data);
     return res.data;
   };
@@ -126,7 +124,7 @@ console.log("API RESPONSE:", res.data);
     if (!token) throw new Error("Authentication token missing");
 
     try {
-      const res = await API.post("/pin/verify", { pin }); // interceptor adds token
+      const res = await API.post("/pin/verify", { pin }); 
       if (res.data) setSessionData(res.data);
       return res.data;
     } catch (error) {

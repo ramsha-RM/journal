@@ -3,7 +3,6 @@ import API from '../../service/api.interceptor';
 import { useNavigate } from 'react-router-dom';
 import "../../style/AuthStyle/resetPassword.css"
 import Toast from '../../components/Toast'
-// import authBGImg from '../../assets/img/Rectangle.png'
 
 const ForgotPassword = () => {
     const navigate = useNavigate();
