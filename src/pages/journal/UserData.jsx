@@ -3,7 +3,7 @@ import Sidebar from "./Sidebar";
 import Toast from "../../components/Toast";
 import UserDataList from "../../components/UsersDataList";
 import { fetchUsers, deleteUser } from "../../service/admin.service";
-import "../../style/AdminPgStyle/Userdata.css";
+import "../../style/AdminPgStyle/userData.css";
 import SeaarchIcon from "../../assets/icons/searchicon.png";
 
 const UserData = () => {

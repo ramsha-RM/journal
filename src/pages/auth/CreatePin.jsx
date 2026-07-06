@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import OtpInput from "../../components/OtpInput";
-import "../../style/authstyle/auth.css";
-import "../../style/authstyle/verification.css";
+import "../../style/AuthStyle/auth.css";
+import "../../style/AuthStyle/verification.css";
 import Toast from "../../components/Toast";
 import logoMain from "../../assets/img/titleLogo.png";
 

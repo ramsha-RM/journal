@@ -1,5 +1,5 @@
 import React from 'react'
-import '../style/dashboardstyle/skeleton.css'
+import '../style/DashboardStyle/skeleton.css'
 const Skeleton = ({ width = "100%", height = "80px", borderRadius = "12px" }) => {
 
   return (

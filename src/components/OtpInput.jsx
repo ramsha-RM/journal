@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import "../style/authstyle/verification.css";
+import "../style/AuthStyle/verification.css";
 
 const OtpInput = ({ length = 6, onChange }) => {
   const [values, setValues] = useState(Array(length).fill(""));

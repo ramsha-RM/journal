@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import logoImg from "../assets/img/titleLogo.png";
 
-import "../style/adminPgStyle/adminLogin.css";
-import "../style/authstyle/auth.css";
+import "../style/AdminPgStyle/adminLogin.css";
+import "../style/AuthStyle/auth.css";
 
 const AdminLogin = () => {
   const [adminPassKey, setAdminPassKey] = useState("");

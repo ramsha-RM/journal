@@ -4,8 +4,8 @@ import { changeLockPreferences, checkLockPreferences } from '../../service/lock.
 import Sidebar from "../journal/Sidebar";
 import { useName } from "../../hooks/useName";
 import Toast from "../../components/Toast";
-import "../../style/dashboardstyle/dashboardLayout.css";
-import "../../style/dashboardstyle/setting.css";
+import "../../style/DashboardStyle/dashboardLayout.css";
+import "../../style/DashboardStyle/setting.css";
 
 const AppLock = () => {
   const navigate = useNavigate();

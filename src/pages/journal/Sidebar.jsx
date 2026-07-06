@@ -8,7 +8,7 @@ import SettingImg from "../../assets/icons/setting.png";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import AdminRoute from "../../assets/icons/admin-panel.png";
 
-import "../../style/dashboardstyle/sidebar.css";
+import "../../style/DashboardStyle/sidebar.css";
 import { NavLink } from "react-router-dom";
 
 const Sidebar = ({ isAdmin }) => {

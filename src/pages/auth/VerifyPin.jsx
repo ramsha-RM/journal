@@ -5,8 +5,8 @@ import useAuth from "@/hooks/useAuth";
 import logoImg from "../../assets/img/titleLogo.png";
 import Toast from "../../components/Toast";
 
-import "../../style/authstyle/auth.css";
-import "../../style/authstyle/verification.css";
+import "../../style/AuthStyle/auth.css";
+import "../../style/AuthStyle/verification.css";
 
 const VerifyPin = () => {
   const navigate = useNavigate();

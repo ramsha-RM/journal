@@ -1,5 +1,5 @@
 import React from 'react'
-import "../style/dashboardstyle/logout.css"
+import "../style/DashboardStyle/logout.css"
 
 const LogoutMsg = ({ show, onConfirm, onCancel }) => {
     if(!show) return null;

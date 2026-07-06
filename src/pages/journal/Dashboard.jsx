@@ -6,8 +6,8 @@ import AdminDelJournal from "../../components/AdminDelJournal";
 import MoodProgress from "../../components/MoodProgress";
 import Skeleton from "../../components/Skeleton";
 
-import "../../style/dashboardstyle/dashboard.css";
-import "../../style/dashboardstyle/dashboardLayout.css";
+import "../../style/DashboardStyle/dashboard.css";
+import "../../style/DashboardStyle/dashboardLayout.css";
 
 import SeaarchIcon from "../../assets/icons/searchicon.png";
 import ProImg from "../../assets/icons/profile.png";

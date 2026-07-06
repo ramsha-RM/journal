@@ -1,7 +1,7 @@
 import React, {useState } from 'react'
 import useAuth from '@/hooks/useAuth'
 import {useNavigate} from 'react-router-dom'
-import '../../style/authstyle/auth.css'
+import '../../style/AuthStyle/auth.css'
 import Toast from '../../components/Toast'
 import logoMain from '../../assets/img/titleLogo.png'
 import ShowHidePass from '../../components/ShowHidePass'

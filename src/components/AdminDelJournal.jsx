@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import '../style/dashboardstyle/deleteModal.css';
+import '../style/DashboardStyle/deleteModal.css';
 
 const AdminDelJournal = ({show, onClose, onDelete, journalTitle, requireAdmin}) => {
     const [adminKey, setAdminKey] = useState('');

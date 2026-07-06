@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import Toast from "../../components/Toast";
 import logoImg from "../../assets/img/titleLogo.png";
-import "../../style/authstyle/auth.css";
+import "../../style/AuthStyle/auth.css";
 import ShowHidePass from "../../components/ShowHidePass";
 const Login = () => {
   const navigate = useNavigate();
