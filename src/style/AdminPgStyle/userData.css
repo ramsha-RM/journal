@@ -65,6 +65,37 @@
 .students-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
+}
+
+.students-table th:nth-child(1),
+.students-table td:nth-child(1) {
+  width: 70px;
+  min-width: 70px;
+}
+
+.students-table th:nth-child(2),
+.students-table td:nth-child(2) {
+  width: 100px;
+  min-width: 100px;
+}
+
+.students-table th:nth-child(3),
+.students-table td:nth-child(3) {
+  width: 180px;
+  min-width: 180px;
+}
+
+.students-table th:nth-child(4),
+.students-table td:nth-child(4) {
+  width: 130px;
+  min-width: 130px;
+}
+
+.students-table th:nth-child(5),
+.students-table td:nth-child(5) {
+  width: 90px;
+  min-width: 90px;
 }
 
 .students-table th {
@@ -89,6 +120,8 @@
 .action-buttons {
   display: flex;
   gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .btn-action {
@@ -96,16 +129,21 @@
   background: transparent;
   cursor: pointer;
   font-size: 18px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.btn-edit{
-    color: #99a4b5;
-    font-size: 19px;
-    font-weight: 600;
 
+.btn-edit {
+  color: #99a4b5;
+  font-size: 19px;
+  font-weight: 600;
 }
 
 .btn-delete {
   color: #ef4444;
+  font-size: 18px;
 }
 
 .bold-text {

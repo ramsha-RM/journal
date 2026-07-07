@@ -1,5 +1,6 @@
 import React from "react";
 import { MdOutlineEdit } from "react-icons/md";
+
 const UserDataList = ({
   users = [],
   searchTerm = "",
@@ -11,9 +12,10 @@ const UserDataList = ({
     const searchLower = searchTerm.toLowerCase();
 
     return (
-      user.name.toLowerCase().includes(searchLower) ||
-      user.userId.toLowerCase().includes(searchLower) ||
-      user.role.toLowerCase().includes(searchLower)
+      (user.full_name || "").toLowerCase().includes(searchLower) ||
+      String(user.user_id || "")
+        .toLowerCase()
+        .includes(searchLower)
     );
   });
 
@@ -26,11 +28,8 @@ const UserDataList = ({
           <tr>
             <th>Profile</th>
             <th>User ID</th>
-            <th>Name </th>
-            <th>Role </th>
-            <th>Mobile </th>
-            <th>Email </th>
-            <th>Joined Date </th>
+            <th>Name</th>
+            <th>Joined Date</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -41,27 +40,30 @@ const UserDataList = ({
               <tr key={user.id}>
                 <td>
                   <img
-                    src={user.profileImg}
-                    alt={user.name}
+                    src={user.profile_picture || "/default-avatar.png"}
+                    alt={user.full_name || "User"}
                     className="profile-avatar"
                   />
                 </td>
 
-                <td className="bold-text">{user.userId}</td>
-                <td className="text-muted">{user.name}</td>
-                <td className="text-muted">{user.role}</td>
-                <td className="bold-text">{user.mobile}</td>
-                <td className="text-muted">{user.email}</td>
-                <td className="text-muted">{user.joinedDate}</td>
+                <td className="bold-text">{user.user_id}</td>
+
+                <td className="text-muted">{user.full_name || "-"}</td>
+
+                <td className="text-muted">
+                  {user.created_at
+                    ? new Date(user.created_at).toLocaleDateString()
+                    : "-"}
+                </td>
 
                 <td>
                   <div className="action-buttons">
-                    <button
+                    {/* <button
                       className="btn-action btn-edit"
                       onClick={() => onEdit?.(user.id)}
                     >
                       <MdOutlineEdit />
-                    </button>
+                    </button> */}
 
                     <button
                       className="btn-action btn-delete"
@@ -76,7 +78,7 @@ const UserDataList = ({
           ) : (
             <tr>
               <td
-                colSpan="8"
+                colSpan="5"
                 style={{
                   textAlign: "center",
                   padding: "24px",

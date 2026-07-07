@@ -30,9 +30,7 @@ const useAuth = () => {
             localStorage.setItem("userId", String(payload.sub));
           }
         }
-      } catch {
-      
-      }
+      } catch {}
     }
   };
 
@@ -61,24 +59,21 @@ const useAuth = () => {
       throw error.response?.data || error;
     }
   };
-
   const verifyAdminKey = async (adminPassKey) => {
-    
     try {
       const res = await API.get("/users/verify-admin-key", {
         params: { adminPassKey },
       });
 
-      if (res.data?.verified) {
-        localStorage.setItem("isAdminKeyVerified", "true");
-        localStorage.setItem("adminPassKey", adminPassKey);
+      if (res.data?.verified === true) {
         localStorage.setItem("isAdmin", "true");
+        localStorage.setItem("adminPassKey", adminPassKey);
+        localStorage.setItem("isAdminKeyVerified", "true");
       }
 
       return res.data;
-    } catch (error) {
-    
-      throw error.response?.data || error;
+    } catch (err) {
+      throw err.response?.data || err;
     }
   };
 
@@ -114,7 +109,7 @@ const useAuth = () => {
     const token = getValidToken();
     if (!token) throw new Error("Authentication token missing");
 
-    const res = await API.post("/pin/create", { pin }); 
+    const res = await API.post("/pin/create", { pin });
     setSessionData(res.data);
     return res.data;
   };
@@ -124,7 +119,7 @@ const useAuth = () => {
     if (!token) throw new Error("Authentication token missing");
 
     try {
-      const res = await API.post("/pin/verify", { pin }); 
+      const res = await API.post("/pin/verify", { pin });
       if (res.data) setSessionData(res.data);
       return res.data;
     } catch (error) {
